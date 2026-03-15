@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: #2a2a3a;
+    --border2: #3a3a4a;
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --green: #00d4aa;
+    --red: #ff4d6a;
+    --red2: #4d0015;
+    --yellow: #f5c842;
+    --blue: #4d9fff;
+    --accent: #7b5ea7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; }
+  .logo span { color: var(--green); }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .sync-status { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px; color: var(--text3); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
+  .sync-dot.synced { background: var(--green); }
+  .sync-dot.syncing { background: var(--yellow); animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--red); }
+  .month-selector { display: flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text2); }
+  .month-selector select { background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; border-radius: 4px; cursor: pointer; }
+  .btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--green); color: #000; }
+  .btn-primary:hover { background: #00f0c0; }
+  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid var(--red2); }
+  .btn-danger:hover { background: var(--red2); }
+
+  .nav-tabs { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; overflow-x: auto; }
+  .tab { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 14px 20px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 20px 24px; position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.red::before { background: var(--red); }
+  .kpi-card.blue::before { background: var(--blue); }
+  .kpi-card.yellow::before { background: var(--yellow); }
+  .kpi-card.purple::before { background: var(--accent); }
+  .kpi-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+  .kpi-value { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .kpi-value.positive { color: var(--green); }
+  .kpi-value.negative { color: var(--red); }
+  .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 6px; font-family: 'IBM Plex Mono', monospace; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text2); }
+  .card-body { padding: 20px; }
+
+  .fin-table { width: 100%; border-collapse: collapse; }
+  .fin-table th { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .fin-table th:first-child { text-align: left; }
+  .fin-table td { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--text); padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border); }
+  .fin-table td:first-child { text-align: left; color: var(--text2); }
+  .fin-table tr:last-child td { border-bottom: none; }
+  .fin-table tr:hover td { background: var(--bg3); }
+  .fin-table .total-row td { font-weight: 600; color: var(--text); border-top: 1px solid var(--border2); border-bottom: none; }
+  .fin-table .section-header td { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); background: var(--bg3); padding: 6px 12px; }
+  .positive { color: var(--green) !important; }
+  .negative { color: var(--red) !important; }
+
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); }
+  .form-input { background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; border-radius: 4px; transition: border-color 0.15s; width: 100%; }
+  .form-input:focus { outline: none; border-color: var(--green); }
+  .form-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  .bar-chart { padding: 8px 0; }
+  .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .bar-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text2); width: 140px; flex-shrink: 0; text-align: right; }
+  .bar-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.4s ease; }
+  .bar-fill.green { background: var(--green); }
+  .bar-fill.red { background: var(--red); }
+  .bar-fill.yellow { background: var(--yellow); }
+  .bar-amount { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text2); width: 80px; text-align: right; flex-shrink: 0; }
+
+  .ai-panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 16px; }
+  .ai-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .ai-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green); display: flex; align-items: center; gap: 8px; }
+  .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  .ai-body { padding: 20px; font-size: 13px; line-height: 1.7; color: var(--text2); min-height: 80px; }
+  .ai-body p { margin-bottom: 12px; }
+  .ai-body p:last-child { margin-bottom: 0; }
+
+  .loading-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 16px; }
+  .loading-overlay span { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.15em; color: var(--text3); text-transform: uppercase; }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .spinner.lg { width: 32px; height: 32px; border-width: 3px; }
+  .ai-loading { display: flex; align-items: center; gap: 8px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg3); border: 1px solid var(--green); color: var(--green); padding: 12px 20px; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; z-index: 1000; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  .empty-state { text-align: center; padding: 40px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 1100px) { .kpi-row { grid-template-columns: repeat(2,1fr); } .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 768px) { main { padding: 16px; } header { padding: 0 16px; } .kpi-row { grid-template-columns: 1fr 1fr; } .grid-2, .grid-3 { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner lg"></div>
+  <span>Connecting to Google Sheets...</span>
+</div>
+
+<header>
+  <div class="logo">PFM <span>//</span> Personal Finance</div>
+  <div class="header-right">
+    <div class="sync-status">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">—</span>
+    </div>
+    <div class="month-selector">
+      <span>Period:</span>
+      <select id="monthSelect"></select>
+    </div>
+    <button class="btn btn-ghost" onclick="showSection('entry')">+ Entry</button>
+    <button class="btn btn-primary" onclick="generateInsights()">AI Analysis</button>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <div class="tab active" onclick="showSection('overview')">Overview</div>
+  <div class="tab" onclick="showSection('pnl')">P&L</div>
+  <div class="tab" onclick="showSection('balance')">Balance Sheet</div>
+  <div class="tab" onclick="showSection('cashflow')">Cash Flow</div>
+  <div class="tab" onclick="showSection('spending')">Spending</div>
+  <div class="tab" onclick="showSection('entry')">Data Entry</div>
+</nav>
+
+<main>
+  <section id="section-overview" class="section active">
+    <div class="kpi-row">
+      <div class="kpi-card green"><div class="kpi-label">Net Worth</div><div class="kpi-value" id="kpi-networth">—</div><div class="kpi-sub">Assets minus liabilities</div></div>
+      <div class="kpi-card blue"><div class="kpi-label">Monthly Income</div><div class="kpi-value" id="kpi-income">—</div><div class="kpi-sub">This period</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Monthly Spend</div><div class="kpi-value" id="kpi-spend">—</div><div class="kpi-sub">This period</div></div>
+      <div class="kpi-card yellow"><div class="kpi-label">Net Income</div><div class="kpi-value" id="kpi-netincome">—</div><div class="kpi-sub">Savings this period</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Net Worth Trend</div></div>
+        <div class="card-body">
+          <canvas id="netWorthChart" height="100"></canvas>
+          <div id="noChartData" class="empty-state" style="display:none">Save multiple months to see trend.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Asset Allocation</div></div>
+        <div class="card-body"><div class="bar-chart" id="allocationChart"></div></div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Savings Rate</div></div>
+        <div class="card-body" style="text-align:center;padding:28px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:42px;font-weight:600" id="savingsRate">—</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text3);margin-top:8px;letter-spacing:0.1em">OF GROSS INCOME SAVED</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Top Spend Category</div></div>
+        <div class="card-body" style="text-align:center;padding:28px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--yellow)" id="topCategory">—</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;margin-top:8px" id="topCategoryAmt">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Liquid Assets</div></div>
+        <div class="card-body" style="text-align:center;padding:28px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:600;color:var(--blue)" id="liquidAssets">—</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text3);margin-top:8px;letter-spacing:0.1em">CHECKING + SAVINGS</div>
+        </div>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-header">
+        <div class="ai-title"><div class="ai-dot"></div> AI Financial Commentary</div>
+        <button class="btn btn-ghost" onclick="generateInsights()" style="font-size:10px;padding:6px 12px">Refresh</button>
+      </div>
+      <div class="ai-body" id="aiInsight">
+        <span style="color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:12px">Click "AI Analysis" or "Refresh" to generate your monthly financial commentary.</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="section-pnl" class="section">
+    <div class="grid-2">
+      <div class="card"><div class="card-header"><div class="card-title">Income Statement</div></div><div class="card-body" style="padding:0"><table class="fin-table" id="pnlTable"></table></div></div>
+      <div class="card"><div class="card-header"><div class="card-title">Spending by Category</div></div><div class="card-body"><div class="bar-chart" id="spendingBars"></div></div></div>
+    </div>
+  </section>
+
+  <section id="section-balance" class="section">
+    <div class="grid-2">
+      <div class="card"><div class="card-header"><div class="card-title">Assets</div></div><div class="card-body" style="padding:0"><table class="fin-table" id="assetsTable"></table></div></div>
+      <div class="card"><div class="card-header"><div class="card-title">Liabilities & Net Worth</div></div><div class="card-body" style="padding:0"><table class="fin-table" id="liabilitiesTable"></table></div></div>
+    </div>
+  </section>
+
+  <section id="section-cashflow" class="section">
+    <div class="card"><div class="card-header"><div class="card-title">Cash Flow Statement</div></div><div class="card-body" style="padding:0"><table class="fin-table" id="cashflowTable"></table></div></div>
+  </section>
+
+  <section id="section-spending" class="section">
+    <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi-card red"><div class="kpi-label">Total Spend</div><div class="kpi-value negative" id="spendTotal">—</div></div>
+      <div class="kpi-card yellow"><div class="kpi-label">Avg / Category</div><div class="kpi-value" id="spendAvg">—</div></div>
+      <div class="kpi-card purple"><div class="kpi-label">% of Income</div><div class="kpi-value" id="spendPct">—</div></div>
+    </div>
+    <div class="card"><div class="card-header"><div class="card-title">Category Breakdown</div></div><div class="card-body" style="padding:0"><table class="fin-table" id="spendingTable"></table></div></div>
+  </section>
+
+  <section id="section-entry" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Monthly Data Entry</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-danger" onclick="clearCurrentMonth()">Clear Month</button>
+          <button class="btn btn-primary" onclick="saveData()">Save to Sheets</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-section-title">Income</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Gross Salary</label><input class="form-input" id="f-salary" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">Bonus / Commission</label><input class="form-input" id="f-bonus" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">Other Income</label><input class="form-input" id="f-otherincome" type="number" placeholder="0" min="0"></div>
+        </div>
+        <div class="form-section-title">Account Balances</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Checking</label><input class="form-input" id="f-checking" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">Savings</label><input class="form-input" id="f-savings" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">Brokerage</label><input class="form-input" id="f-brokerage" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">401(k)</label><input class="form-input" id="f-401k" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">IRA / Roth IRA</label><input class="form-input" id="f-ira" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">Other Assets</label><input class="form-input" id="f-otherassets" type="number" placeholder="0" min="0"></div>
+        </div>
+        <div class="form-section-title">Liabilities</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Credit Card Balances</label><input class="form-input" id="f-cc" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">Student Loans</label><input class="form-input" id="f-studentloan" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label class="form-label">Other Debt</label><input class="form-input" id="f-otherdebt" type="number" placeholder="0" min="0"></div>
+        </div>
+        <div class="form-section-title">Spending by Category</div>
+        <div class="form-grid" id="spendingForm"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHaW3LY1XooZO62CXicrMpxZj4ppNcHByrK3FGrR8swZmXyQdi2XJo9zK1llNikoQ8/exec';
+
+const SPEND_CATEGORIES = ['Rent','Utilities','Transportation','Groceries','Restaurants','Coffee / Snacks','Alcohol','Entertainment','Fitness','Clothing','Personal','Gas','Household','Travel','Gifts','Medical/Dental','Other'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let allData = {};
+
+function setSyncStatus(state, label) {
+  document.getElementById('syncDot').className = 'sync-dot ' + state;
+  document.getElementById('syncLabel').textContent = label;
+}
+
+async function sheetsGetAll() {
+  const res = await fetch(`${SCRIPT_URL}?action=getAll`);
+  const json = await res.json();
+  return json.success ? (json.data || {}) : {};
+}
+
+async function sheetsSave(year, month, data) {
+  const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'save', year, month, data }) });
+  const json = await res.json();
+  return json.success;
+}
+
+async function sheetsDelete(year, month) {
+  const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', year, month }) });
+  const json = await res.json();
+  return json.success;
+}
+
+function cacheKey(y, m) { return `${y}_${m}`; }
+function getCached(y, m) { return allData[cacheKey(y, m)] || null; }
+function setCached(y, m, data) { if (data) allData[cacheKey(y, m)] = data; else delete allData[cacheKey(y, m)]; }
+
+async function init() {
+  buildMonthSelector();
+  buildSpendingForm();
+  setSyncStatus('syncing', 'Loading...');
+  try {
+    allData = await sheetsGetAll();
+    setSyncStatus('synced', 'Synced');
+  } catch (e) {
+    setSyncStatus('error', 'Offline');
+    showToast('Could not reach Google Sheets', true);
+  }
+  document.getElementById('loadingOverlay').style.display = 'none';
+  loadDataIntoForm();
+  refreshAll();
+}
+
+function buildMonthSelector() {
+  const sel = document.getElementById('monthSelect');
+  const now = new Date();
+  for (let y = now.getFullYear(); y >= now.getFullYear() - 2; y--) {
+    for (let m = (y === now.getFullYear() ? now.getMonth() : 11); m >= 0; m--) {
+      const opt = document.createElement('option');
+      opt.value = `${y}-${m}`;
+      opt.textContent = `${MONTHS[m]} ${y}`;
+      if (y === currentYear && m === currentMonth) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  }
+  sel.addEventListener('change', () => {
+    const [y, m] = sel.value.split('-').map(Number);
+    currentYear = y; currentMonth = m;
+    loadDataIntoForm();
+    refreshAll();
+  });
+}
+
+function buildSpendingForm() {
+  const form = document.getElementById('spendingForm');
+  SPEND_CATEGORIES.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'form-group';
+    div.innerHTML = `<label class="form-label">${cat}</label><input class="form-input" id="sp-${cat.replace(/[^a-z]/gi,'')}" type="number" placeholder="0" min="0">`;
+    form.appendChild(div);
+  });
+}
+
+function spendId(cat) { return `sp-${cat.replace(/[^a-z]/gi,'')}`; }
+
+function getCurrentFormData() {
+  const spending = {};
+  SPEND_CATEGORIES.forEach(cat => { spending[cat] = parseFloat(document.getElementById(spendId(cat))?.value) || 0; });
+  return {
+    salary: parseFloat(document.getElementById('f-salary').value)||0,
+    bonus: parseFloat(document.getElementById('f-bonus').value)||0,
+    otherincome: parseFloat(document.getElementById('f-otherincome').value)||0,
+    checking: parseFloat(document.getElementById('f-checking').value)||0,
+    savings: parseFloat(document.getElementById('f-savings').value)||0,
+    brokerage: parseFloat(document.getElementById('f-brokerage').value)||0,
+    k401: parseFloat(document.getElementById('f-401k').value)||0,
+    ira: parseFloat(document.getElementById('f-ira').value)||0,
+    otherassets: parseFloat(document.getElementById('f-otherassets').value)||0,
+    cc: parseFloat(document.getElementById('f-cc').value)||0,
+    studentloan: parseFloat(document.getElementById('f-studentloan').value)||0,
+    otherdebt: parseFloat(document.getElementById('f-otherdebt').value)||0,
+    spending
+  };
+}
+
+function loadDataIntoForm() {
+  const d = getCached(currentYear, currentMonth);
+  ['salary','bonus','otherincome','checking','savings','brokerage','k401','ira','otherassets','cc','studentloan','otherdebt'].forEach(f => {
+    const el = document.getElementById(`f-${f}`);
+    if (el) el.value = d ? (d[f] || '') : '';
+  });
+  SPEND_CATEGORIES.forEach(cat => {
+    const el = document.getElementById(spendId(cat));
+    if (el) el.value = d ? (d.spending?.[cat] || '') : '';
+  });
+}
+
+async function saveData() {
+  const data = getCurrentFormData();
+  setSyncStatus('syncing', 'Saving...');
+  try {
+    const ok = await sheetsSave(currentYear, currentMonth, data);
+    if (ok) {
+      setCached(currentYear, currentMonth, data);
+      setSyncStatus('synced', 'Saved ✓');
+      showToast('Saved to Google Sheets');
+      refreshAll();
+    } else {
+      setSyncStatus('error', 'Failed');
+      showToast('Save failed', true);
+    }
+  } catch (e) {
+    setSyncStatus('error', 'Error');
+    showToast('Network error — check connection', true);
+  }
+}
+
+async function clearCurrentMonth() {
+  if (!confirm(`Clear all data for ${MONTHS[currentMonth]} ${currentYear}?`)) return;
+  setSyncStatus('syncing', 'Deleting...');
+  try {
+    await sheetsDelete(currentYear, currentMonth);
+    setCached(currentYear, currentMonth, null);
+    setSyncStatus('synced', 'Cleared');
+    loadDataIntoForm();
+    refreshAll();
+    showToast('Month cleared');
+  } catch (e) {
+    setSyncStatus('error', 'Error');
+    showToast('Failed to clear', true);
+  }
+}
+
+function fmt(n, showSign = false) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  let s = abs >= 1000000 ? '$'+(abs/1000000).toFixed(2)+'M' : abs >= 1000 ? '$'+abs.toLocaleString('en-US',{maximumFractionDigits:0}) : '$'+abs.toFixed(0);
+  if (showSign && n > 0) s = '+' + s;
+  if (n < 0) s = '-' + s;
+  return s;
+}
+function pct(n) { return (!n || isNaN(n)) ? '—' : (n*100).toFixed(1)+'%'; }
+function colorClass(n) { return n > 0 ? 'positive' : n < 0 ? 'negative' : ''; }
+
+function computeData(d) {
+  if (!d) return null;
+  const totalIncome = d.salary + d.bonus + d.otherincome;
+  const totalSpending = SPEND_CATEGORIES.reduce((s,c) => s+(d.spending[c]||0), 0);
+  const netIncome = totalIncome - totalSpending;
+  const totalAssets = d.checking + d.savings + d.brokerage + d.k401 + d.ira + d.otherassets;
+  const totalLiabilities = d.cc + d.studentloan + d.otherdebt;
+  const netWorth = totalAssets - totalLiabilities;
+  const savingsRate = totalIncome > 0 ? netIncome / totalIncome : null;
+  const liquidAssets = d.checking + d.savings;
+  const topCat = SPEND_CATEGORIES.reduce((a,c) => (d.spending[c]||0)>(d.spending[a]||0)?c:a, SPEND_CATEGORIES[0]);
+  return { totalIncome, totalSpending, netIncome, totalAssets, totalLiabilities, netWorth, savingsRate, liquidAssets, topCat, ...d };
+}
+
+function refreshAll() {
+  const d = computeData(getCached(currentYear, currentMonth));
+  updateOverview(d); updatePnL(d); updateBalance(d); updateCashFlow(d); updateSpending(d); drawNetWorthChart();
+}
+
+function updateOverview(d) {
+  if (!d) {
+    ['kpi-networth','kpi-income','kpi-spend','kpi-netincome','savingsRate','topCategory','topCategoryAmt','liquidAssets'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent='—'; });
+    document.getElementById('allocationChart').innerHTML = '<div class="empty-state">No data for this period</div>';
+    return;
+  }
+  document.getElementById('kpi-networth').textContent = fmt(d.netWorth);
+  document.getElementById('kpi-networth').className = 'kpi-value ' + colorClass(d.netWorth);
+  document.getElementById('kpi-income').textContent = fmt(d.totalIncome);
+  document.getElementById('kpi-spend').textContent = fmt(d.totalSpending);
+  document.getElementById('kpi-netincome').textContent = fmt(d.netIncome);
+  document.getElementById('kpi-netincome').className = 'kpi-value ' + colorClass(d.netIncome);
+  document.getElementById('savingsRate').textContent = d.savingsRate !== null ? pct(d.savingsRate) : '—';
+  document.getElementById('savingsRate').className = d.savingsRate >= 0.2 ? 'positive' : d.savingsRate < 0 ? 'negative' : '';
+  document.getElementById('topCategory').textContent = d.topCat;
+  document.getElementById('topCategoryAmt').textContent = fmt(d.spending[d.topCat]);
+  document.getElementById('liquidAssets').textContent = fmt(d.liquidAssets);
+  const alloc = [
+    {label:'Checking',val:d.checking,cls:'green'},{label:'Savings',val:d.savings,cls:'green'},
+    {label:'Brokerage',val:d.brokerage,cls:'yellow'},{label:'401(k)',val:d.k401,cls:'yellow'},
+    {label:'IRA / Roth',val:d.ira,cls:'yellow'},{label:'Other Assets',val:d.otherassets,cls:''},
+  ].filter(a=>a.val>0);
+  const maxVal = Math.max(...alloc.map(a=>a.val),1);
+  document.getElementById('allocationChart').innerHTML = alloc.length
+    ? alloc.map(a=>`<div class="bar-row"><div class="bar-label">${a.label}</div><div class="bar-track"><div class="bar-fill ${a.cls}" style="width:${(a.val/maxVal*100).toFixed(1)}%"></div></div><div class="bar-amount">${fmt(a.val)}</div></div>`).join('')
+    : '<div class="empty-state">No asset data</div>';
+}
+
+function updatePnL(d) {
+  const t = document.getElementById('pnlTable');
+  if (!d) { t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data for this period</td></tr>'; return; }
+  const rows = [
+    {section:'INCOME'},{label:'Gross Salary',val:d.salary},{label:'Bonus / Commission',val:d.bonus},{label:'Other Income',val:d.otherincome},{label:'TOTAL INCOME',val:d.totalIncome,total:true},
+    {section:'EXPENSES'},...SPEND_CATEGORIES.map(c=>({label:c,val:d.spending[c]||0})),{label:'TOTAL EXPENSES',val:d.totalSpending,total:true},
+    {section:'NET'},{label:'NET INCOME',val:d.netIncome,total:true},
+  ];
+  t.innerHTML = '<thead><tr><th>Line Item</th><th>Amount</th></tr></thead><tbody>' +
+    rows.map(r=>r.section?`<tr class="section-header"><td colspan="2">${r.section}</td></tr>`:
+      `<tr class="${r.total?'total-row':''}"><td>${r.label}</td><td class="${r.total?colorClass(r.val):''}">${fmt(r.val)}</td></tr>`
+    ).join('') + '</tbody>';
+  const bars = SPEND_CATEGORIES.filter(c=>(d.spending[c]||0)>0).sort((a,b)=>d.spending[b]-d.spending[a]);
+  const maxS = bars.length?d.spending[bars[0]]:1;
+  document.getElementById('spendingBars').innerHTML = bars.length
+    ? bars.map(c=>`<div class="bar-row"><div class="bar-label">${c}</div><div class="bar-track"><div class="bar-fill red" style="width:${(d.spending[c]/maxS*100).toFixed(1)}%"></div></div><div class="bar-amount">${fmt(d.spending[c])}</div></div>`).join('')
+    : '<div class="empty-state">No spending data</div>';
+}
+
+function updateBalance(d) {
+  const at=document.getElementById('assetsTable'), lt=document.getElementById('liabilitiesTable');
+  if (!d) { [at,lt].forEach(t=>t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>'); return; }
+  const mkRows = rows => '<tbody>'+rows.map(r=>r.s?`<tr class="section-header"><td colspan="2">${r.s}</td></tr>`:
+    `<tr class="${r.total?'total-row':''}"><td>${r.label}</td><td class="${r.total?colorClass(r.val):''}">${fmt(r.val)}</td></tr>`).join('')+'</tbody>';
+  at.innerHTML='<thead><tr><th>Asset</th><th>Balance</th></tr></thead>'+mkRows([
+    {s:'LIQUID ASSETS'},{label:'Checking',val:d.checking},{label:'Savings',val:d.savings},{label:'Total Liquid',val:d.checking+d.savings,total:true},
+    {s:'INVESTMENTS'},{label:'Brokerage',val:d.brokerage},{label:'401(k)',val:d.k401},{label:'IRA / Roth IRA',val:d.ira},{label:'Other Assets',val:d.otherassets},{label:'TOTAL ASSETS',val:d.totalAssets,total:true},
+  ]);
+  lt.innerHTML='<thead><tr><th>Liability / Equity</th><th>Balance</th></tr></thead>'+mkRows([
+    {s:'LIABILITIES'},{label:'Credit Cards',val:d.cc},{label:'Student Loans',val:d.studentloan},{label:'Other Debt',val:d.otherdebt},{label:'TOTAL LIABILITIES',val:d.totalLiabilities,total:true},
+    {s:'NET WORTH'},{label:'NET WORTH',val:d.netWorth,total:true},
+  ]);
+}
+
+function updateCashFlow(d) {
+  const t=document.getElementById('cashflowTable');
+  if (!d) { t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>'; return; }
+  let pm=currentMonth-1, py=currentYear;
+  if (pm<0){pm=11;py--;}
+  const prev=getCached(py,pm);
+  const prevIncome=prev?prev.salary+prev.bonus+prev.otherincome:null;
+  const prevSpend=prev?SPEND_CATEGORIES.reduce((s,c)=>s+(prev.spending[c]||0),0):null;
+  const prevNW=prev?prev.checking+prev.savings+prev.brokerage+prev.k401+prev.ira+prev.otherassets-prev.cc-prev.studentloan-prev.otherdebt:null;
+  const nwChange=prevNW!==null?d.netWorth-prevNW:null;
+  const mkRow=(label,cur,prv,total=false)=>{
+    const change=(cur!==null&&cur!==undefined&&prv!==null&&prv!==undefined)?cur-prv:null;
+    return `<tr class="${total?'total-row':''}"><td>${label}</td><td>${cur!==null&&cur!==undefined?fmt(cur):'—'}</td><td>${prv!==null&&prv!==undefined?fmt(prv):'—'}</td><td class="${colorClass(change)}">${change!==null?fmt(change,true):'—'}</td></tr>`;
+  };
+  const mkSec=s=>`<tr class="section-header"><td colspan="4">${s}</td></tr>`;
+  t.innerHTML='<thead><tr><th>Item</th><th>Current</th><th>Prior Month</th><th>Change</th></tr></thead><tbody>'+[
+    mkSec('OPERATING CASH FLOW'),
+    mkRow('Total Income',d.totalIncome,prevIncome),
+    mkRow('Total Spending',d.totalSpending,prevSpend),
+    mkRow('NET OPERATING CF',d.netIncome,prevIncome!==null?prevIncome-prevSpend:null,true),
+    mkSec('BALANCE SHEET CHANGES'),
+    mkRow('Checking',d.checking,prev?.checking),
+    mkRow('Savings',d.savings,prev?.savings),
+    mkRow('Brokerage',d.brokerage,prev?.brokerage),
+    mkRow('401(k)',d.k401,prev?.k401),
+    mkRow('Credit Cards',d.cc,prev?.cc),
+    mkSec('NET POSITION'),
+    `<tr class="total-row"><td>NET WORTH CHANGE</td><td colspan="2"></td><td class="${colorClass(nwChange)}">${nwChange!==null?fmt(nwChange,true):'—'}</td></tr>`,
+  ].join('')+'</tbody>';
+}
+
+function updateSpending(d) {
+  document.getElementById('spendTotal').textContent=d?fmt(d.totalSpending):'—';
+  document.getElementById('spendAvg').textContent=d?fmt(d.totalSpending/SPEND_CATEGORIES.length):'—';
+  document.getElementById('spendPct').textContent=d&&d.totalIncome>0?pct(d.totalSpending/d.totalIncome):'—';
+  const t=document.getElementById('spendingTable');
+  if (!d){t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>';return;}
+  const sorted=[...SPEND_CATEGORIES].sort((a,b)=>(d.spending[b]||0)-(d.spending[a]||0));
+  t.innerHTML='<thead><tr><th>#</th><th>Category</th><th>Amount</th><th>% of Spend</th><th>% of Income</th></tr></thead><tbody>'+
+    sorted.map((c,i)=>{
+      const amt=d.spending[c]||0;
+      return `<tr><td style="color:var(--text3)">${i+1}</td><td>${c}</td><td>${fmt(amt)}</td><td>${d.totalSpending>0?pct(amt/d.totalSpending):'—'}</td><td>${d.totalIncome>0?pct(amt/d.totalIncome):'—'}</td></tr>`;
+    }).join('')+
+    `<tr class="total-row"><td></td><td>TOTAL</td><td>${fmt(d.totalSpending)}</td><td>100%</td><td>${d.totalIncome>0?pct(d.totalSpending/d.totalIncome):'—'}</td></tr></tbody>`;
+}
+
+function drawNetWorthChart() {
+  const canvas=document.getElementById('netWorthChart');
+  const ctx=canvas.getContext('2d');
+  const points=[];
+  for(let i=11;i>=0;i--){
+    let m=currentMonth-i,y=currentYear;
+    while(m<0){m+=12;y--;}
+    const d=getCached(y,m);
+    if(d) points.push({label:`${MONTHS[m]} ${y}`,value:d.checking+d.savings+d.brokerage+d.k401+d.ira+d.otherassets-d.cc-d.studentloan-d.otherdebt});
+  }
+  const noData=document.getElementById('noChartData');
+  if(points.length<2){canvas.style.display='none';noData.style.display='block';return;}
+  canvas.style.display='block';noData.style.display='none';
+  const W=canvas.parentElement.clientWidth-40,H=100;
+  canvas.width=W;canvas.height=H;
+  const min=Math.min(...points.map(p=>p.value)),max=Math.max(...points.map(p=>p.value));
+  const range=max-min||1,pad=10;
+  const toX=i=>pad+i*((W-pad*2)/(points.length-1));
+  const toY=v=>H-pad-((v-min)/range)*(H-pad*2);
+  ctx.clearRect(0,0,W,H);
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(0,212,170,0.25)');grad.addColorStop(1,'rgba(0,212,170,0)');
+  ctx.beginPath();ctx.moveTo(toX(0),toY(points[0].value));
+  points.forEach((p,i)=>i>0&&ctx.lineTo(toX(i),toY(p.value)));
+  ctx.lineTo(toX(points.length-1),H);ctx.lineTo(toX(0),H);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle='#00d4aa';ctx.lineWidth=2;
+  points.forEach((p,i)=>i===0?ctx.moveTo(toX(i),toY(p.value)):ctx.lineTo(toX(i),toY(p.value)));ctx.stroke();
+  points.forEach((p,i)=>{ctx.beginPath();ctx.arc(toX(i),toY(p.value),3,0,Math.PI*2);ctx.fillStyle='#00d4aa';ctx.fill();});
+}
+
+async function generateInsights() {
+  const d=computeData(getCached(currentYear,currentMonth));
+  const el=document.getElementById('aiInsight');
+  if(!d){el.innerHTML='<span style="color:var(--text3);font-family:IBM Plex Mono,monospace;font-size:12px">No data for this period. Enter your financial data first.</span>';return;}
+  el.innerHTML='<div class="ai-loading"><div class="spinner"></div> Generating analysis...</div>';
+  const summary=`Monthly Financial Summary - ${MONTHS[currentMonth]} ${currentYear}\n\nINCOME:\n- Salary: ${fmt(d.salary)}, Bonus: ${fmt(d.bonus)}, Other: ${fmt(d.otherincome)}\n- Total: ${fmt(d.totalIncome)}\n\nSPENDING (Total: ${fmt(d.totalSpending)}):\n${SPEND_CATEGORIES.map(c=>`- ${c}: ${fmt(d.spending[c]||0)}`).join('\n')}\n\nBALANCE SHEET:\n- Checking: ${fmt(d.checking)}, Savings: ${fmt(d.savings)}, Brokerage: ${fmt(d.brokerage)}\n- 401k: ${fmt(d.k401)}, IRA: ${fmt(d.ira)}, Total Assets: ${fmt(d.totalAssets)}\n- CC: ${fmt(d.cc)}, Student Loans: ${fmt(d.studentloan)}, Total Liabilities: ${fmt(d.totalLiabilities)}\n- Net Worth: ${fmt(d.netWorth)}\n\nMETRICS:\n- Net Income: ${fmt(d.netIncome)}, Savings Rate: ${d.savingsRate!==null?pct(d.savingsRate):'—'}, Liquid: ${fmt(d.liquidAssets)}`;
+  try {
+    const response=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:"You are a sharp, direct personal CFO. Analyze the user's monthly financial data and give a 3-4 paragraph commentary in the style of a professional financial memo. Be specific about numbers. Call out what's good, what needs attention, and give 1-2 concrete action items. Be direct — not generic. No bullet points, prose paragraphs only. Address the user as 'you'.",
+        messages:[{role:"user",content:summary}]
+      })
+    });
+    const data=await response.json();
+    const text=data.content?.map(c=>c.text||'').join('')||'Unable to generate analysis.';
+    el.innerHTML=text.split('\n\n').filter(Boolean).map(p=>`<p>${p}</p>`).join('');
+  } catch(err) {
+    el.innerHTML='<span style="color:var(--red);font-family:IBM Plex Mono,monospace;font-size:12px">Failed to generate analysis.</span>';
+  }
+}
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(`section-${id}`)?.classList.add('active');
+  const tabs=['overview','pnl','balance','cashflow','spending','entry'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)]?.classList.add('active');
+  if(id==='entry') loadDataIntoForm();
+}
+
+function showToast(msg,isError=false) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(isError?' error':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+init();
+</script>
+</body>
+</html>

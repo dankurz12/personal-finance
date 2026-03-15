@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -29,194 +30,195 @@
     --teal: #00c4c4;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+- { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 13px;
-    line-height: 1.4;
-  }
+body {
+font-family: ‘DM Sans’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+font-size: 13px;
+line-height: 1.4;
+}
 
-  /* HEADER */
-  header {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 46px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+/* HEADER */
+header {
+background: var(–bg2);
+border-bottom: 1px solid var(–border);
+padding: 0 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+height: 46px;
+position: sticky;
+top: 0;
+z-index: 100;
+}
 
-  .logo {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text2);
-  }
-  .logo em { color: var(--green); font-style: normal; }
+.logo {
+font-family: ‘DM Mono’, monospace;
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–text2);
+}
+.logo em { color: var(–green); font-style: normal; }
 
-  .header-right { display: flex; align-items: center; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
 
-  .sync-status { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: var(--text3); }
-  .sync-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
-  .sync-dot.synced { background: var(--green); box-shadow: 0 0 6px var(--green); }
-  .sync-dot.syncing { background: var(--yellow); animation: blink 0.8s infinite; }
-  .sync-dot.error { background: var(--red); }
+.sync-status { display: flex; align-items: center; gap: 6px; font-family: ‘DM Mono’, monospace; font-size: 10px; letter-spacing: 0.1em; color: var(–text3); }
+.sync-dot { width: 5px; height: 5px; border-radius: 50%; background: var(–text3); flex-shrink: 0; }
+.sync-dot.synced { background: var(–green); box-shadow: 0 0 6px var(–green); }
+.sync-dot.syncing { background: var(–yellow); animation: blink 0.8s infinite; }
+.sync-dot.error { background: var(–red); }
 
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  .month-sel { display: flex; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
-  .month-sel select { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); padding: 5px 8px; font-family: 'DM Mono', monospace; font-size: 11px; border-radius: 3px; cursor: pointer; }
+.month-sel { display: flex; align-items: center; gap: 8px; font-family: ‘DM Mono’, monospace; font-size: 11px; color: var(–text3); }
+.month-sel select { background: var(–bg3); border: 1px solid var(–border); color: var(–text2); padding: 5px 8px; font-family: ‘DM Mono’, monospace; font-size: 11px; border-radius: 3px; cursor: pointer; }
 
-  .btn { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 14px; border-radius: 3px; border: none; cursor: pointer; transition: all 0.15s; }
-  .btn-primary { background: var(--green); color: #000; }
-  .btn-primary:hover { filter: brightness(1.15); }
-  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
-  .btn-danger { background: transparent; color: var(--red); border: 1px solid var(--red-dim); }
-  .btn-danger:hover { background: var(--red-dim); }
+.btn { font-family: ‘DM Mono’, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 14px; border-radius: 3px; border: none; cursor: pointer; transition: all 0.15s; }
+.btn-primary { background: var(–green); color: #000; }
+.btn-primary:hover { filter: brightness(1.15); }
+.btn-ghost { background: transparent; color: var(–text2); border: 1px solid var(–border); }
+.btn-ghost:hover { border-color: var(–border2); color: var(–text); }
+.btn-danger { background: transparent; color: var(–red); border: 1px solid var(–red-dim); }
+.btn-danger:hover { background: var(–red-dim); }
 
-  /* NAV */
-  .nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; overflow-x: auto; gap: 0; }
-  .tab { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 11px 16px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
-  .tab:hover { color: var(--text2); }
-  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+/* NAV */
+.nav { background: var(–bg2); border-bottom: 1px solid var(–border); padding: 0 24px; display: flex; overflow-x: auto; gap: 0; }
+.tab { font-family: ‘DM Mono’, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 11px 16px; color: var(–text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+.tab:hover { color: var(–text2); }
+.tab.active { color: var(–green); border-bottom-color: var(–green); }
 
-  /* MAIN */
-  main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
-  .section { display: none; }
-  .section.active { display: block; }
+/* MAIN */
+main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
+.section { display: none; }
+.section.active { display: block; }
 
-  /* KPI ROW */
-  .kpi-row { display: grid; gap: 10px; margin-bottom: 10px; }
-  .kpi-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
-  .kpi-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .kpi-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
+/* KPI ROW */
+.kpi-row { display: grid; gap: 10px; margin-bottom: 10px; }
+.kpi-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.kpi-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.kpi-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
 
-  .kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; position: relative; overflow: hidden; }
-  .kpi::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; }
-  .kpi.g::after { background: var(--green); }
-  .kpi.r::after { background: var(--red); }
-  .kpi.b::after { background: var(--blue); }
-  .kpi.y::after { background: var(--yellow); }
-  .kpi.p::after { background: var(--purple); }
-  .kpi.t::after { background: var(--teal); }
+.kpi { background: var(–bg2); border: 1px solid var(–border); border-radius: 4px; padding: 14px 16px; position: relative; overflow: hidden; }
+.kpi::after { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 1px; }
+.kpi.g::after { background: var(–green); }
+.kpi.r::after { background: var(–red); }
+.kpi.b::after { background: var(–blue); }
+.kpi.y::after { background: var(–yellow); }
+.kpi.p::after { background: var(–purple); }
+.kpi.t::after { background: var(–teal); }
 
-  .kpi-label { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
-  .kpi-val { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 400; color: var(--text); line-height: 1; }
-  .kpi-val.pos { color: var(--green); }
-  .kpi-val.neg { color: var(--red); }
-  .kpi-val.blue { color: var(--blue); }
-  .kpi-val.yellow { color: var(--yellow); }
-  .kpi-val.purple { color: var(--purple); }
-  .kpi-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); margin-top: 4px; }
+.kpi-label { font-family: ‘DM Mono’, monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); margin-bottom: 6px; }
+.kpi-val { font-family: ‘DM Mono’, monospace; font-size: 22px; font-weight: 400; color: var(–text); line-height: 1; }
+.kpi-val.pos { color: var(–green); }
+.kpi-val.neg { color: var(–red); }
+.kpi-val.blue { color: var(–blue); }
+.kpi-val.yellow { color: var(–yellow); }
+.kpi-val.purple { color: var(–purple); }
+.kpi-sub { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3); margin-top: 4px; }
 
-  /* GRID */
-  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
+/* GRID */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px; }
+.g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
 
-  /* CARD */
-  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-  .card-head { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .card-title { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); }
-  .card-body { padding: 14px; }
+/* CARD */
+.card { background: var(–bg2); border: 1px solid var(–border); border-radius: 4px; overflow: hidden; }
+.card-head { padding: 10px 14px; border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-family: ‘DM Mono’, monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); }
+.card-body { padding: 14px; }
 
-  /* TABLE */
-  .tbl { width: 100%; border-collapse: collapse; }
-  .tbl th { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--border); }
-  .tbl th:first-child { text-align: left; }
-  .tbl td { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); }
-  .tbl td:first-child { text-align: left; color: var(--text2); }
-  .tbl tr:last-child td { border-bottom: none; }
-  .tbl tr:hover td { background: var(--bg3); }
-  .tbl .tot td { font-weight: 600; color: var(--text); border-top: 1px solid var(--border2); border-bottom: none; background: var(--bg3); }
-  .tbl .sec td { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); background: var(--bg3); padding: 4px 10px; }
-  .pos { color: var(--green) !important; }
-  .neg { color: var(--red) !important; }
-  .dim { color: var(--text3) !important; }
+/* TABLE */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); text-align: right; padding: 6px 10px; border-bottom: 1px solid var(–border); }
+.tbl th:first-child { text-align: left; }
+.tbl td { font-family: ‘DM Mono’, monospace; font-size: 11px; color: var(–text); padding: 7px 10px; text-align: right; border-bottom: 1px solid var(–border); }
+.tbl td:first-child { text-align: left; color: var(–text2); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(–bg3); }
+.tbl .tot td { font-weight: 600; color: var(–text); border-top: 1px solid var(–border2); border-bottom: none; background: var(–bg3); }
+.tbl .sec td { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); background: var(–bg3); padding: 4px 10px; }
+.pos { color: var(–green) !important; }
+.neg { color: var(–red) !important; }
+.dim { color: var(–text3) !important; }
 
-  /* BARS */
-  .bars { padding: 2px 0; }
-  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-  .bar-lbl { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); width: 120px; flex-shrink: 0; text-align: right; }
-  .bar-track { flex: 1; height: 3px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
-  .bar-fill.g { background: var(--green); }
-  .bar-fill.r { background: var(--red); }
-  .bar-fill.y { background: var(--yellow); }
-  .bar-fill.b { background: var(--blue); }
-  .bar-fill.p { background: var(--purple); }
-  .bar-amt { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); width: 72px; text-align: right; flex-shrink: 0; }
+/* BARS */
+.bars { padding: 2px 0; }
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.bar-lbl { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text2); width: 120px; flex-shrink: 0; text-align: right; }
+.bar-track { flex: 1; height: 3px; background: var(–bg4); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+.bar-fill.g { background: var(–green); }
+.bar-fill.r { background: var(–red); }
+.bar-fill.y { background: var(–yellow); }
+.bar-fill.b { background: var(–blue); }
+.bar-fill.p { background: var(–purple); }
+.bar-amt { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text2); width: 72px; text-align: right; flex-shrink: 0; }
 
-  /* PROGRESS BAR */
-  .progress-item { margin-bottom: 10px; }
-  .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-  .progress-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); }
-  .progress-pct { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; }
-  .progress-track { height: 3px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+/* PROGRESS BAR */
+.progress-item { margin-bottom: 10px; }
+.progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.progress-label { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text2); }
+.progress-pct { font-family: ‘DM Mono’, monospace; font-size: 10px; font-weight: 500; }
+.progress-track { height: 3px; background: var(–bg4); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 
-  /* FIRE GAUGE */
-  .fire-gauge { text-align: center; padding: 16px 0; }
-  .gauge-val { font-family: 'DM Mono', monospace; font-size: 44px; font-weight: 300; line-height: 1; }
-  .gauge-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text3); margin-top: 6px; }
+/* FIRE GAUGE */
+.fire-gauge { text-align: center; padding: 16px 0; }
+.gauge-val { font-family: ‘DM Mono’, monospace; font-size: 44px; font-weight: 300; line-height: 1; }
+.gauge-label { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(–text3); margin-top: 6px; }
 
-  /* LOADING */
-  .loading-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 14px; }
-  .loading-overlay span { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--text3); text-transform: uppercase; }
-  .spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  .spinner.sm { width: 12px; height: 12px; border-width: 1.5px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* LOADING */
+.loading-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 14px; }
+.loading-overlay span { font-family: ‘DM Mono’, monospace; font-size: 11px; letter-spacing: 0.18em; color: var(–text3); text-transform: uppercase; }
+.spinner { width: 26px; height: 26px; border: 2px solid var(–border); border-top-color: var(–green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.spinner.sm { width: 12px; height: 12px; border-width: 1.5px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* TOAST */
-  .toast { position: fixed; bottom: 18px; right: 18px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); padding: 9px 16px; border-radius: 3px; font-family: 'DM Mono', monospace; font-size: 11px; z-index: 1000; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.ok { border-color: var(--green); color: var(--green); }
-  .toast.err { border-color: var(--red); color: var(--red); }
+/* TOAST */
+.toast { position: fixed; bottom: 18px; right: 18px; background: var(–bg3); border: 1px solid var(–border2); color: var(–text2); padding: 9px 16px; border-radius: 3px; font-family: ‘DM Mono’, monospace; font-size: 11px; z-index: 1000; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.ok { border-color: var(–green); color: var(–green); }
+.toast.err { border-color: var(–red); color: var(–red); }
 
-  /* EMPTY */
-  .empty { text-align: center; padding: 28px; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 11px; }
+/* EMPTY */
+.empty { text-align: center; padding: 28px; color: var(–text3); font-family: ‘DM Mono’, monospace; font-size: 11px; }
 
-  /* FORM */
-  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
-  .fg { display: flex; flex-direction: column; gap: 4px; }
-  .fl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); }
-  .fi { background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 7px 9px; font-family: 'DM Mono', monospace; font-size: 11px; border-radius: 3px; width: 100%; transition: border-color 0.15s; }
-  .fi:focus { outline: none; border-color: var(--green); }
-  .fsec { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); margin: 14px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+/* FORM */
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.fg { display: flex; flex-direction: column; gap: 4px; }
+.fl { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); }
+.fi { background: var(–bg3); border: 1px solid var(–border); color: var(–text); padding: 7px 9px; font-family: ‘DM Mono’, monospace; font-size: 11px; border-radius: 3px; width: 100%; transition: border-color 0.15s; }
+.fi:focus { outline: none; border-color: var(–green); }
+.fsec { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); margin: 14px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(–border); }
 
-  /* FIRE INPUT */
-  .fire-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+/* FIRE INPUT */
+.fire-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
 
-  /* SWR TABLE */
-  .swr-table { width: 100%; border-collapse: collapse; font-family: 'DM Mono', monospace; font-size: 11px; }
-  .swr-table th { padding: 5px 8px; text-align: center; color: var(--text3); font-size: 9px; letter-spacing: 0.1em; border-bottom: 1px solid var(--border); }
-  .swr-table th:first-child { text-align: left; }
-  .swr-table td { padding: 5px 8px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text2); }
-  .swr-table td:first-child { text-align: left; color: var(--text); }
-  .swr-table tr:hover td { background: var(--bg3); }
-  .swr-table .highlight { color: var(--green); font-weight: 500; }
-  .swr-table .achieved { background: var(--green-dim) !important; }
-  .swr-table .current-age { background: var(--blue-dim) !important; color: var(--blue) !important; font-weight: 600; }
+/* SWR TABLE */
+.swr-table { width: 100%; border-collapse: collapse; font-family: ‘DM Mono’, monospace; font-size: 11px; }
+.swr-table th { padding: 5px 8px; text-align: center; color: var(–text3); font-size: 9px; letter-spacing: 0.1em; border-bottom: 1px solid var(–border); }
+.swr-table th:first-child { text-align: left; }
+.swr-table td { padding: 5px 8px; text-align: center; border-bottom: 1px solid var(–border); color: var(–text2); }
+.swr-table td:first-child { text-align: left; color: var(–text); }
+.swr-table tr:hover td { background: var(–bg3); }
+.swr-table .highlight { color: var(–green); font-weight: 500; }
+.swr-table .achieved { background: var(–green-dim) !important; }
+.swr-table .current-age { background: var(–blue-dim) !important; color: var(–blue) !important; font-weight: 600; }
 
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(–bg); }
+::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 2px; }
 
-  @media (max-width: 1100px) { .kpi-row.cols-4, .kpi-row.cols-5 { grid-template-columns: repeat(2,1fr); } .g3 { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 768px) { main { padding: 10px 12px; } header, .nav { padding: 0 12px; } .kpi-row.cols-4, .kpi-row.cols-3, .kpi-row.cols-5 { grid-template-columns: 1fr 1fr; } .g2, .g3, .g21, .g12 { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } .fire-inputs { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1100px) { .kpi-row.cols-4, .kpi-row.cols-5 { grid-template-columns: repeat(2,1fr); } .g3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { main { padding: 10px 12px; } header, .nav { padding: 0 12px; } .kpi-row.cols-4, .kpi-row.cols-3, .kpi-row.cols-5 { grid-template-columns: 1fr 1fr; } .g2, .g3, .g21, .g12 { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } .fire-inputs { grid-template-columns: 1fr 1fr; } }
 </style>
+
 </head>
 <body>
 
@@ -247,6 +249,7 @@
 <main>
 
   <!-- OVERVIEW -->
+
   <section id="section-overview" class="section active">
     <div class="kpi-row cols-4">
       <div class="kpi g"><div class="kpi-label">Net Worth</div><div class="kpi-val pos" id="kpi-nw">—</div><div class="kpi-sub" id="kpi-nw-sub">Assets minus liabilities</div></div>
@@ -255,107 +258,137 @@
       <div class="kpi y"><div class="kpi-label">Net Income</div><div class="kpi-val" id="kpi-net">—</div><div class="kpi-sub">Savings this period</div></div>
     </div>
 
-    <div class="g2">
-      <div class="card">
-        <div class="card-head"><div class="card-title">Net Worth Trend</div><span id="chartPeriod" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)"></span></div>
-        <div class="card-body" style="padding:12px 18px 18px">
-          <canvas id="nwChart" height="90"></canvas>
-          <div id="noChart" class="empty" style="display:none">Save multiple months to see trend.</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">Asset Allocation</div></div>
-        <div class="card-body"><div class="bars" id="allocBars"></div></div>
-      </div>
+```
+<div class="g2">
+  <div class="card">
+    <div class="card-head"><div class="card-title">Net Worth Trend</div><span id="chartPeriod" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)"></span></div>
+    <div class="card-body" style="padding:12px 18px 18px">
+      <canvas id="nwChart" height="90"></canvas>
+      <div id="noChart" class="empty" style="display:none">Save multiple months to see trend.</div>
     </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Asset Allocation</div></div>
+    <div class="card-body"><div class="bars" id="allocBars"></div></div>
+  </div>
+</div>
 
-    <div class="g3">
-      <div class="kpi p" style="border-radius:4px">
-        <div class="kpi-label">Savings Rate</div>
-        <div class="kpi-val purple" id="savRate" style="font-size:36px">—</div>
-        <div class="kpi-sub">of gross income</div>
-      </div>
-      <div class="kpi y" style="border-radius:4px">
-        <div class="kpi-label">Top Spend Category</div>
-        <div class="kpi-val yellow" id="topCat" style="font-size:16px;margin-top:4px">—</div>
-        <div class="kpi-val" id="topCatAmt" style="font-size:28px;margin-top:6px">—</div>
-      </div>
-      <div class="kpi b" style="border-radius:4px">
-        <div class="kpi-label">Liquid Assets</div>
-        <div class="kpi-val blue" id="liquid" style="font-size:28px">—</div>
-        <div class="kpi-sub">Checking + Savings</div>
-      </div>
-    </div>
+<div class="g3">
+  <div class="kpi p" style="border-radius:4px">
+    <div class="kpi-label">Savings Rate</div>
+    <div class="kpi-val purple" id="savRate" style="font-size:36px">—</div>
+    <div class="kpi-sub">of gross income</div>
+  </div>
+  <div class="kpi y" style="border-radius:4px">
+    <div class="kpi-label">Top Spend Category</div>
+    <div class="kpi-val yellow" id="topCat" style="font-size:16px;margin-top:4px">—</div>
+    <div class="kpi-val" id="topCatAmt" style="font-size:28px;margin-top:6px">—</div>
+  </div>
+  <div class="kpi b" style="border-radius:4px">
+    <div class="kpi-label">Liquid Assets</div>
+    <div class="kpi-val blue" id="liquid" style="font-size:28px">—</div>
+    <div class="kpi-sub">Checking + Savings</div>
+  </div>
+</div>
 
-    <div class="g2">
-      <div class="card">
-        <div class="card-head"><div class="card-title">FIRE Progress</div></div>
-        <div class="card-body" id="fireProgressOverview"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">Net Worth Milestones</div></div>
-        <div class="card-body" id="milestonesOverview"></div>
-      </div>
-    </div>
+<div class="g2">
+  <div class="card">
+    <div class="card-head"><div class="card-title">FIRE Progress</div></div>
+    <div class="card-body" id="fireProgressOverview"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Net Worth Milestones</div></div>
+    <div class="card-body" id="milestonesOverview"></div>
+  </div>
+</div>
+```
+
   </section>
 
   <!-- FIRE -->
+
   <section id="section-fire" class="section">
-    <div class="kpi-row cols-5">
-      <div class="kpi g"><div class="kpi-label">Net Worth</div><div class="kpi-val pos" id="fire-nw">—</div></div>
-      <div class="kpi b"><div class="kpi-label">Invested Assets</div><div class="kpi-val blue" id="fire-inv">—</div></div>
-      <div class="kpi p"><div class="kpi-label">% to FIRE</div><div class="kpi-val purple" id="fire-pct">—</div><div class="kpi-sub">$2M target</div></div>
-      <div class="kpi y"><div class="kpi-label">Coast FI @ 65</div><div class="kpi-val yellow" id="fire-coast">—</div><div class="kpi-sub">needed today</div></div>
-      <div class="kpi t"><div class="kpi-label">2025 Saved</div><div class="kpi-val" style="color:var(--teal)" id="fire-saved">—</div><div class="kpi-sub" id="fire-saved-rate"></div></div>
-    </div>
 
-    <div class="g2">
-      <div class="card">
-        <div class="card-head"><div class="card-title">FIRE Goals Progress</div></div>
-        <div class="card-body" id="fireGoals"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">Investment Milestones</div></div>
-        <div class="card-body" id="invMilestones"></div>
-      </div>
+```
+<div class="card" style="margin-bottom:10px">
+  <div class="card-head">
+    <div class="card-title">FIRE Settings</div>
+    <button class="btn btn-primary" onclick="applyFireSettings()" style="padding:5px 12px;font-size:9px">Apply</button>
+  </div>
+  <div class="card-body" style="padding:12px 14px">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+      <div class="fg"><label class="fl">Current Age</label><input class="fi" id="fc-age" type="number" placeholder="29"></div>
+      <div class="fg"><label class="fl">Withdrawal Rate %</label><input class="fi" id="fc-swr" type="number" placeholder="4" step="0.1"></div>
+      <div class="fg"><label class="fl">Return Rate %</label><input class="fi" id="fc-return" type="number" placeholder="7" step="0.1"></div>
+      <div class="fg"><label class="fl">Retirement Age</label><input class="fi" id="fc-retage" type="number" placeholder="45"></div>
+      <div class="fg"><label class="fl">Annual Contribution</label><input class="fi" id="fc-ctb" type="number" placeholder="80000"></div>
+      <div class="fg"><label class="fl">Annual Ret. Spend</label><input class="fi" id="fc-spend" type="number" placeholder="80000"></div>
+      <div class="fg"><label class="fl">LeanFIRE Target</label><input class="fi" id="fc-lean" type="number" placeholder="1600000"></div>
+      <div class="fg"><label class="fl">FIRE Target</label><input class="fi" id="fc-fire" type="number" placeholder="2000000"></div>
+      <div class="fg"><label class="fl">FatFIRE Target</label><input class="fi" id="fc-fat" type="number" placeholder="3000000"></div>
+      <div class="fg"><label class="fl">Coast FI Age</label><input class="fi" id="fc-coastage" type="number" placeholder="65"></div>
     </div>
+  </div>
+</div>
 
-    <div class="g3">
-      <div class="kpi g" style="border-radius:4px">
-        <div class="kpi-label">CMGR — All Time</div>
-        <div class="kpi-val pos" id="cmgr-total" style="font-size:32px">—</div>
-        <div class="kpi-sub">monthly growth rate</div>
-      </div>
-      <div class="kpi b" style="border-radius:4px">
-        <div class="kpi-label">CMGR — LTM</div>
-        <div class="kpi-val blue" id="cmgr-ltm" style="font-size:32px">—</div>
-        <div class="kpi-sub">last twelve months</div>
-      </div>
-      <div class="kpi y" style="border-radius:4px">
-        <div class="kpi-label">Annual Retirement Spend</div>
-        <div class="kpi-val yellow" id="fire-spend" style="font-size:28px">—</div>
-        <div class="kpi-sub">4% SWR target</div>
-      </div>
-    </div>
+<div class="kpi-row cols-5">
+  <div class="kpi g"><div class="kpi-label">Net Worth</div><div class="kpi-val pos" id="fire-nw">—</div></div>
+  <div class="kpi b"><div class="kpi-label">Invested Assets</div><div class="kpi-val blue" id="fire-inv">—</div></div>
+  <div class="kpi p"><div class="kpi-label">% to FIRE</div><div class="kpi-val purple" id="fire-pct">—</div><div class="kpi-sub" id="fire-pct-sub">target</div></div>
+  <div class="kpi y"><div class="kpi-label">Coast FI</div><div class="kpi-val yellow" id="fire-coast">—</div><div class="kpi-sub" id="fire-coast-sub">needed today</div></div>
+  <div class="kpi t"><div class="kpi-label">2025 Saved</div><div class="kpi-val" style="color:var(--teal)" id="fire-saved">—</div><div class="kpi-sub" id="fire-saved-rate"></div></div>
+</div>
 
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-head">
-        <div class="card-title">SWR Projection Matrix — Annual Withdrawals by Age & Return Rate</div>
-      </div>
-      <div style="overflow-x:auto">
-        <table class="swr-table" id="swrTable"></table>
-      </div>
-    </div>
+<div class="g2">
+  <div class="card">
+    <div class="card-head"><div class="card-title">FIRE Goals Progress</div></div>
+    <div class="card-body" id="fireGoals"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Investment Milestones</div></div>
+    <div class="card-body" id="invMilestones"></div>
+  </div>
+</div>
 
-    <div class="card">
-      <div class="card-head"><div class="card-title">Coast FI Proximity by Age</div></div>
-      <div style="overflow-x:auto">
-        <table class="swr-table" id="coastTable"></table>
-      </div>
-    </div>
+<div class="g3">
+  <div class="kpi g" style="border-radius:4px">
+    <div class="kpi-label">CMGR — All Time</div>
+    <div class="kpi-val pos" id="cmgr-total" style="font-size:32px">—</div>
+    <div class="kpi-sub">monthly growth rate</div>
+  </div>
+  <div class="kpi b" style="border-radius:4px">
+    <div class="kpi-label">CMGR — LTM</div>
+    <div class="kpi-val blue" id="cmgr-ltm" style="font-size:32px">—</div>
+    <div class="kpi-sub">last twelve months</div>
+  </div>
+  <div class="kpi y" style="border-radius:4px">
+    <div class="kpi-label">Annual Retirement Spend</div>
+    <div class="kpi-val yellow" id="fire-spend" style="font-size:28px">—</div>
+    <div class="kpi-sub">4% SWR target</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:12px">
+  <div class="card-head">
+    <div class="card-title">SWR Projection Matrix — Annual Withdrawals by Age & Return Rate</div>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="swr-table" id="swrTable"></table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><div class="card-title">Coast FI Proximity by Age</div></div>
+  <div style="overflow-x:auto">
+    <table class="swr-table" id="coastTable"></table>
+  </div>
+</div>
+```
+
   </section>
 
   <!-- P&L -->
+
   <section id="section-pnl" class="section">
     <div class="g2">
       <div class="card">
@@ -370,6 +403,7 @@
   </section>
 
   <!-- BALANCE SHEET -->
+
   <section id="section-balance" class="section">
     <div class="g2">
       <div class="card">
@@ -384,6 +418,7 @@
   </section>
 
   <!-- CASH FLOW -->
+
   <section id="section-cashflow" class="section">
     <div class="card">
       <div class="card-head"><div class="card-title">Cash Flow Statement</div></div>
@@ -392,6 +427,7 @@
   </section>
 
   <!-- SPENDING -->
+
   <section id="section-spending" class="section">
     <div class="kpi-row cols-3">
       <div class="kpi r"><div class="kpi-label">Total Spend</div><div class="kpi-val neg" id="spendTotal">—</div></div>
@@ -405,6 +441,7 @@
   </section>
 
   <!-- DATA ENTRY -->
+
   <section id="section-entry" class="section">
     <div class="card">
       <div class="card-head">
@@ -506,6 +543,7 @@ function set(y, m, d) { if (d) allData[ck(y, m)] = d; else delete allData[ck(y, 
 async function init() {
   buildMonthSel();
   buildSpendForm();
+  populateFireInputs();
   setSyncStatus('syncing', 'Loading...');
   try {
     allData = await sheetsGetAll();
@@ -711,7 +749,9 @@ function updateFire(d) {
   document.getElementById('fire-nw').textContent = fmt(nw);
   document.getElementById('fire-inv').textContent = fmt(inv);
   document.getElementById('fire-pct').textContent = pct(nw / FIRE_CONFIG.fire);
+  document.getElementById('fire-pct-sub').textContent = fmt(FIRE_CONFIG.fire) + ' target';
   document.getElementById('fire-coast').textContent = fmt(FIRE_CONFIG.coastFiAt65);
+  document.getElementById('fire-coast-sub').textContent = `needed today @ age ${FIRE_CONFIG.coastAge||65}`;
   document.getElementById('fire-saved').textContent = fmt(FIRE_CONFIG.saved2025);
   document.getElementById('fire-saved-rate').textContent = pct(FIRE_CONFIG.savings2025Rate) + ' savings rate';
   document.getElementById('cmgr-total').textContent = pct(FIRE_CONFIG.cmgrTotal, 2);
@@ -751,48 +791,51 @@ function updateFire(d) {
 
   // SWR Projection Matrix
   const rates = [0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10];
+  const maxAge = Math.max(FIRE_CONFIG.retirementAge + 20, 70);
   const ages = [];
-  for (let a = 30; a <= 65; a++) ages.push(a);
-  
-  // Simplified SWR: FV = PV*(1+r)^n + PMT*((1+r)^n - 1)/r, then withdrawal = FV * withdrawalRate
+  for (let a = Math.floor(FIRE_CONFIG.currentAge); a <= maxAge; a++) ages.push(a);
+
   function projectedWithdrawal(currentAge, targetAge, currentInv, annualCtb, rate) {
     const n = targetAge - currentAge;
-    const r = rate;
-    const fv = currentInv * Math.pow(1+r, n) + annualCtb * (Math.pow(1+r, n) - 1) / r;
+    if (n <= 0) return currentInv * FIRE_CONFIG.withdrawalRate;
+    const fv = currentInv * Math.pow(1+rate, n) + annualCtb * (Math.pow(1+rate, n) - 1) / rate;
     return fv * FIRE_CONFIG.withdrawalRate;
   }
 
   const currentAge = FIRE_CONFIG.currentAge;
-  const currentInv = inv || FIRE_CONFIG.coastFiAt65 * 2.9;
+  const currentInv = inv || 1;
   const target = FIRE_CONFIG.annualRetirementSpend;
+  const preferredRate = FIRE_CONFIG.returnRate;
+  const preferredRateIdx = rates.findIndex(r => Math.abs(r - preferredRate) < 0.005);
 
-  const swrHtml = `<thead><tr><th>Age</th>${rates.map(r=>`<th style="color:${r===0.07?'var(--green)':'var(--text3)'}">${(r*100).toFixed(0)}%</th>`).join('')}</tr></thead>
+  const swrHtml = `<thead><tr><th>Age</th>${rates.map(r=>`<th style="color:${Math.abs(r-preferredRate)<0.005?'var(--green)':'var(--text3)'}">${(r*100).toFixed(0)}%</th>`).join('')}</tr></thead>
     <tbody>${ages.map(age => {
       const isCurrent = age === Math.floor(currentAge);
       const vals = rates.map(r => projectedWithdrawal(currentAge, age, currentInv, FIRE_CONFIG.annualContribution, r));
-      const allAchieved = vals[4] >= target; // 7% rate
-      return `<tr class="${isCurrent?'':''}">
+      return `<tr>
         <td class="${isCurrent?'current-age':''}">${age}</td>
         ${vals.map((v,i) => {
           const achieved = v >= target;
-          return `<td class="${isCurrent?'current-age':achieved?'achieved':''}" style="${i===4?'color:var(--green)':''}">${v>=1000?'$'+(v/1000).toFixed(0)+'k':fmt(v)}</td>`;
+          return `<td class="${isCurrent?'current-age':achieved?'achieved':''}" style="${i===preferredRateIdx?'color:var(--green)':''}">${v>=1000?'$'+(v/1000).toFixed(0)+'k':fmt(v)}</td>`;
         }).join('')}
       </tr>`;
     }).join('')}</tbody>`;
   document.getElementById('swrTable').innerHTML = swrHtml;
 
   // Coast FI table
+  const coastAge = FIRE_CONFIG.coastAge || 65;
   const coastHtml = `<thead><tr><th>Age</th><th style="color:var(--green)">LeanFIRE Coast %</th><th style="color:var(--blue)">FIRE Coast %</th><th style="color:var(--purple)">FatFIRE Coast %</th></tr></thead>
     <tbody>${ages.map(age => {
       const isCurrent = age === Math.floor(currentAge);
-      // Coast % = current invested / needed to coast
-      function coastNeeded(fireTarget, targetRetAge, growthRate) {
-        const n = targetRetAge - age;
+      function coastNeeded(fireTarget, retAge, growthRate) {
+        const n = retAge - age;
+        if (n <= 0) return fireTarget;
         return fireTarget / Math.pow(1 + growthRate, n);
       }
-      const leanCoast = inv / coastNeeded(FIRE_CONFIG.leanFire, 65, 0.07);
-      const fireCoast = inv / coastNeeded(FIRE_CONFIG.fire, 65, 0.07);
-      const fatCoast = inv / coastNeeded(FIRE_CONFIG.fatFire, 65, 0.07);
+      const r = FIRE_CONFIG.returnRate;
+      const leanCoast = inv / coastNeeded(FIRE_CONFIG.leanFire, coastAge, r);
+      const fireCoast = inv / coastNeeded(FIRE_CONFIG.fire, coastAge, r);
+      const fatCoast  = inv / coastNeeded(FIRE_CONFIG.fatFire, coastAge, r);
       return `<tr>
         <td class="${isCurrent?'current-age':''}">${age}</td>
         <td class="${leanCoast>=1?'achieved':''}" style="color:${leanCoast>=1?'var(--green)':'var(--text2)'}">${pct(Math.min(leanCoast,9.99))}</td>
@@ -948,7 +991,43 @@ function showToast(msg, type='') {
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+// ── FIRE SETTINGS ────────────────────────────────────────
+function populateFireInputs() {
+  document.getElementById('fc-age').value = FIRE_CONFIG.currentAge;
+  document.getElementById('fc-swr').value = (FIRE_CONFIG.withdrawalRate * 100).toFixed(1);
+  document.getElementById('fc-return').value = (FIRE_CONFIG.returnRate * 100).toFixed(1);
+  document.getElementById('fc-retage').value = FIRE_CONFIG.retirementAge;
+  document.getElementById('fc-ctb').value = FIRE_CONFIG.annualContribution;
+  document.getElementById('fc-spend').value = FIRE_CONFIG.annualRetirementSpend;
+  document.getElementById('fc-lean').value = FIRE_CONFIG.leanFire;
+  document.getElementById('fc-fire').value = FIRE_CONFIG.fire;
+  document.getElementById('fc-fat').value = FIRE_CONFIG.fatFire;
+  document.getElementById('fc-coastage').value = FIRE_CONFIG.coastAge || 65;
+}
+
+function applyFireSettings() {
+  FIRE_CONFIG.currentAge = parseFloat(document.getElementById('fc-age').value) || FIRE_CONFIG.currentAge;
+  FIRE_CONFIG.withdrawalRate = (parseFloat(document.getElementById('fc-swr').value) || 4) / 100;
+  FIRE_CONFIG.returnRate = (parseFloat(document.getElementById('fc-return').value) || 7) / 100;
+  FIRE_CONFIG.retirementAge = parseFloat(document.getElementById('fc-retage').value) || FIRE_CONFIG.retirementAge;
+  FIRE_CONFIG.annualContribution = parseFloat(document.getElementById('fc-ctb').value) || FIRE_CONFIG.annualContribution;
+  FIRE_CONFIG.annualRetirementSpend = parseFloat(document.getElementById('fc-spend').value) || FIRE_CONFIG.annualRetirementSpend;
+  FIRE_CONFIG.leanFire = parseFloat(document.getElementById('fc-lean').value) || FIRE_CONFIG.leanFire;
+  FIRE_CONFIG.fire = parseFloat(document.getElementById('fc-fire').value) || FIRE_CONFIG.fire;
+  FIRE_CONFIG.fatFire = parseFloat(document.getElementById('fc-fat').value) || FIRE_CONFIG.fatFire;
+  FIRE_CONFIG.coastAge = parseFloat(document.getElementById('fc-coastage').value) || 65;
+
+  // Recalculate derived values
+  const n = FIRE_CONFIG.coastAge - FIRE_CONFIG.currentAge;
+  FIRE_CONFIG.coastFiAt65 = FIRE_CONFIG.fire / Math.pow(1 + FIRE_CONFIG.returnRate, n);
+
+  const d = compute(get(curYear, curMonth));
+  updateFire(d);
+  showToast('Settings applied', 'ok');
+}
+
 init();
 </script>
+
 </body>
 </html>

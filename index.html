@@ -498,6 +498,21 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         </div>
         <div class="fsec">Spending by Category</div>
         <div class="form-grid" id="spendForm"></div>
+        <div class="fsec">Pay Stub Import</div>
+        <div style="padding:4px 0 8px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <label class="btn" style="cursor:pointer;margin:0">
+              Upload PDF Pay Stub
+              <input type="file" id="payStubInput" accept=".pdf,application/pdf" style="display:none" onchange="handlePayStub(this.files[0])">
+            </label>
+            <span id="payStubStatus" style="font-size:11px;color:var(--text2)"></span>
+          </div>
+          <div id="payStubResult" style="display:none;font-size:11px;color:var(--text2);margin-bottom:6px;line-height:1.7"></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" id="anthropicKey" type="password" placeholder="Anthropic API key (sk-ant-…)" style="flex:1;font-size:11px">
+            <button class="btn" onclick="saveApiKey()">Save Key</button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -508,6 +523,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXRZXsZmwxuTLrbLiJmemQea2ml7IE9_lRXBnMVb-x51O5JqYhrsyb1g3SM3_f6bvh/exec';
+let ANTHROPIC_KEY = '';
 
 const CATS = ['Rent','Utilities','Transportation','Groceries','Restaurants','Coffee / Snacks','Alcohol','Entertainment','Fitness','Clothing','Personal','Gas','Household','Travel','Gifts','Medical/Dental','Other'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -558,6 +574,15 @@ async function sheetsSave(y, m, data) {
 async function sheetsDelete(y, m) {
   await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', year: y, month: m }) });
 }
+async function sheetsGetApiKey() {
+  const res = await fetch(`${SCRIPT_URL}?action=getApiKey`);
+  const j = await res.json();
+  return j.key || '';
+}
+async function sheetsSetApiKey(key) {
+  const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'setApiKey', key }) });
+  return (await res.json()).success;
+}
 
 function ck(y, m) { return `${y}_${m}`; }
 function get(y, m) { return allData[ck(y, m)] || null; }
@@ -570,12 +595,13 @@ async function init() {
   populateFireInputs();
   setSyncStatus('syncing', 'Loading...');
   try {
-    allData = await sheetsGetAll();
+    [allData, ANTHROPIC_KEY] = await Promise.all([sheetsGetAll(), sheetsGetApiKey()]);
     setSyncStatus('synced', 'Synced');
   } catch(e) {
     setSyncStatus('error', 'Offline');
     showToast('Could not reach Google Sheets', 'err');
   }
+  if (ANTHROPIC_KEY) document.getElementById('anthropicKey').value = '••••••••';
   document.getElementById('loadingOverlay').style.display = 'none';
   loadForm();
   refreshAll();
@@ -678,6 +704,96 @@ function fmt(n, sign=false) {
 }
 function pct(n, dec=1) { return (!n||isNaN(n)) ? '—' : (n*100).toFixed(dec)+'%'; }
 function cc(n) { return n > 0 ? 'pos' : n < 0 ? 'neg' : ''; }
+
+// ── PAY STUB IMPORT ──────────────────────────────────────
+async function saveApiKey() {
+  const raw = document.getElementById('anthropicKey').value.trim();
+  if (!raw || raw === '••••••••') return;
+  try {
+    await sheetsSetApiKey(raw);
+    ANTHROPIC_KEY = raw;
+    document.getElementById('anthropicKey').value = '••••••••';
+    showToast('API key saved', 'ok');
+  } catch(e) { showToast('Failed to save key', 'err'); }
+}
+
+async function handlePayStub(file) {
+  const statusEl = document.getElementById('payStubStatus');
+  const resultEl = document.getElementById('payStubResult');
+  // Reset file input so the same file can be re-uploaded if needed
+  document.getElementById('payStubInput').value = '';
+  if (!file) return;
+  if (!ANTHROPIC_KEY) { showToast('Enter your Anthropic API key first', 'err'); return; }
+
+  statusEl.textContent = 'Parsing…';
+  statusEl.style.color = 'var(--text2)';
+  resultEl.style.display = 'none';
+
+  try {
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = e => res(e.target.result.split(',')[1]);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+            { type: 'text', text: 'Extract from this pay stub for the current pay period only. Return ONLY valid JSON with these numeric keys (no commas in numbers): gross_income, federal_tax, state_tax, fica_tax (social security + medicare combined), k401_contribution, hsa_contribution. Use 0 for any field not found.' }
+          ]
+        }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const match = data.content[0].text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON in response');
+    const p = JSON.parse(match[0]);
+
+    // Fill income + taxes fields
+    if (p.gross_income) document.getElementById('f-salary').value = p.gross_income;
+    const totalTax = (p.federal_tax || 0) + (p.state_tax || 0) + (p.fica_tax || 0);
+    if (totalTax) document.getElementById('f-taxes').value = totalTax.toFixed(2);
+
+    // Summary
+    const lines = [
+      `Gross: <b>${fmt(p.gross_income || 0)}</b>`,
+      `Federal: ${fmt(p.federal_tax || 0)}`,
+      `State: ${fmt(p.state_tax || 0)}`,
+      `FICA: ${fmt(p.fica_tax || 0)}`,
+      `Total Tax → filled: <b>${fmt(totalTax)}</b>`,
+    ];
+    if (p.k401_contribution) lines.push(`401(k) contrib: ${fmt(p.k401_contribution)} (update balance manually)`);
+    if (p.hsa_contribution) lines.push(`HSA contrib: ${fmt(p.hsa_contribution)} (update balance manually)`);
+    resultEl.innerHTML = lines.join('<br>');
+    resultEl.style.display = 'block';
+    statusEl.textContent = 'Filled ✓';
+    statusEl.style.color = 'var(--green)';
+    showToast('Pay stub parsed — review & save', 'ok');
+  } catch(e) {
+    statusEl.textContent = 'Failed';
+    statusEl.style.color = 'var(--red)';
+    showToast('Parse error: ' + e.message, 'err');
+  }
+}
 
 // ── COMPUTE ─────────────────────────────────────────────
 function compute(d) {

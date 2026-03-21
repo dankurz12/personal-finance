@@ -494,7 +494,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
             <label class="btn" style="cursor:pointer;margin:0">
               Upload PDF Pay Stub
-              <input type="file" id="payStubInput" accept=".pdf,application/pdf" multiple style="display:none" onchange="Array.from(this.files).reduce((p,f)=>p.then(()=>handlePayStub(f)),Promise.resolve())">
+              <input type="file" id="payStubInput" accept=".pdf,application/pdf" multiple style="display:none" onchange="handlePayStubs(this.files)">
             </label>
             <span id="payStubStatus" style="font-size:11px;color:var(--text2)"></span>
           </div>
@@ -755,26 +755,25 @@ async function saveApiKey() {
   } catch(e) { showToast('Failed to save key', 'err'); }
 }
 
-async function handlePayStub(file) {
+async function handlePayStubs(files) {
   const statusEl = document.getElementById('payStubStatus');
   const resultEl = document.getElementById('payStubResult');
-  // Reset file input so the same file can be re-uploaded if needed
   document.getElementById('payStubInput').value = '';
-  if (!file) return;
+  if (!files.length) return;
   if (!ANTHROPIC_KEY) { showToast('Enter your Anthropic API key first', 'err'); return; }
 
-  statusEl.textContent = 'Parsing…';
+  const n = files.length;
+  statusEl.textContent = n > 1 ? `Parsing ${n} stubs…` : 'Parsing…';
   statusEl.style.color = 'var(--text2)';
   resultEl.style.display = 'none';
 
-  try {
+  const parseStub = async (file) => {
     const base64 = await new Promise((res, rej) => {
       const reader = new FileReader();
       reader.onload = e => res(e.target.result.split(',')[1]);
       reader.onerror = rej;
       reader.readAsDataURL(file);
     });
-
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -795,66 +794,77 @@ async function handlePayStub(file) {
         }]
       })
     });
-
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}));
       throw new Error(err.error?.message || `HTTP ${resp.status}`);
     }
-
     const data = await resp.json();
     const match = data.content[0].text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('No JSON in response');
-    const p = JSON.parse(match[0]);
+    return JSON.parse(match[0]);
+  };
 
-    // Auto-switch to the pay stub's month and load existing data first
+  try {
+    // Parse all stubs in parallel
+    const results = await Promise.all(Array.from(files).map(parseStub));
+
+    // Auto-switch to the detected month (use first stub's date)
     let detectedLabel = '';
-    if (p.pay_year && p.pay_month) {
+    const first = results[0];
+    if (first.pay_year && first.pay_month) {
       const sel = document.getElementById('monthSelect');
-      const targetVal = `${p.pay_year}-${p.pay_month - 1}`; // month is 0-indexed in app
+      const targetVal = `${first.pay_year}-${first.pay_month - 1}`;
       const opt = Array.from(sel.options).find(o => o.value === targetVal);
       if (opt) {
         sel.value = targetVal;
-        curYear = p.pay_year;
-        curMonth = p.pay_month - 1;
-        loadForm(); // populate existing data for this month before adding
+        curYear = first.pay_year;
+        curMonth = first.pay_month - 1;
+        loadForm();
         detectedLabel = opt.textContent;
       }
     }
+    if (!allData[ck(curYear, curMonth)]) allData[ck(curYear, curMonth)] = {};
 
-const stubKey = ck(curYear, curMonth);
-    if (!allData[stubKey]) allData[stubKey] = {};
+    // Sum all stubs then replace income/tax fields
+    const sum = key => results.reduce((acc, r) => acc + (r[key] || 0), 0);
+    const gross   = sum('gross_income');
+    const federal = sum('federal_tax');
+    const state   = sum('state_tax');
+    const local   = sum('local_tax');
+    const fica    = sum('fica_tax');
+    const k401    = sum('k401_contribution');
+    const hsa     = sum('hsa_contribution');
 
-    // Replace income/tax fields with stub values (clear first, then set)
     const setField = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.value = val ? val.toFixed(2) : '';
     };
-    setField('f-salary', p.gross_income);
-    setField('f-federaltax', p.federal_tax);
-    setField('f-statetax', p.state_tax);
-    setField('f-localtax', p.local_tax);
-    setField('f-ficatax', p.fica_tax);
-    setField('f-k401contrib', p.k401_contribution);
-    setField('f-hsacontrib', p.hsa_contribution);
+    setField('f-salary',      gross);
+    setField('f-federaltax',  federal);
+    setField('f-statetax',    state);
+    setField('f-localtax',    local);
+    setField('f-ficatax',     fica);
+    setField('f-k401contrib', k401);
+    setField('f-hsacontrib',  hsa);
 
-    // Summary
-    const totalTax = (p.federal_tax||0) + (p.state_tax||0) + (p.local_tax||0) + (p.fica_tax||0);
+    const totalTax = federal + state + local + fica;
     const lines = [
       detectedLabel ? `Month: <b>${detectedLabel}</b>` : null,
-      `Gross added: <b>${fmt(p.gross_income || 0)}</b>`,
-      p.federal_tax ? `Federal: ${fmt(p.federal_tax)}` : null,
-      p.state_tax   ? `State: ${fmt(p.state_tax)}` : null,
-      p.local_tax   ? `Local: ${fmt(p.local_tax)}` : null,
-      p.fica_tax    ? `FICA: ${fmt(p.fica_tax)}` : null,
-      `Taxes added: <b>${fmt(totalTax)}</b>`,
-      p.k401_contribution ? `401(k) added: <b>${fmt(p.k401_contribution)}</b>` : null,
-      p.hsa_contribution  ? `HSA added: <b>${fmt(p.hsa_contribution)}</b>` : null,
+      n > 1 ? `Stubs: <b>${n}</b>` : null,
+      `Gross: <b>${fmt(gross)}</b>`,
+      federal ? `Federal: ${fmt(federal)}` : null,
+      state   ? `State: ${fmt(state)}`   : null,
+      local   ? `Local: ${fmt(local)}`   : null,
+      fica    ? `FICA: ${fmt(fica)}`     : null,
+      `Taxes: <b>${fmt(totalTax)}</b>`,
+      k401 ? `401(k): <b>${fmt(k401)}</b>` : null,
+      hsa  ? `HSA: <b>${fmt(hsa)}</b>`     : null,
     ].filter(Boolean);
     resultEl.innerHTML = lines.join('<br>');
     resultEl.style.display = 'block';
-    statusEl.textContent = 'Added ✓';
+    statusEl.textContent = n > 1 ? `${n} stubs loaded ✓` : 'Loaded ✓';
     statusEl.style.color = 'var(--green)';
-    showToast(`Stub added${detectedLabel ? ' to ' + detectedLabel : ''} — review & save`, 'ok');
+    showToast(`${n > 1 ? n + ' stubs' : 'Stub'} loaded${detectedLabel ? ' for ' + detectedLabel : ''} — review & save`, 'ok');
   } catch(e) {
     statusEl.textContent = 'Failed';
     statusEl.style.color = 'var(--red)';

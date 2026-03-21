@@ -364,7 +364,7 @@ main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
   <div class="kpi y" style="border-radius:4px">
     <div class="kpi-label">Annual Retirement Spend</div>
     <div class="kpi-val yellow" id="fire-spend" style="font-size:28px">—</div>
-    <div class="kpi-sub">4% SWR target</div>
+    <div class="kpi-sub" id="fire-swr-sub">4% SWR target</div>
   </div>
 </div>
 
@@ -790,7 +790,11 @@ function updateFire(d) {
   }).join('');
 
   // SWR Projection Matrix
-  const rates = [0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10];
+  const swrSub = document.getElementById('fire-swr-sub');
+  if (swrSub) swrSub.textContent = `${(FIRE_CONFIG.withdrawalRate*100).toFixed(1)}% SWR target`;
+  const centralRate = Math.round(FIRE_CONFIG.returnRate * 100) / 100;
+  const rateStart = Math.max(0.01, centralRate - 0.03);
+  const rates = Array.from({length: 8}, (_, i) => +((rateStart + i * 0.01).toFixed(4)));
   const maxAge = Math.max(FIRE_CONFIG.retirementAge + 20, 70);
   const ages = [];
   for (let a = Math.floor(FIRE_CONFIG.currentAge); a <= maxAge; a++) ages.push(a);

@@ -249,6 +249,14 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <div class="header-right">
     <div class="sync-status"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">—</span></div>
     <div class="month-sel"><span>Period:</span><select id="monthSelect"></select></div>
+    <div style="position:relative">
+      <button class="btn btn-ghost" id="dataGapsBtn" onclick="toggleGapsPanel()" style="display:none;color:var(--yellow)">⚠ <span id="dataGapsCount">0</span> gaps</button>
+      <div id="gapsPanel" style="display:none;position:absolute;top:100%;right:0;z-index:200;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;min-width:220px;margin-top:4px">
+        <div style="font-size:10px;font-weight:600;color:var(--yellow);margin-bottom:6px">Missing / Empty Months</div>
+        <div id="gapsList" style="font-size:11px;color:var(--text2);line-height:1.8"></div>
+      </div>
+    </div>
+    <button class="btn btn-ghost" onclick="exportCSV()">↓ CSV</button>
     <button class="btn btn-ghost" onclick="showSection('entry')">+ Entry</button>
   </div>
 </header>
@@ -400,6 +408,17 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     <table class="swr-table" id="coastTable"></table>
   </div>
 </div>
+
+<div class="g2" style="margin-top:6px">
+  <div class="card">
+    <div class="card-head"><div class="card-title">Monte Carlo Projection — 500 Runs (σ=15%)</div></div>
+    <div class="card-body" style="padding:6px 10px 10px"><canvas id="mcChart" height="200"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Contribution Impact on FIRE Date</div></div>
+    <div style="padding:0"><table class="tbl" id="ctbImpactTable"></table></div>
+  </div>
+</div>
 ```
 
   </section>
@@ -409,7 +428,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <section id="section-pnl" class="section">
     <div class="g2">
       <div class="card">
-        <div class="card-head"><div class="card-title">Income Statement</div></div>
+        <div class="card-head"><div class="card-title" id="pnlTitle">Income Statement</div></div>
         <div style="padding:0"><table class="tbl" id="pnlTable"></table></div>
       </div>
       <div class="card">
@@ -423,7 +442,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
   <section id="section-cashflow" class="section">
     <div class="card">
-      <div class="card-head"><div class="card-title">Cash Flow Statement</div></div>
+      <div class="card-head"><div class="card-title" id="cfTitle">Cash Flow Statement</div></div>
       <div style="padding:0"><table class="tbl" id="cfTbl"></table></div>
     </div>
   </section>
@@ -437,7 +456,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
       <div class="kpi p"><div class="kpi-label">% of Income</div><div class="kpi-val purple" id="spendPct">—</div></div>
     </div>
     <div class="card">
-      <div class="card-head"><div class="card-title">Category Breakdown</div></div>
+      <div class="card-head"><div class="card-title" id="spendTblTitle">Category Breakdown</div></div>
       <div style="padding:0"><table class="tbl" id="spendTbl"></table></div>
     </div>
     <div class="card" style="margin-top:6px">
@@ -474,6 +493,10 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         <div class="card-head"><div class="card-title">Year-over-Year Spending by Category</div></div>
         <div style="padding:0"><table class="tbl" id="yoySpendTbl"></table></div>
       </div>
+    </div>
+    <div class="card" style="margin-top:6px">
+      <div class="card-head"><div class="card-title">Annual Income Growth Rate</div></div>
+      <div class="card-body" style="padding:6px 10px 10px"><canvas id="incGrowthChart" height="150"></canvas></div>
     </div>
   </section>
 
@@ -910,6 +933,7 @@ function refreshAll() {
   updateSpending(d);
   updateTrends();
   drawNWChart();
+  checkMissingData();
 }
 
 // ── OVERVIEW ────────────────────────────────────────────
@@ -1078,10 +1102,13 @@ function updateFire(d) {
       </tr>`;
     }).join('')}</tbody>`;
   document.getElementById('coastTable').innerHTML = coastHtml;
+  updateMonteCarlo(d);
+  updateContribCalc(d);
 }
 
 // ── P&L ─────────────────────────────────────────────────
 function updatePnL(d) {
+  document.getElementById('pnlTitle').textContent = `Income Statement — ${MONTHS[curMonth]} ${curYear}`;
   const t = document.getElementById('pnlTable');
   if (!d) { t.innerHTML='<tr><td class="empty" style="padding:20px">No data</td></tr>'; return; }
   const rows = [
@@ -1144,6 +1171,7 @@ function updateAnnualPnL() {
 
 // ── CASH FLOW ────────────────────────────────────────────
 function updateCashFlow(d) {
+  document.getElementById('cfTitle').textContent = `Cash Flow Statement — ${MONTHS[curMonth]} ${curYear}`;
   const t=document.getElementById('cfTbl');
   if (!d){t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>';return;}
   let pm=curMonth-1, py=curYear;
@@ -1167,6 +1195,7 @@ function updateCashFlow(d) {
 
 // ── SPENDING ─────────────────────────────────────────────
 function updateSpending(d) {
+  document.getElementById('spendTblTitle').textContent = `Category Breakdown — ${MONTHS[curMonth]} ${curYear}`;
   document.getElementById('spendTotal').textContent = d?fmt(d.spend):'—';
   document.getElementById('spendAvg').textContent = d?fmt(d.spend/CATS.length):'—';
   document.getElementById('spendPct').textContent = d&&d.inc>0?pct(d.spend/d.inc):'—';
@@ -1507,6 +1536,7 @@ function updateTrends() {
   drawSavRateChart(points);
   drawNWDeltaChart(points);
   updateYoYSpend();
+  drawIncGrowthChart();
 }
 
 function updateYoYSpend() {
@@ -1554,6 +1584,207 @@ function updateYoY(d) {
   t.innerHTML = `<thead><tr><th>Category</th><th>${curYear} ${per}</th><th>${curYear - 1} ${per}</th><th>$ Chg</th><th>% Chg</th></tr></thead><tbody>` +
     rows.map(r => `<tr><td>${r.cat}</td><td>${fmt(r.ta)}</td><td>${r.pa > 0 ? fmt(r.pa) : '—'}</td><td class="${r.pa > 0 ? (r.chg > 0 ? 'neg' : r.chg < 0 ? 'pos' : '') : ''}">${r.pa > 0 ? fmt(r.chg, true) : '—'}</td><td class="${r.pctChg !== null ? (r.pctChg > 0 ? 'neg' : r.pctChg < 0 ? 'pos' : '') : ''}">${r.pctChg !== null ? pct(r.pctChg) : '—'}</td></tr>`).join('') +
     `<tr class="tot"><td>TOTAL</td><td>${fmt(totThis)}</td><td>${totPrior > 0 ? fmt(totPrior) : '—'}</td><td class="${totPrior > 0 ? (totChg > 0 ? 'neg' : totChg < 0 ? 'pos' : '') : ''}">${totPrior > 0 ? fmt(totChg, true) : '—'}</td><td class="${totPct !== null ? (totPct > 0 ? 'neg' : 'pos') : ''}">${totPct !== null ? pct(totPct) : '—'}</td></tr></tbody>`;
+}
+
+// ── MISSING DATA FLAG ────────────────────────────────────
+function checkMissingData() {
+  const gaps = [];
+  const endY = _now.getFullYear(), endM = _now.getMonth() - 1;
+  for (let y = 2023; y <= endY; y++) {
+    const lastM = y < endY ? 11 : endM;
+    for (let m = 0; m <= lastM; m++) {
+      const d = get(y, m);
+      if (!d || (!(d.salary||0) && !(d.bonus||0) && CATS.every(c => !(d.spending?.[c])))) {
+        gaps.push(`${MONTHS[m]} ${y}`);
+      }
+    }
+  }
+  const btn = document.getElementById('dataGapsBtn');
+  btn._gaps = gaps;
+  if (gaps.length > 0) {
+    btn.style.display = '';
+    document.getElementById('dataGapsCount').textContent = gaps.length;
+    document.getElementById('gapsList').textContent = gaps.join(', ');
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function toggleGapsPanel() {
+  const p = document.getElementById('gapsPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── CSV EXPORT ────────────────────────────────────────────
+function exportCSV() {
+  const fields = ['year','month','salary','bonus','otherincome','k401_contrib','hsa_contrib','federal_tax','state_tax','local_tax','fica_tax','taxes','checking','savings','brokerage','k401','ira','otherassets','cc','studentloan','otherdebt',...CATS];
+  const rows = [fields.join(',')];
+  Object.keys(allData).sort().forEach(k => {
+    const [y, m] = k.split('_').map(Number);
+    const d = allData[k];
+    const vals = [y, m, d.salary||0, d.bonus||0, d.otherincome||0, d.k401_contrib||0, d.hsa_contrib||0, d.federal_tax||0, d.state_tax||0, d.local_tax||0, d.fica_tax||0, d.taxes||0, d.checking||0, d.savings||0, d.brokerage||0, d.k401||0, d.ira||0, d.otherassets||0, d.cc||0, d.studentloan||0, d.otherdebt||0, ...CATS.map(c => d.spending?.[c]||0)];
+    rows.push(vals.join(','));
+  });
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'personal-finance.csv';
+  a.click();
+}
+
+// ── MONTE CARLO ───────────────────────────────────────────
+function updateMonteCarlo(d) {
+  const s = setupCanvas('mcChart', 200); if (!s) return;
+  const { ctx, W, H } = s;
+  const inv = d ? (d.invested || 0) : 0;
+  const startAge = FIRE_CONFIG.currentAge;
+  const endAge = Math.max(FIRE_CONFIG.retirementAge + 20, 75);
+  const ages = [];
+  for (let a = Math.floor(startAge); a <= endAge; a++) ages.push(a);
+
+  const mu = FIRE_CONFIG.returnRate, sigma = 0.15, annualCtb = FIRE_CONFIG.annualContribution, N = 500;
+  function randn() {
+    const u1 = Math.max(1e-10, Math.random()), u2 = Math.random();
+    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  }
+  const sims = [];
+  for (let i = 0; i < N; i++) {
+    let pf = inv; const traj = [pf];
+    for (let j = 1; j < ages.length; j++) { pf = Math.max(0, pf * (1 + mu + sigma * randn()) + annualCtb); traj.push(pf); }
+    sims.push(traj);
+  }
+  function pctile(arr, p) { const s = [...arr].sort((a,b)=>a-b); return s[Math.min(Math.floor(p*s.length), s.length-1)]; }
+  const p10 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.10));
+  const p25 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.25));
+  const p50 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.50));
+  const p75 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.75));
+  const p90 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.90));
+
+  const fireTargets = [{v:FIRE_CONFIG.leanFire,c:'#00d4aa',l:'LeanFIRE'},{v:FIRE_CONFIG.fire,c:'#4d9fff',l:'FIRE'},{v:FIRE_CONFIG.fatFire,c:'#7b5ea7',l:'FatFIRE'}];
+  const allVals = [...p90, ...fireTargets.map(f=>f.v)];
+  const rawMax = Math.max(...allVals);
+  const step = rawMax < 1e6 ? 250000 : rawMax < 5e6 ? 500000 : 1000000;
+  const yMax = Math.ceil(rawMax * 1.05 / step) * step, yMin = 0;
+
+  const pL = 68, pR = 12, pT = 8, pB = 24, cW = W - pL - pR, cH = H - pT - pB;
+  const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
+  const tx = i => pL + (i / Math.max(ages.length - 1, 1)) * cW;
+
+  // p10–p90 band
+  ctx.beginPath();
+  p90.forEach((v,i) => i===0?ctx.moveTo(tx(i),ty(v)):ctx.lineTo(tx(i),ty(v)));
+  [...p10].reverse().forEach((v,i) => ctx.lineTo(tx(ages.length-1-i), ty(v)));
+  ctx.closePath(); ctx.fillStyle='rgba(77,159,255,0.10)'; ctx.fill();
+
+  // p25–p75 band
+  ctx.beginPath();
+  p75.forEach((v,i) => i===0?ctx.moveTo(tx(i),ty(v)):ctx.lineTo(tx(i),ty(v)));
+  [...p25].reverse().forEach((v,i) => ctx.lineTo(tx(ages.length-1-i), ty(v)));
+  ctx.closePath(); ctx.fillStyle='rgba(77,159,255,0.20)'; ctx.fill();
+
+  // median line
+  ctx.beginPath(); ctx.strokeStyle='#4d9fff'; ctx.lineWidth=2;
+  p50.forEach((v,i) => i===0?ctx.moveTo(tx(i),ty(v)):ctx.lineTo(tx(i),ty(v))); ctx.stroke();
+
+  // FIRE target lines
+  fireTargets.forEach(ft => {
+    if (ft.v > yMax) return;
+    const fy = ty(ft.v);
+    ctx.setLineDash([4,4]); ctx.strokeStyle=ft.c; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pL,fy); ctx.lineTo(pL+cW,fy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font='8px DM Mono,monospace'; ctx.fillStyle=ft.c; ctx.textAlign='left';
+    ctx.fillText(ft.l, pL+3, fy-2);
+  });
+
+  // X axis (ages)
+  ctx.font='8px DM Mono,monospace'; ctx.fillStyle='#5a5a72'; ctx.textAlign='center';
+  const ageStep = Math.ceil(ages.length/12);
+  ages.forEach((a,i) => { if(i%ageStep!==0&&i!==ages.length-1)return; ctx.fillText(a, tx(i), pT+cH+14); });
+
+  // legend
+  ctx.textAlign='left';
+  [['rgba(77,159,255,0.20)','10–90th pct'],['rgba(77,159,255,0.40)','25–75th pct'],['#4d9fff','Median']].forEach(([c,l],i) => {
+    const lx = pL + i*90;
+    ctx.fillStyle=c; ctx.fillRect(lx, H-9, 12, 7);
+    ctx.fillStyle='#9090a8'; ctx.fillText(l, lx+15, H-2);
+  });
+}
+
+// ── CONTRIBUTION IMPACT ───────────────────────────────────
+function updateContribCalc(d) {
+  const t = document.getElementById('ctbImpactTable'); if (!t) return;
+  const inv = d ? (d.invested || 0) : 0;
+  const base = FIRE_CONFIG.annualContribution, rate = FIRE_CONFIG.returnRate;
+  const target = FIRE_CONFIG.fire, startAge = FIRE_CONFIG.currentAge;
+
+  function yearsToFire(annualCtb) {
+    let pf = inv, n = 0;
+    while (pf < target && n < 100) { pf = pf * (1 + rate) + annualCtb; n++; }
+    return pf >= target ? n : null;
+  }
+
+  const baseYrs = yearsToFire(base);
+  const scenarios = [0, 250, 500, 1000, 2000, 5000];
+  const rows = scenarios.map(extra => {
+    const ann = base + extra * 12;
+    const yrs = yearsToFire(ann);
+    const saved = baseYrs !== null && yrs !== null ? baseYrs - yrs : null;
+    const retAge = yrs !== null ? (startAge + yrs).toFixed(1) : 'Never';
+    return {extra, ann, yrs, saved, retAge};
+  });
+  t.innerHTML = `<thead><tr><th>Extra/Mo</th><th>Annual Ctb</th><th>Retire Age</th><th>Yrs Saved</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr class="${r.extra===0?'tot':''}"><td>${r.extra===0?'Base':'+'+fmt(r.extra)}</td><td>${fmt(r.ann)}</td><td class="${r.extra>0?'pos':''}">${r.retAge}</td><td class="${r.saved>0?'pos':''}">${r.saved!==null&&r.extra>0?r.saved+' yr'+(r.saved===1?'':'s'):'—'}</td></tr>`).join('')+
+    `</tbody>`;
+}
+
+// ── INCOME GROWTH CHART ───────────────────────────────────
+function drawIncGrowthChart() {
+  const s = setupCanvas('incGrowthChart', 150); if (!s) return;
+  const { ctx, W, H } = s;
+  const nowY = _now.getFullYear(), nowM = _now.getMonth();
+  const years = [2023, 2024, 2025, 2026];
+  const labels = ['2023', '2024', '2025', 'YTD \'26'];
+  const annualInc = years.map(y => {
+    let total = 0, cnt = 0;
+    const endM = y < nowY ? 11 : nowM - 1;
+    for (let m = 0; m <= endM; m++) {
+      const d = get(y, m);
+      if (d) { total += (d.salary||0) + (d.bonus||0) + (d.otherincome||0); cnt++; }
+    }
+    return cnt > 0 ? total : null;
+  });
+
+  const valid = annualInc.filter(v => v !== null);
+  if (!valid.length) return;
+  const rawMax = Math.max(...valid);
+  const step = rawMax < 100000 ? 25000 : rawMax < 300000 ? 50000 : 100000;
+  const yMax = Math.ceil(rawMax * 1.25 / step) * step, yMin = 0;
+
+  const pL = 58, pR = 12, pT = 8, pB = 20, cW = W - pL - pR, cH = H - pT - pB;
+  const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
+  const bW = Math.max(12, cW / years.length * 0.55);
+  const bX = i => pL + (i + 0.5) * (cW / years.length) - bW / 2;
+
+  annualInc.forEach((v, i) => {
+    if (v === null) return;
+    const isYTD = years[i] === nowY;
+    ctx.fillStyle = isYTD ? 'rgba(77,159,255,0.45)' : '#4d9fff';
+    const barTop = ty(v), barH = pT + cH - barTop;
+    ctx.fillRect(bX(i), barTop, bW, barH);
+
+    // YoY % label (only for full year comparisons)
+    if (i > 0 && annualInc[i-1] !== null && !isYTD) {
+      const pctV = (v - annualInc[i-1]) / annualInc[i-1];
+      ctx.font='9px DM Mono,monospace'; ctx.textAlign='center';
+      ctx.fillStyle = pctV >= 0 ? '#00d4aa' : '#ff4d6a';
+      ctx.fillText((pctV>=0?'+':'')+(pctV*100).toFixed(1)+'%', bX(i)+bW/2, barTop-4);
+    }
+
+    // Year label
+    ctx.font='9px DM Mono,monospace'; ctx.fillStyle='#9090a8'; ctx.textAlign='center';
+    ctx.fillText(labels[i], bX(i)+bW/2, pT+cH+13);
+  });
 }
 
 const PASS_HASH = '7e015a065f5cc04cdbb217636df0c8b585c63894a34df31de5194b02be0d1d34';

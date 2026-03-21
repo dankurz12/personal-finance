@@ -511,8 +511,9 @@ const FIRE_CONFIG = {
   savings2025Rate: 0.6436,
 };
 
-let curMonth = new Date().getMonth();
-let curYear = new Date().getFullYear();
+const _now = new Date();
+let curMonth = _now.getMonth() === 0 ? 11 : _now.getMonth() - 1;
+let curYear = _now.getMonth() === 0 ? _now.getFullYear() - 1 : _now.getFullYear();
 let allData = {};
 
 // ── SYNC ────────────────────────────────────────────────

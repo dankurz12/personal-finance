@@ -479,7 +479,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
             <label class="btn" style="cursor:pointer;margin:0">
               Upload PDF Pay Stub
-              <input type="file" id="payStubInput" accept=".pdf,application/pdf" style="display:none" onchange="handlePayStub(this.files[0])">
+              <input type="file" id="payStubInput" accept=".pdf,application/pdf" multiple style="display:none" onchange="Array.from(this.files).reduce((p,f)=>p.then(()=>handlePayStub(f)),Promise.resolve())">
             </label>
             <span id="payStubStatus" style="font-size:11px;color:var(--text2)"></span>
           </div>

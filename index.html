@@ -176,6 +176,12 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .gauge-label { font-family: var(--body-font); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); margin-top: 4px; }
 
 /* LOADING */
+.pw-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; gap: 16px; }
+.pw-overlay .pw-title { font-family: var(--mono-font); font-size: 13px; letter-spacing: 0.15em; color: var(--text2); text-transform: uppercase; }
+.pw-overlay .pw-box { display: flex; gap: 8px; }
+.pw-overlay input[type=password] { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono-font); font-size: 13px; padding: 7px 12px; border-radius: 4px; outline: none; width: 200px; }
+.pw-overlay input[type=password]:focus { border-color: var(--green); }
+.pw-overlay .pw-err { font-family: var(--mono-font); font-size: 10px; color: var(--red); letter-spacing: 0.1em; min-height: 14px; }
 .loading-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 14px; }
 .loading-overlay span { font-family: var(--mono-font); font-size: 11px; letter-spacing: 0.18em; color: var(--text3); text-transform: uppercase; }
 .spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -223,6 +229,15 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
 </head>
 <body>
+
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-title">Personal Finance Dashboard</div>
+  <div class="pw-box">
+    <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="btn" onclick="checkPw()">Unlock</button>
+  </div>
+  <div class="pw-err" id="pwErr"></div>
+</div>
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
@@ -535,7 +550,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXRZXsZmwxuTLrbLiJmemQea2ml7IE9_lRXBnMVb-x51O5JqYhrsyb1g3SM3_f6bvh/exec';
 let ANTHROPIC_KEY = '';
-let processedHashes = new Set();
 
 const CATS = ['Rent','Utilities','Transportation','Groceries','Restaurants','Coffee / Snacks','Alcohol','Entertainment','Fitness','Clothing','Personal','Gas','Household','Travel','Gifts','Medical/Dental','Other'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -613,8 +627,7 @@ async function init() {
     setSyncStatus('error', 'Offline');
     showToast('Could not reach Google Sheets', 'err');
   }
-  Object.values(allData).forEach(d => (d._stub_hashes||[]).forEach(h => processedHashes.add(h)));
-  if (ANTHROPIC_KEY) document.getElementById('anthropicKey').value = '••••••••';
+if (ANTHROPIC_KEY) document.getElementById('anthropicKey').value = '••••••••';
   document.getElementById('loadingOverlay').style.display = 'none';
   loadForm();
   refreshAll();
@@ -742,12 +755,6 @@ async function saveApiKey() {
   } catch(e) { showToast('Failed to save key', 'err'); }
 }
 
-async function hashFile(file) {
-  const buf = await file.arrayBuffer();
-  const digest = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
 async function handlePayStub(file) {
   const statusEl = document.getElementById('payStubStatus');
   const resultEl = document.getElementById('payStubResult');
@@ -755,16 +762,6 @@ async function handlePayStub(file) {
   document.getElementById('payStubInput').value = '';
   if (!file) return;
   if (!ANTHROPIC_KEY) { showToast('Enter your Anthropic API key first', 'err'); return; }
-
-  statusEl.textContent = 'Checking…';
-  statusEl.style.color = 'var(--text2)';
-  const fileHash = await hashFile(file);
-  if (processedHashes.has(fileHash)) {
-    statusEl.textContent = 'Duplicate';
-    statusEl.style.color = 'var(--yellow)';
-    showToast('This pay stub has already been uploaded', 'err');
-    return;
-  }
 
   statusEl.textContent = 'Parsing…';
   statusEl.style.color = 'var(--text2)';
@@ -824,9 +821,7 @@ async function handlePayStub(file) {
       }
     }
 
-    // Record hash so this stub can't be re-uploaded (persists into allData for save)
-    processedHashes.add(fileHash);
-    const stubKey = ck(curYear, curMonth);
+const stubKey = ck(curYear, curMonth);
     if (!allData[stubKey]) allData[stubKey] = {};
     if (!allData[stubKey]._stub_hashes) allData[stubKey]._stub_hashes = [];
     allData[stubKey]._stub_hashes.push(fileHash);
@@ -1507,7 +1502,26 @@ function updateYoY(d) {
     `<tr class="tot"><td>TOTAL</td><td>${fmt(totThis)}</td><td>${totPrior > 0 ? fmt(totPrior) : '—'}</td><td class="${totPrior > 0 ? (totChg > 0 ? 'neg' : totChg < 0 ? 'pos' : '') : ''}">${totPrior > 0 ? fmt(totChg, true) : '—'}</td><td class="${totPct !== null ? (totPct > 0 ? 'neg' : 'pos') : ''}">${totPct !== null ? pct(totPct) : '—'}</td></tr></tbody>`;
 }
 
-init();
+const PASS_HASH = '7e015a065f5cc04cdbb217636df0c8b585c63894a34df31de5194b02be0d1d34';
+async function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(val));
+  const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if (hex === PASS_HASH) {
+    sessionStorage.setItem('pfm_auth','1');
+    document.getElementById('pwOverlay').style.display = 'none';
+    init();
+  } else {
+    const err = document.getElementById('pwErr');
+    err.textContent = 'Incorrect password';
+    document.getElementById('pwInput').value = '';
+    setTimeout(() => { err.textContent = ''; }, 2000);
+  }
+}
+if (sessionStorage.getItem('pfm_auth') === '1') {
+  document.getElementById('pwOverlay').style.display = 'none';
+  init();
+}
 </script>
 
 </body>

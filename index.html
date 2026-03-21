@@ -242,7 +242,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <div class="tab active" onclick="showSection('overview')">Overview</div>
   <div class="tab" onclick="showSection('fire')">FIRE</div>
   <div class="tab" onclick="showSection('pnl')">P&L</div>
-  <div class="tab" onclick="showSection('balance')">Balance Sheet</div>
   <div class="tab" onclick="showSection('cashflow')">Cash Flow</div>
   <div class="tab" onclick="showSection('spending')">Spending</div>
   <div class="tab" onclick="showSection('trends')">Trends</div>
@@ -405,21 +404,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     </div>
   </section>
 
-  <!-- BALANCE SHEET -->
-
-  <section id="section-balance" class="section">
-    <div class="g2">
-      <div class="card">
-        <div class="card-head"><div class="card-title">Assets</div></div>
-        <div style="padding:0"><table class="tbl" id="assetsTbl"></table></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">Liabilities & Net Worth</div></div>
-        <div style="padding:0"><table class="tbl" id="liabTbl"></table></div>
-      </div>
-    </div>
-  </section>
-
   <!-- CASH FLOW -->
 
   <section id="section-cashflow" class="section">
@@ -495,6 +479,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <div class="fg"><label class="fl">Gross Salary</label><input class="fi" id="f-salary" type="number" placeholder="0"></div>
           <div class="fg"><label class="fl">Bonus / Commission</label><input class="fi" id="f-bonus" type="number" placeholder="0"></div>
           <div class="fg"><label class="fl">Other Income</label><input class="fi" id="f-otherincome" type="number" placeholder="0"></div>
+          <div class="fg"><label class="fl">Taxes Paid</label><input class="fi" id="f-taxes" type="number" placeholder="0"></div>
         </div>
         <div class="fsec">Account Balances</div>
         <div class="form-grid">
@@ -634,6 +619,7 @@ function getFormData() {
     salary: parseFloat(document.getElementById('f-salary').value)||0,
     bonus: parseFloat(document.getElementById('f-bonus').value)||0,
     otherincome: parseFloat(document.getElementById('f-otherincome').value)||0,
+    taxes: parseFloat(document.getElementById('f-taxes').value)||0,
     checking: parseFloat(document.getElementById('f-checking').value)||0,
     savings: parseFloat(document.getElementById('f-savings').value)||0,
     brokerage: parseFloat(document.getElementById('f-brokerage').value)||0,
@@ -649,7 +635,7 @@ function getFormData() {
 
 function loadForm() {
   const d = get(curYear, curMonth);
-  ['salary','bonus','otherincome','checking','savings','brokerage','k401','ira','otherassets','cc','studentloan','otherdebt'].forEach(f => {
+  ['salary','bonus','otherincome','taxes','checking','savings','brokerage','k401','ira','otherassets','cc','studentloan','otherdebt'].forEach(f => {
     const el = document.getElementById(`f-${f}`);
     if (el) el.value = d ? (d[f] || '') : '';
   });
@@ -697,8 +683,9 @@ function cc(n) { return n > 0 ? 'pos' : n < 0 ? 'neg' : ''; }
 function compute(d) {
   if (!d) return null;
   const inc = d.salary + d.bonus + d.otherincome;
+  const taxes = d.taxes || 0;
   const spend = CATS.reduce((s,c) => s+(d.spending[c]||0), 0);
-  const netInc = inc - spend;
+  const netInc = inc - taxes - spend;
   const assets = d.checking + d.savings + d.brokerage + d.k401 + d.ira + d.otherassets;
   const liab = d.cc + d.studentloan + d.otherdebt;
   const nw = assets - liab;
@@ -706,7 +693,7 @@ function compute(d) {
   const savRate = inc > 0 ? netInc / inc : null;
   const liquid = d.checking + d.savings;
   const topCat = CATS.reduce((a,c) => (d.spending[c]||0)>(d.spending[a]||0)?c:a, CATS[0]);
-  return { inc, spend, netInc, assets, liab, nw, invested, savRate, liquid, topCat, ...d };
+  return { inc, taxes, spend, netInc, assets, liab, nw, invested, savRate, liquid, topCat, ...d };
 }
 
 // ── REFRESH ALL ─────────────────────────────────────────
@@ -715,7 +702,6 @@ function refreshAll() {
   updateOverview(d);
   updateFire(d);
   updatePnL(d);
-  updateBalance(d);
   updateCashFlow(d);
   updateSpending(d);
   updateTrends();
@@ -894,10 +880,12 @@ function updateFire(d) {
 function updatePnL(d) {
   const t = document.getElementById('pnlTable');
   if (!d) { t.innerHTML='<tr><td class="empty" style="padding:20px">No data</td></tr>'; return; }
+  const netAfterTax = d.inc - d.taxes;
   const rows = [
-    {s:'INCOME'},{l:'Gross Salary',v:d.salary},{l:'Bonus / Commission',v:d.bonus},{l:'Other Income',v:d.otherincome},{l:'TOTAL INCOME',v:d.inc,tot:true},
+    {s:'INCOME'},{l:'Gross Salary',v:d.salary},{l:'Bonus / Commission',v:d.bonus},{l:'Other Income',v:d.otherincome},{l:'TOTAL GROSS INCOME',v:d.inc,tot:true},
+    {s:'TAXES'},{l:'Taxes Paid',v:d.taxes},{l:'NET INCOME AFTER TAX',v:netAfterTax,tot:true},
     {s:'EXPENSES'},...CATS.map(c=>({l:c,v:d.spending[c]||0})),{l:'TOTAL EXPENSES',v:d.spend,tot:true},
-    {s:'NET'},{l:'NET INCOME',v:d.netInc,tot:true},
+    {s:'NET'},{l:'NET SAVINGS',v:d.netInc,tot:true},
   ];
   t.innerHTML='<thead><tr><th>Line Item</th><th>Amount</th></tr></thead><tbody>'+
     rows.map(r=>r.s?`<tr class="sec"><td colspan="2">${r.s}</td></tr>`:
@@ -909,22 +897,6 @@ function updatePnL(d) {
   document.getElementById('spendBars').innerHTML = bars.length
     ? bars.map(c=>`<div class="bar-row"><div class="bar-lbl">${c}</div><div class="bar-track"><div class="bar-fill r" style="width:${(d.spending[c]/maxS*100).toFixed(1)}%"></div></div><div class="bar-amt">${fmt(d.spending[c])}</div></div>`).join('')
     : '<div class="empty">No spending data</div>';
-}
-
-// ── BALANCE SHEET ────────────────────────────────────────
-function updateBalance(d) {
-  const at=document.getElementById('assetsTbl'), lt=document.getElementById('liabTbl');
-  if (!d) { [at,lt].forEach(t=>t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>'); return; }
-  const mkR = rows => '<tbody>'+rows.map(r=>r.s?`<tr class="sec"><td colspan="2">${r.s}</td></tr>`:
-    `<tr class="${r.tot?'tot':''}"><td>${r.l}</td><td class="${r.tot?cc(r.v):''}">${fmt(r.v)}</td></tr>`).join('')+'</tbody>';
-  at.innerHTML='<thead><tr><th>Asset</th><th>Balance</th></tr></thead>'+mkR([
-    {s:'LIQUID'},{l:'Checking',v:d.checking},{l:'Savings',v:d.savings},{l:'Total Liquid',v:d.liquid,tot:true},
-    {s:'INVESTMENTS'},{l:'Brokerage',v:d.brokerage},{l:'401(k)',v:d.k401},{l:'IRA / Roth IRA',v:d.ira},{l:'Other Assets',v:d.otherassets},{l:'TOTAL ASSETS',v:d.assets,tot:true},
-  ]);
-  lt.innerHTML='<thead><tr><th>Liability / Equity</th><th>Balance</th></tr></thead>'+mkR([
-    {s:'LIABILITIES'},{l:'Credit Cards',v:d.cc},{l:'Student Loans',v:d.studentloan},{l:'Other Debt',v:d.otherdebt},{l:'TOTAL LIABILITIES',v:d.liab,tot:true},
-    {s:'NET WORTH'},{l:'NET WORTH',v:d.nw,tot:true},
-  ]);
 }
 
 // ── CASH FLOW ────────────────────────────────────────────
@@ -1072,7 +1044,7 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(`section-${id}`)?.classList.add('active');
-  const tabs=['overview','fire','pnl','balance','cashflow','spending','trends','entry'];
+  const tabs=['overview','fire','pnl','cashflow','spending','trends','entry'];
   document.querySelectorAll('.tab')[tabs.indexOf(id)]?.classList.add('active');
   if (id === 'entry') loadForm();
   if (id === 'trends') updateTrends();

@@ -773,7 +773,7 @@ async function handlePayStub(file) {
           role: 'user',
           content: [
             { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-            { type: 'text', text: 'Extract from this pay stub for the current pay period only. Return ONLY valid JSON with these numeric keys (no commas in numbers): gross_income, federal_tax, state_tax, local_tax, fica_tax (social security + medicare combined), k401_contribution, hsa_contribution. Use 0 for any field not found.' }
+            { type: 'text', text: 'Extract from this pay stub for the current pay period only. Return ONLY valid JSON with these keys: pay_year (4-digit integer), pay_month (integer 1-12, from the pay date or period end date), gross_income, federal_tax, state_tax, local_tax, fica_tax (SS + Medicare combined), k401_contribution, hsa_contribution. All money values are plain numbers with no commas. Use 0 for any field not found.' }
           ]
         }]
       })
@@ -789,33 +789,53 @@ async function handlePayStub(file) {
     if (!match) throw new Error('No JSON in response');
     const p = JSON.parse(match[0]);
 
-    // Fill all parsed fields
-    const setField = (id, val) => { if (val) { const el = document.getElementById(id); if (el) el.value = val; } };
-    setField('f-salary', p.gross_income);
-    setField('f-federaltax', p.federal_tax);
-    setField('f-statetax', p.state_tax);
-    setField('f-localtax', p.local_tax);
-    setField('f-ficatax', p.fica_tax);
-    setField('f-k401contrib', p.k401_contribution);
-    setField('f-hsacontrib', p.hsa_contribution);
+    // Auto-switch to the pay stub's month and load existing data first
+    let detectedLabel = '';
+    if (p.pay_year && p.pay_month) {
+      const sel = document.getElementById('monthSelect');
+      const targetVal = `${p.pay_year}-${p.pay_month - 1}`; // month is 0-indexed in app
+      const opt = Array.from(sel.options).find(o => o.value === targetVal);
+      if (opt) {
+        sel.value = targetVal;
+        curYear = p.pay_year;
+        curMonth = p.pay_month - 1;
+        loadForm(); // populate existing data for this month before adding
+        detectedLabel = opt.textContent;
+      }
+    }
+
+    // ADD to existing form values so multiple pay stubs in the same month accumulate
+    const addField = (id, val) => {
+      if (!val) return;
+      const el = document.getElementById(id);
+      if (el) el.value = ((parseFloat(el.value) || 0) + val).toFixed(2);
+    };
+    addField('f-salary', p.gross_income);
+    addField('f-federaltax', p.federal_tax);
+    addField('f-statetax', p.state_tax);
+    addField('f-localtax', p.local_tax);
+    addField('f-ficatax', p.fica_tax);
+    addField('f-k401contrib', p.k401_contribution);
+    addField('f-hsacontrib', p.hsa_contribution);
 
     // Summary
     const totalTax = (p.federal_tax||0) + (p.state_tax||0) + (p.local_tax||0) + (p.fica_tax||0);
     const lines = [
-      `Gross: <b>${fmt(p.gross_income || 0)}</b>`,
+      detectedLabel ? `Month: <b>${detectedLabel}</b>` : null,
+      `Gross added: <b>${fmt(p.gross_income || 0)}</b>`,
       p.federal_tax ? `Federal: ${fmt(p.federal_tax)}` : null,
       p.state_tax   ? `State: ${fmt(p.state_tax)}` : null,
       p.local_tax   ? `Local: ${fmt(p.local_tax)}` : null,
       p.fica_tax    ? `FICA: ${fmt(p.fica_tax)}` : null,
-      `Total taxes filled: <b>${fmt(totalTax)}</b>`,
-      p.k401_contribution ? `401(k): <b>${fmt(p.k401_contribution)}</b>` : null,
-      p.hsa_contribution  ? `HSA: <b>${fmt(p.hsa_contribution)}</b>` : null,
+      `Taxes added: <b>${fmt(totalTax)}</b>`,
+      p.k401_contribution ? `401(k) added: <b>${fmt(p.k401_contribution)}</b>` : null,
+      p.hsa_contribution  ? `HSA added: <b>${fmt(p.hsa_contribution)}</b>` : null,
     ].filter(Boolean);
     resultEl.innerHTML = lines.join('<br>');
     resultEl.style.display = 'block';
-    statusEl.textContent = 'Filled ✓';
+    statusEl.textContent = 'Added ✓';
     statusEl.style.color = 'var(--green)';
-    showToast('Pay stub parsed — review & save', 'ok');
+    showToast(`Stub added${detectedLabel ? ' to ' + detectedLabel : ''} — review & save`, 'ok');
   } catch(e) {
     statusEl.textContent = 'Failed';
     statusEl.style.color = 'var(--red)';

@@ -823,8 +823,6 @@ async function handlePayStub(file) {
 
 const stubKey = ck(curYear, curMonth);
     if (!allData[stubKey]) allData[stubKey] = {};
-    if (!allData[stubKey]._stub_hashes) allData[stubKey]._stub_hashes = [];
-    allData[stubKey]._stub_hashes.push(fileHash);
 
     // ADD to existing form values so multiple pay stubs in the same month accumulate
     const addField = (id, val) => {

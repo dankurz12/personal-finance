@@ -623,7 +623,7 @@ async function init() {
 function buildMonthSel() {
   const sel = document.getElementById('monthSelect');
   const now = new Date();
-  for (let y = now.getFullYear(); y >= now.getFullYear() - 2; y--) {
+  for (let y = now.getFullYear(); y >= 2023; y--) {
     for (let m = (y === now.getFullYear() ? now.getMonth() : 11); m >= 0; m--) {
       const o = document.createElement('option');
       o.value = `${y}-${m}`;

@@ -93,17 +93,17 @@ color: var(–text2);
 .tab.active { color: var(–green); border-bottom-color: var(–green); }
 
 /* MAIN */
-main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
+main { padding: 10px 20px; max-width: 1440px; margin: 0 auto; }
 .section { display: none; }
 .section.active { display: block; }
 
 /* KPI ROW */
-.kpi-row { display: grid; gap: 10px; margin-bottom: 10px; }
+.kpi-row { display: grid; gap: 8px; margin-bottom: 8px; }
 .kpi-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
 .kpi-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .kpi-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
 
-.kpi { background: var(–bg2); border: 1px solid var(–border); border-radius: 4px; padding: 14px 16px; position: relative; overflow: hidden; }
+.kpi { background: var(–bg2); border: 1px solid var(–border); border-radius: 4px; padding: 10px 12px; position: relative; overflow: hidden; }
 .kpi::after { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 1px; }
 .kpi.g::after { background: var(–green); }
 .kpi.r::after { background: var(–red); }
@@ -112,46 +112,46 @@ main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
 .kpi.p::after { background: var(–purple); }
 .kpi.t::after { background: var(–teal); }
 
-.kpi-label { font-family: ‘DM Mono’, monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); margin-bottom: 6px; }
-.kpi-val { font-family: ‘DM Mono’, monospace; font-size: 22px; font-weight: 400; color: var(–text); line-height: 1; }
+.kpi-label { font-family: ‘DM Mono’, monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); margin-bottom: 4px; }
+.kpi-val { font-family: ‘DM Mono’, monospace; font-size: 20px; font-weight: 400; color: var(–text); line-height: 1; }
 .kpi-val.pos { color: var(–green); }
 .kpi-val.neg { color: var(–red); }
 .kpi-val.blue { color: var(–blue); }
 .kpi-val.yellow { color: var(–yellow); }
 .kpi-val.purple { color: var(–purple); }
-.kpi-sub { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3); margin-top: 4px; }
+.kpi-sub { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3); margin-top: 3px; }
 
 /* GRID */
-.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px; }
-.g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px; }
+.g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-bottom: 8px; }
 
 /* CARD */
 .card { background: var(–bg2); border: 1px solid var(–border); border-radius: 4px; overflow: hidden; }
-.card-head { padding: 10px 14px; border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; }
+.card-head { padding: 7px 12px; border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; }
 .card-title { font-family: ‘DM Mono’, monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); }
-.card-body { padding: 14px; }
+.card-body { padding: 10px 12px; }
 
 /* TABLE */
 .tbl { width: 100%; border-collapse: collapse; }
-.tbl th { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); text-align: right; padding: 6px 10px; border-bottom: 1px solid var(–border); }
+.tbl th { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); text-align: right; padding: 4px 8px; border-bottom: 1px solid var(–border); }
 .tbl th:first-child { text-align: left; }
-.tbl td { font-family: ‘DM Mono’, monospace; font-size: 11px; color: var(–text); padding: 7px 10px; text-align: right; border-bottom: 1px solid var(–border); }
+.tbl td { font-family: ‘DM Mono’, monospace; font-size: 11px; color: var(–text); padding: 5px 8px; text-align: right; border-bottom: 1px solid var(–border); }
 .tbl td:first-child { text-align: left; color: var(–text2); }
 .tbl tr:last-child td { border-bottom: none; }
 .tbl tr:hover td { background: var(–bg3); }
 .tbl .tot td { font-weight: 600; color: var(–text); border-top: 1px solid var(–border2); border-bottom: none; background: var(–bg3); }
-.tbl .sec td { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); background: var(–bg3); padding: 4px 10px; }
+.tbl .sec td { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); background: var(–bg3); padding: 3px 8px; }
 .pos { color: var(–green) !important; }
 .neg { color: var(–red) !important; }
 .dim { color: var(–text3) !important; }
 
 /* BARS */
-.bars { padding: 2px 0; }
-.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.bars { padding: 1px 0; }
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
 .bar-lbl { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text2); width: 120px; flex-shrink: 0; text-align: right; }
-.bar-track { flex: 1; height: 3px; background: var(–bg4); border-radius: 2px; overflow: hidden; }
+.bar-track { flex: 1; height: 2px; background: var(–bg4); border-radius: 2px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
 .bar-fill.g { background: var(–green); }
 .bar-fill.r { background: var(–red); }
@@ -161,17 +161,17 @@ main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
 .bar-amt { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text2); width: 72px; text-align: right; flex-shrink: 0; }
 
 /* PROGRESS BAR */
-.progress-item { margin-bottom: 10px; }
-.progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.progress-item { margin-bottom: 7px; }
+.progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
 .progress-label { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text2); }
 .progress-pct { font-family: ‘DM Mono’, monospace; font-size: 10px; font-weight: 500; }
-.progress-track { height: 3px; background: var(–bg4); border-radius: 2px; overflow: hidden; }
+.progress-track { height: 2px; background: var(–bg4); border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 
 /* FIRE GAUGE */
-.fire-gauge { text-align: center; padding: 16px 0; }
-.gauge-val { font-family: ‘DM Mono’, monospace; font-size: 44px; font-weight: 300; line-height: 1; }
-.gauge-label { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(–text3); margin-top: 6px; }
+.fire-gauge { text-align: center; padding: 10px 0; }
+.gauge-val { font-family: ‘DM Mono’, monospace; font-size: 36px; font-weight: 300; line-height: 1; }
+.gauge-label { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(–text3); margin-top: 5px; }
 
 /* LOADING */
 .loading-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 14px; }
@@ -187,24 +187,24 @@ main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
 .toast.err { border-color: var(–red); color: var(–red); }
 
 /* EMPTY */
-.empty { text-align: center; padding: 28px; color: var(–text3); font-family: ‘DM Mono’, monospace; font-size: 11px; }
+.empty { text-align: center; padding: 18px; color: var(–text3); font-family: ‘DM Mono’, monospace; font-size: 11px; }
 
 /* FORM */
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
 .fg { display: flex; flex-direction: column; gap: 4px; }
 .fl { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text3); }
-.fi { background: var(–bg3); border: 1px solid var(–border); color: var(–text); padding: 7px 9px; font-family: ‘DM Mono’, monospace; font-size: 11px; border-radius: 3px; width: 100%; transition: border-color 0.15s; }
+.fi { background: var(–bg3); border: 1px solid var(–border); color: var(–text); padding: 5px 8px; font-family: ‘DM Mono’, monospace; font-size: 11px; border-radius: 3px; width: 100%; transition: border-color 0.15s; }
 .fi:focus { outline: none; border-color: var(–green); }
-.fsec { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); margin: 14px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(–border); }
+.fsec { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(–text3); margin: 10px 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(–border); }
 
 /* FIRE INPUT */
 .fire-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
 
 /* SWR TABLE */
 .swr-table { width: 100%; border-collapse: collapse; font-family: ‘DM Mono’, monospace; font-size: 11px; }
-.swr-table th { padding: 5px 8px; text-align: center; color: var(–text3); font-size: 9px; letter-spacing: 0.1em; border-bottom: 1px solid var(–border); }
+.swr-table th { padding: 3px 6px; text-align: center; color: var(–text3); font-size: 9px; letter-spacing: 0.1em; border-bottom: 1px solid var(–border); }
 .swr-table th:first-child { text-align: left; }
-.swr-table td { padding: 5px 8px; text-align: center; border-bottom: 1px solid var(–border); color: var(–text2); }
+.swr-table td { padding: 3px 6px; text-align: center; border-bottom: 1px solid var(–border); color: var(–text2); }
 .swr-table td:first-child { text-align: left; color: var(–text); }
 .swr-table tr:hover td { background: var(–bg3); }
 .swr-table .highlight { color: var(–green); font-weight: 500; }
@@ -262,8 +262,8 @@ main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
 <div class="g2">
   <div class="card">
     <div class="card-head"><div class="card-title">Net Worth Trend</div><span id="chartPeriod" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)"></span></div>
-    <div class="card-body" style="padding:12px 18px 18px">
-      <canvas id="nwChart" height="90"></canvas>
+    <div class="card-body" style="padding:8px 12px 12px">
+      <canvas id="nwChart" height="220"></canvas>
       <div id="noChart" class="empty" style="display:none">Save multiple months to see trend.</div>
     </div>
   </div>
@@ -315,7 +315,7 @@ main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
     <div class="card-title">FIRE Settings</div>
     <button class="btn btn-primary" onclick="applyFireSettings()" style="padding:5px 12px;font-size:9px">Apply</button>
   </div>
-  <div class="card-body" style="padding:12px 14px">
+  <div class="card-body" style="padding:8px 12px">
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
       <div class="fg"><label class="fl">Current Age</label><input class="fi" id="fc-age" type="number" placeholder="29"></div>
       <div class="fg"><label class="fl">Withdrawal Rate %</label><input class="fi" id="fc-swr" type="number" placeholder="4" step="0.1"></div>
@@ -364,7 +364,7 @@ main { padding: 16px 24px; max-width: 1440px; margin: 0 auto; }
   <div class="kpi y" style="border-radius:4px">
     <div class="kpi-label">Annual Retirement Spend</div>
     <div class="kpi-val yellow" id="fire-spend" style="font-size:28px">—</div>
-    <div class="kpi-sub">4% SWR target</div>
+    <div class="kpi-sub" id="fire-swr-sub">4% SWR target</div>
   </div>
 </div>
 
@@ -790,7 +790,11 @@ function updateFire(d) {
   }).join('');
 
   // SWR Projection Matrix
-  const rates = [0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10];
+  const swrSub = document.getElementById('fire-swr-sub');
+  if (swrSub) swrSub.textContent = `${(FIRE_CONFIG.withdrawalRate*100).toFixed(1)}% SWR target`;
+  const centralRate = Math.round(FIRE_CONFIG.returnRate * 100) / 100;
+  const rateStart = Math.max(0.01, centralRate - 0.03);
+  const rates = Array.from({length: 8}, (_, i) => +((rateStart + i * 0.01).toFixed(4)));
   const maxAge = Math.max(FIRE_CONFIG.retirementAge + 20, 70);
   const ages = [];
   for (let a = Math.floor(FIRE_CONFIG.currentAge); a <= maxAge; a++) ages.push(a);
@@ -924,53 +928,102 @@ function updateSpending(d) {
 
 // ── NW CHART ─────────────────────────────────────────────
 function drawNWChart() {
-  const canvas=document.getElementById('nwChart');
-  const ctx=canvas.getContext('2d');
-  const points=[];
-  for(let i=35;i>=0;i--){
-    let m=curMonth-i,y=curYear;
-    while(m<0){m+=12;y--;}
-    const d=get(y,m);
-    if(d){
-      const nw=d.checking+d.savings+d.brokerage+d.k401+d.ira+d.otherassets-d.cc-d.studentloan-d.otherdebt;
-      points.push({l:`${MONTHS[m]} ${y}`,v:nw});
-    }
+  const canvas = document.getElementById('nwChart');
+  const ctx = canvas.getContext('2d');
+  const points = [];
+  for (let i = 35; i >= 0; i--) {
+    let m = curMonth - i, y = curYear;
+    while (m < 0) { m += 12; y--; }
+    const d = get(y, m);
+    if (d) points.push({
+      l: MONTHS[m].slice(0,3) + '-' + String(y).slice(2),
+      checking: d.checking||0, savings: d.savings||0, ira: d.ira||0,
+      k401: d.k401||0, brokerage: d.brokerage||0, otherassets: d.otherassets||0,
+      nw: (d.checking||0)+(d.savings||0)+(d.brokerage||0)+(d.k401||0)+(d.ira||0)+(d.otherassets||0)-(d.cc||0)-(d.studentloan||0)-(d.otherdebt||0)
+    });
   }
-  const noD=document.getElementById('noChart');
-  if(points.length<2){canvas.style.display='none';noD.style.display='block';return;}
-  canvas.style.display='block';noD.style.display='none';
-  document.getElementById('chartPeriod').textContent = `${points[0].l} → ${points[points.length-1].l}`;
-  const W=canvas.parentElement.clientWidth-4,H=90;
-  canvas.width=W;canvas.height=H;
-  const min=Math.min(...points.map(p=>p.v));
-  const max=Math.max(...points.map(p=>p.v));
-  const range=max-min||1,pad=8;
-  const tx=i=>pad+i*((W-pad*2)/(points.length-1));
-  const ty=v=>H-pad-((v-min)/range)*(H-pad*2);
-  ctx.clearRect(0,0,W,H);
-  // Grid lines
-  ctx.strokeStyle='rgba(36,48,64,0.8)';ctx.lineWidth=1;
-  for(let i=0;i<4;i++){const y=pad+i*(H-pad*2)/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-  // Fill
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'rgba(0,229,160,0.2)');g.addColorStop(1,'rgba(0,229,160,0)');
-  ctx.beginPath();ctx.moveTo(tx(0),ty(points[0].v));
-  points.forEach((p,i)=>i>0&&ctx.lineTo(tx(i),ty(p.v)));
-  ctx.lineTo(tx(points.length-1),H);ctx.lineTo(tx(0),H);ctx.closePath();
-  ctx.fillStyle=g;ctx.fill();
-  // Line
-  ctx.beginPath();ctx.strokeStyle='#00e5a0';ctx.lineWidth=1.5;
-  points.forEach((p,i)=>i===0?ctx.moveTo(tx(i),ty(p.v)):ctx.lineTo(tx(i),ty(p.v)));ctx.stroke();
-  // Dots
-  points.forEach((p,i)=>{
-    ctx.beginPath();ctx.arc(tx(i),ty(p.v),2.5,0,Math.PI*2);
-    ctx.fillStyle='#00e5a0';ctx.fill();
+  const noD = document.getElementById('noChart');
+  if (points.length < 2) { canvas.style.display='none'; noD.style.display='block'; return; }
+  canvas.style.display='block'; noD.style.display='none';
+  document.getElementById('chartPeriod').textContent = points[0].l + ' → ' + points[points.length-1].l;
+
+  const DPR = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth - 4, H = 220;
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+
+  const pL = 58, pR = 12, pT = 8, pB = 58;
+  const cW = W - pL - pR, cH = H - pT - pB;
+
+  const LAYERS = ['checking','savings','ira','k401','brokerage','otherassets'];
+  const COLORS = { checking:'#5cb85c', savings:'#e8943a', ira:'#7b5ea7', k401:'#2e7d32', brokerage:'#c87a00', otherassets:'#4d9fff' };
+  const LABELS = { checking:'Checking', savings:'Savings', ira:'IRA / Roth', k401:'401(k)', brokerage:'Brokerage', otherassets:'Other' };
+
+  const totals = points.map(p => LAYERS.reduce((s,k) => s + p[k], 0));
+  const maxT = Math.max(...totals), minNW = Math.min(...points.map(p => p.nw));
+  const step = maxT < 200000 ? 25000 : maxT < 500000 ? 50000 : 100000;
+  const yMax = Math.ceil(maxT * 1.05 / step) * step;
+  const yMin = Math.max(0, Math.floor(minNW * 0.92 / step) * step);
+  const yRng = yMax - yMin;
+
+  const ty = v => pT + cH - ((v - yMin) / yRng) * cH;
+  const bW = Math.max(2, cW / points.length * 0.72);
+  const bX = i => pL + (i + 0.5) * (cW / points.length) - bW / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines + Y axis labels
+  for (let v = yMin; v <= yMax + step * 0.01; v += step) {
+    const gy = ty(v);
+    ctx.strokeStyle = '#1c1c2a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
+    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+    ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
+  }
+
+  // Stacked bars (bottom-to-top: checking → savings → ira → k401 → brokerage → otherassets)
+  points.forEach((p, i) => {
+    let bot = pT + cH;
+    LAYERS.forEach(key => {
+      const val = p[key]; if (val <= 0) return;
+      const pixH = (val / yRng) * cH;
+      ctx.fillStyle = COLORS[key];
+      ctx.fillRect(bX(i), bot - pixH, bW, pixH);
+      bot -= pixH;
+    });
   });
-  // Labels for first and last
-  ctx.font='9px DM Mono,monospace';ctx.fillStyle='rgba(122,154,184,0.7)';ctx.textAlign='left';
-  ctx.fillText(fmt(points[0].v),tx(0)+4,ty(points[0].v)-4);
-  ctx.textAlign='right';
-  ctx.fillText(fmt(points[points.length-1].v),tx(points.length-1)-4,ty(points[points.length-1].v)-4);
+
+  // Net worth line
+  ctx.beginPath(); ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 1.5;
+  points.forEach((p, i) => { const x = bX(i) + bW/2, y = ty(p.nw); i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); });
+  ctx.stroke();
+
+  // X axis labels (rotated 45°)
+  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+  const xStep = Math.ceil(points.length / 18);
+  points.forEach((p, i) => {
+    if (i % xStep !== 0 && i !== points.length - 1) return;
+    ctx.save(); ctx.translate(bX(i) + bW/2, pT + cH + 5); ctx.rotate(-Math.PI/4);
+    ctx.fillText(p.l, 0, 0); ctx.restore();
+  });
+
+  // Legend (centered, bottom)
+  const legendItems = [...LAYERS.map(k => ({c:COLORS[k], l:LABELS[k]})), {c:'#f5c842', l:'Net Worth', line:true}];
+  ctx.font = '8px DM Mono,monospace'; ctx.textAlign = 'left';
+  let totalLW = legendItems.reduce((s, item) => s + 14 + ctx.measureText(item.l).width + 8, 0);
+  let lx = Math.max(pL, (W - totalLW) / 2);
+  const lY = H - 7;
+  legendItems.forEach(item => {
+    if (item.line) {
+      ctx.strokeStyle = item.c; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(lx, lY-3); ctx.lineTo(lx+12, lY-3); ctx.stroke();
+    } else {
+      ctx.fillStyle = item.c; ctx.fillRect(lx, lY-8, 12, 8);
+    }
+    ctx.fillStyle = '#9090a8'; ctx.fillText(item.l, lx+14, lY);
+    lx += 14 + ctx.measureText(item.l).width + 8;
+  });
 }
 
 // ── NAV ──────────────────────────────────────────────────

@@ -755,10 +755,11 @@ async function saveApiKey() {
   } catch(e) { showToast('Failed to save key', 'err'); }
 }
 
-async function handlePayStubs(files) {
+async function handlePayStubs(rawFiles) {
+  const files = Array.from(rawFiles); // copy before clearing input — FileList is live
+  document.getElementById('payStubInput').value = '';
   const statusEl = document.getElementById('payStubStatus');
   const resultEl = document.getElementById('payStubResult');
-  document.getElementById('payStubInput').value = '';
   if (!files.length) return;
   if (!ANTHROPIC_KEY) { showToast('Enter your Anthropic API key first', 'err'); return; }
 

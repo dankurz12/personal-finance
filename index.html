@@ -1150,14 +1150,17 @@ function drawNWChart() {
   const canvas = document.getElementById('nwChart');
   const ctx = canvas.getContext('2d');
   const points = [];
+  // Always chart up to the current calendar month, regardless of selected period
+  const _chartEndM = _now.getMonth(), _chartEndY = _now.getFullYear();
   for (let i = 35; i >= 0; i--) {
-    let m = curMonth - i, y = curYear;
+    let m = _chartEndM - i, y = _chartEndY;
     while (m < 0) { m += 12; y--; }
     const d = get(y, m);
     if (d) points.push({
       l: MONTHS[m].slice(0,3) + '-' + String(y).slice(2),
       checking: d.checking||0, savings: d.savings||0, ira: d.ira||0,
       k401: d.k401||0, brokerage: d.brokerage||0, otherassets: d.otherassets||0,
+      debt: (d.cc||0)+(d.studentloan||0)+(d.otherdebt||0),
       nw: (d.checking||0)+(d.savings||0)+(d.brokerage||0)+(d.k401||0)+(d.ira||0)+(d.otherassets||0)-(d.cc||0)-(d.studentloan||0)-(d.otherdebt||0)
     });
   }
@@ -1202,6 +1205,7 @@ function drawNWChart() {
   }
 
   // Stacked bars (bottom-to-top: checking → savings → ira → k401 → brokerage → otherassets)
+  // Debt drawn as a red deduction on top so bar height == net worth
   points.forEach((p, i) => {
     let bot = pT + cH;
     LAYERS.forEach(key => {
@@ -1211,6 +1215,11 @@ function drawNWChart() {
       ctx.fillRect(bX(i), bot - pixH, bW, pixH);
       bot -= pixH;
     });
+    if (p.debt > 0) {
+      const debtH = (p.debt / yRng) * cH;
+      ctx.fillStyle = '#ff4d6a';
+      ctx.fillRect(bX(i), bot, bW, debtH);
+    }
   });
 
   // Net worth line
@@ -1228,7 +1237,7 @@ function drawNWChart() {
   });
 
   // Legend (centered, bottom)
-  const legendItems = [...LAYERS.map(k => ({c:COLORS[k], l:LABELS[k]})), {c:'#f5c842', l:'Net Worth', line:true}];
+  const legendItems = [...LAYERS.map(k => ({c:COLORS[k], l:LABELS[k]})), {c:'#ff4d6a', l:'Debt'}, {c:'#f5c842', l:'Net Worth', line:true}];
   ctx.font = '8px DM Mono,monospace'; ctx.textAlign = 'left';
   let totalLW = legendItems.reduce((s, item) => s + 14 + ctx.measureText(item.l).width + 8, 0);
   let lx = Math.max(pL, (W - totalLW) / 2);

@@ -824,7 +824,13 @@ async function handlePayStub(file) {
 const stubKey = ck(curYear, curMonth);
     if (!allData[stubKey]) allData[stubKey] = {};
 
-    // ADD to existing form values so multiple pay stubs in the same month accumulate
+    // Clear income fields before first stub for this month, then accumulate additional stubs
+    const incomeFields = ['f-salary','f-federaltax','f-statetax','f-localtax','f-ficatax','f-k401contrib','f-hsacontrib'];
+    if (!window._stubSessionKeys) window._stubSessionKeys = new Set();
+    if (!window._stubSessionKeys.has(stubKey)) {
+      window._stubSessionKeys.add(stubKey);
+      incomeFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    }
     const addField = (id, val) => {
       if (!val) return;
       const el = document.getElementById(id);

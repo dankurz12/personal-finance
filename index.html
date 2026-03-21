@@ -479,7 +479,18 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <div class="fg"><label class="fl">Gross Salary</label><input class="fi" id="f-salary" type="number" placeholder="0"></div>
           <div class="fg"><label class="fl">Bonus / Commission</label><input class="fi" id="f-bonus" type="number" placeholder="0"></div>
           <div class="fg"><label class="fl">Other Income</label><input class="fi" id="f-otherincome" type="number" placeholder="0"></div>
-          <div class="fg"><label class="fl">Taxes Paid</label><input class="fi" id="f-taxes" type="number" placeholder="0"></div>
+        </div>
+        <div class="fsec">Pre-Tax Deductions</div>
+        <div class="form-grid">
+          <div class="fg"><label class="fl">401(k) Contribution</label><input class="fi" id="f-k401contrib" type="number" placeholder="0"></div>
+          <div class="fg"><label class="fl">HSA Contribution</label><input class="fi" id="f-hsacontrib" type="number" placeholder="0"></div>
+        </div>
+        <div class="fsec">Taxes</div>
+        <div class="form-grid">
+          <div class="fg"><label class="fl">Federal Tax</label><input class="fi" id="f-federaltax" type="number" placeholder="0"></div>
+          <div class="fg"><label class="fl">State Tax</label><input class="fi" id="f-statetax" type="number" placeholder="0"></div>
+          <div class="fg"><label class="fl">Local Tax</label><input class="fi" id="f-localtax" type="number" placeholder="0"></div>
+          <div class="fg"><label class="fl">FICA (SS + Medicare)</label><input class="fi" id="f-ficatax" type="number" placeholder="0"></div>
         </div>
         <div class="fsec">Account Balances</div>
         <div class="form-grid">
@@ -645,7 +656,12 @@ function getFormData() {
     salary: parseFloat(document.getElementById('f-salary').value)||0,
     bonus: parseFloat(document.getElementById('f-bonus').value)||0,
     otherincome: parseFloat(document.getElementById('f-otherincome').value)||0,
-    taxes: parseFloat(document.getElementById('f-taxes').value)||0,
+    k401_contrib: parseFloat(document.getElementById('f-k401contrib').value)||0,
+    hsa_contrib: parseFloat(document.getElementById('f-hsacontrib').value)||0,
+    federal_tax: parseFloat(document.getElementById('f-federaltax').value)||0,
+    state_tax: parseFloat(document.getElementById('f-statetax').value)||0,
+    local_tax: parseFloat(document.getElementById('f-localtax').value)||0,
+    fica_tax: parseFloat(document.getElementById('f-ficatax').value)||0,
     checking: parseFloat(document.getElementById('f-checking').value)||0,
     savings: parseFloat(document.getElementById('f-savings').value)||0,
     brokerage: parseFloat(document.getElementById('f-brokerage').value)||0,
@@ -661,9 +677,14 @@ function getFormData() {
 
 function loadForm() {
   const d = get(curYear, curMonth);
-  ['salary','bonus','otherincome','taxes','checking','savings','brokerage','k401','ira','otherassets','cc','studentloan','otherdebt'].forEach(f => {
+  ['salary','bonus','otherincome','checking','savings','brokerage','k401','ira','otherassets','cc','studentloan','otherdebt'].forEach(f => {
     const el = document.getElementById(`f-${f}`);
     if (el) el.value = d ? (d[f] || '') : '';
+  });
+  const taxFields = {k401contrib:'k401_contrib', hsacontrib:'hsa_contrib', federaltax:'federal_tax', statetax:'state_tax', localtax:'local_tax', ficatax:'fica_tax'};
+  Object.entries(taxFields).forEach(([id, key]) => {
+    const el = document.getElementById(`f-${id}`);
+    if (el) el.value = d ? (d[key] || '') : '';
   });
   CATS.forEach(c => {
     const el = document.getElementById(sid(c));
@@ -752,7 +773,7 @@ async function handlePayStub(file) {
           role: 'user',
           content: [
             { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-            { type: 'text', text: 'Extract from this pay stub for the current pay period only. Return ONLY valid JSON with these numeric keys (no commas in numbers): gross_income, federal_tax, state_tax, fica_tax (social security + medicare combined), k401_contribution, hsa_contribution. Use 0 for any field not found.' }
+            { type: 'text', text: 'Extract from this pay stub for the current pay period only. Return ONLY valid JSON with these numeric keys (no commas in numbers): gross_income, federal_tax, state_tax, local_tax, fica_tax (social security + medicare combined), k401_contribution, hsa_contribution. Use 0 for any field not found.' }
           ]
         }]
       })
@@ -768,21 +789,28 @@ async function handlePayStub(file) {
     if (!match) throw new Error('No JSON in response');
     const p = JSON.parse(match[0]);
 
-    // Fill income + taxes fields
-    if (p.gross_income) document.getElementById('f-salary').value = p.gross_income;
-    const totalTax = (p.federal_tax || 0) + (p.state_tax || 0) + (p.fica_tax || 0);
-    if (totalTax) document.getElementById('f-taxes').value = totalTax.toFixed(2);
+    // Fill all parsed fields
+    const setField = (id, val) => { if (val) { const el = document.getElementById(id); if (el) el.value = val; } };
+    setField('f-salary', p.gross_income);
+    setField('f-federaltax', p.federal_tax);
+    setField('f-statetax', p.state_tax);
+    setField('f-localtax', p.local_tax);
+    setField('f-ficatax', p.fica_tax);
+    setField('f-k401contrib', p.k401_contribution);
+    setField('f-hsacontrib', p.hsa_contribution);
 
     // Summary
+    const totalTax = (p.federal_tax||0) + (p.state_tax||0) + (p.local_tax||0) + (p.fica_tax||0);
     const lines = [
       `Gross: <b>${fmt(p.gross_income || 0)}</b>`,
-      `Federal: ${fmt(p.federal_tax || 0)}`,
-      `State: ${fmt(p.state_tax || 0)}`,
-      `FICA: ${fmt(p.fica_tax || 0)}`,
-      `Total Tax → filled: <b>${fmt(totalTax)}</b>`,
-    ];
-    if (p.k401_contribution) lines.push(`401(k) contrib: ${fmt(p.k401_contribution)} (update balance manually)`);
-    if (p.hsa_contribution) lines.push(`HSA contrib: ${fmt(p.hsa_contribution)} (update balance manually)`);
+      p.federal_tax ? `Federal: ${fmt(p.federal_tax)}` : null,
+      p.state_tax   ? `State: ${fmt(p.state_tax)}` : null,
+      p.local_tax   ? `Local: ${fmt(p.local_tax)}` : null,
+      p.fica_tax    ? `FICA: ${fmt(p.fica_tax)}` : null,
+      `Total taxes filled: <b>${fmt(totalTax)}</b>`,
+      p.k401_contribution ? `401(k): <b>${fmt(p.k401_contribution)}</b>` : null,
+      p.hsa_contribution  ? `HSA: <b>${fmt(p.hsa_contribution)}</b>` : null,
+    ].filter(Boolean);
     resultEl.innerHTML = lines.join('<br>');
     resultEl.style.display = 'block';
     statusEl.textContent = 'Filled ✓';
@@ -799,9 +827,18 @@ async function handlePayStub(file) {
 function compute(d) {
   if (!d) return null;
   const inc = d.salary + d.bonus + d.otherincome;
-  const taxes = d.taxes || 0;
+  const k401_contrib = d.k401_contrib || 0;
+  const hsa_contrib = d.hsa_contrib || 0;
+  const federal_tax = d.federal_tax || 0;
+  const state_tax = d.state_tax || 0;
+  const local_tax = d.local_tax || 0;
+  const fica_tax = d.fica_tax || 0;
+  const preTaxContribs = k401_contrib + hsa_contrib;
+  // d.taxes handles legacy data that used a single taxes field
+  const totalTaxes = federal_tax + state_tax + local_tax + fica_tax + (d.taxes || 0);
+  const netTakeHome = inc - preTaxContribs - totalTaxes;
   const spend = CATS.reduce((s,c) => s+(d.spending[c]||0), 0);
-  const netInc = inc - taxes - spend;
+  const netInc = netTakeHome - spend;
   const assets = d.checking + d.savings + d.brokerage + d.k401 + d.ira + d.otherassets;
   const liab = d.cc + d.studentloan + d.otherdebt;
   const nw = assets - liab;
@@ -809,7 +846,7 @@ function compute(d) {
   const savRate = inc > 0 ? netInc / inc : null;
   const liquid = d.checking + d.savings;
   const topCat = CATS.reduce((a,c) => (d.spending[c]||0)>(d.spending[a]||0)?c:a, CATS[0]);
-  return { inc, taxes, spend, netInc, assets, liab, nw, invested, savRate, liquid, topCat, ...d };
+  return { inc, k401_contrib, hsa_contrib, federal_tax, state_tax, local_tax, fica_tax, preTaxContribs, totalTaxes, netTakeHome, spend, netInc, assets, liab, nw, invested, savRate, liquid, topCat, ...d };
 }
 
 // ── REFRESH ALL ─────────────────────────────────────────
@@ -996,10 +1033,13 @@ function updateFire(d) {
 function updatePnL(d) {
   const t = document.getElementById('pnlTable');
   if (!d) { t.innerHTML='<tr><td class="empty" style="padding:20px">No data</td></tr>'; return; }
-  const netAfterTax = d.inc - d.taxes;
   const rows = [
     {s:'INCOME'},{l:'Gross Salary',v:d.salary},{l:'Bonus / Commission',v:d.bonus},{l:'Other Income',v:d.otherincome},{l:'TOTAL GROSS INCOME',v:d.inc,tot:true},
-    {s:'TAXES'},{l:'Taxes Paid',v:d.taxes},{l:'NET INCOME AFTER TAX',v:netAfterTax,tot:true},
+    {s:'PRE-TAX DEDUCTIONS'},{l:'401(k) Contribution',v:d.k401_contrib},{l:'HSA Contribution',v:d.hsa_contrib},{l:'TOTAL PRE-TAX DEDUCTIONS',v:d.preTaxContribs,tot:true},
+    {s:'TAXES'},{l:'Federal Tax',v:d.federal_tax},{l:'State Tax',v:d.state_tax},{l:'Local Tax',v:d.local_tax},{l:'FICA (SS + Medicare)',v:d.fica_tax},
+    ...(d.taxes ? [{l:'Other Taxes (legacy)',v:d.taxes}] : []),
+    {l:'TOTAL TAXES',v:d.totalTaxes,tot:true},
+    {l:'NET TAKE-HOME',v:d.netTakeHome,tot:true},
     {s:'EXPENSES'},...CATS.map(c=>({l:c,v:d.spending[c]||0})),{l:'TOTAL EXPENSES',v:d.spend,tot:true},
     {s:'NET'},{l:'NET SAVINGS',v:d.netInc,tot:true},
   ];

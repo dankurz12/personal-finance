@@ -413,8 +413,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         <div style="padding:0"><table class="tbl" id="pnlTable"></table></div>
       </div>
       <div class="card">
-        <div class="card-head"><div class="card-title">Spending by Category</div></div>
-        <div class="card-body"><div class="bars" id="spendBars"></div></div>
+        <div class="card-head"><div class="card-title">Annual P&amp;L Comparison</div></div>
+        <div style="padding:0"><table class="tbl" id="annualPnlTable"></table></div>
       </div>
     </div>
   </section>
@@ -905,6 +905,7 @@ function refreshAll() {
   updateOverview(d);
   updateFire(d);
   updatePnL(d);
+  updateAnnualPnL();
   updateCashFlow(d);
   updateSpending(d);
   updateTrends();
@@ -1098,11 +1099,47 @@ function updatePnL(d) {
       `<tr class="${r.tot?'tot':''}"><td>${r.l}</td><td class="${r.tot?cc(r.v):''}">${fmt(r.v)}</td></tr>`
     ).join('')+'</tbody>';
 
-  const bars = CATS.filter(c=>(d.spending[c]||0)>0).sort((a,b)=>d.spending[b]-d.spending[a]);
-  const maxS = bars.length?d.spending[bars[0]]:1;
-  document.getElementById('spendBars').innerHTML = bars.length
-    ? bars.map(c=>`<div class="bar-row"><div class="bar-lbl">${c}</div><div class="bar-track"><div class="bar-fill r" style="width:${(d.spending[c]/maxS*100).toFixed(1)}%"></div></div><div class="bar-amt">${fmt(d.spending[c])}</div></div>`).join('')
-    : '<div class="empty">No spending data</div>';
+}
+
+// ── ANNUAL P&L ───────────────────────────────────────────
+function updateAnnualPnL() {
+  const t = document.getElementById('annualPnlTable');
+  const nowY = _now.getFullYear(), nowM = _now.getMonth();
+  const years = [2023, 2024, 2025, 2026];
+  const headers = ['2023', '2024', '2025', 'YTD 2026'];
+  const colData = years.map(y => {
+    const endM = y < nowY ? 11 : nowM - 1;
+    const a = {salary:0,bonus:0,otherincome:0,k401_contrib:0,hsa_contrib:0,federal_tax:0,state_tax:0,local_tax:0,fica_tax:0,taxes:0,spending:{}};
+    CATS.forEach(c => a.spending[c] = 0);
+    for (let m = 0; m <= endM; m++) {
+      const d = get(y, m); if (!d) continue;
+      a.salary+=d.salary||0; a.bonus+=d.bonus||0; a.otherincome+=d.otherincome||0;
+      a.k401_contrib+=d.k401_contrib||0; a.hsa_contrib+=d.hsa_contrib||0;
+      a.federal_tax+=d.federal_tax||0; a.state_tax+=d.state_tax||0;
+      a.local_tax+=d.local_tax||0; a.fica_tax+=d.fica_tax||0; a.taxes+=d.taxes||0;
+      CATS.forEach(c => a.spending[c] += d.spending?.[c]||0);
+    }
+    const inc = a.salary+a.bonus+a.otherincome;
+    const preTaxContribs = a.k401_contrib+a.hsa_contrib;
+    const totalTaxes = a.federal_tax+a.state_tax+a.local_tax+a.fica_tax+a.taxes;
+    const netTakeHome = inc-preTaxContribs-totalTaxes;
+    const spend = CATS.reduce((s,c)=>s+(a.spending[c]||0),0);
+    return {...a, inc, preTaxContribs, totalTaxes, netTakeHome, spend, netInc:netTakeHome-spend};
+  });
+  const rows = [
+    {s:'INCOME'},{l:'Gross Salary',k:'salary'},{l:'Bonus / Commission',k:'bonus'},{l:'Other Income',k:'otherincome'},{l:'TOTAL GROSS INCOME',k:'inc',tot:true},
+    {s:'PRE-TAX DEDUCTIONS'},{l:'401(k) Contribution',k:'k401_contrib'},{l:'HSA Contribution',k:'hsa_contrib'},{l:'TOTAL PRE-TAX DEDUCTIONS',k:'preTaxContribs',tot:true},
+    {s:'TAXES'},{l:'Federal Tax',k:'federal_tax'},{l:'State Tax',k:'state_tax'},{l:'Local Tax',k:'local_tax'},{l:'FICA (SS + Medicare)',k:'fica_tax'},{l:'TOTAL TAXES',k:'totalTaxes',tot:true},{l:'NET TAKE-HOME',k:'netTakeHome',tot:true},
+    {s:'EXPENSES'},...CATS.map(c=>({l:c,cat:c})),{l:'TOTAL EXPENSES',k:'spend',tot:true},
+    {s:'NET'},{l:'NET SAVINGS',k:'netInc',tot:true},
+  ];
+  const hdr = `<thead><tr><th>Line Item</th>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
+  const body = rows.map(r => {
+    if (r.s) return `<tr class="sec"><td colspan="${years.length+1}">${r.s}</td></tr>`;
+    const vals = colData.map(c => r.cat ? (c.spending[r.cat]||0) : (c[r.k]||0));
+    return `<tr class="${r.tot?'tot':''}"><td>${r.l}</td>${vals.map(v=>`<td class="${r.tot?cc(v):''}">${fmt(v)}</td>`).join('')}</tr>`;
+  }).join('');
+  t.innerHTML = hdr+'<tbody>'+body+'</tbody>';
 }
 
 // ── CASH FLOW ────────────────────────────────────────────

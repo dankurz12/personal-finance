@@ -1074,7 +1074,8 @@ function showSection(id) {
   document.getElementById(`section-${id}`)?.classList.add('active');
   const tabs=['overview','fire','pnl','balance','cashflow','spending','trends','entry'];
   document.querySelectorAll('.tab')[tabs.indexOf(id)]?.classList.add('active');
-  if(id==='entry') loadForm();
+  if (id === 'entry') loadForm();
+  if (id === 'trends') updateTrends();
 }
 
 // ── TOAST ─────────────────────────────────────────────────
@@ -1126,6 +1127,7 @@ function setupCanvas(id, h) {
   if (!canvas) return null;
   const DPR = window.devicePixelRatio || 1;
   const W = canvas.parentElement.clientWidth - 4, H = h;
+  if (W <= 0) return null;
   canvas.width = W * DPR; canvas.height = H * DPR;
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');

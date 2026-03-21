@@ -263,7 +263,7 @@ main { padding: 10px 20px; max-width: 1440px; margin: 0 auto; }
   <div class="card">
     <div class="card-head"><div class="card-title">Net Worth Trend</div><span id="chartPeriod" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)"></span></div>
     <div class="card-body" style="padding:8px 12px 12px">
-      <canvas id="nwChart" height="90"></canvas>
+      <canvas id="nwChart" height="220"></canvas>
       <div id="noChart" class="empty" style="display:none">Save multiple months to see trend.</div>
     </div>
   </div>
@@ -928,53 +928,102 @@ function updateSpending(d) {
 
 // ── NW CHART ─────────────────────────────────────────────
 function drawNWChart() {
-  const canvas=document.getElementById('nwChart');
-  const ctx=canvas.getContext('2d');
-  const points=[];
-  for(let i=35;i>=0;i--){
-    let m=curMonth-i,y=curYear;
-    while(m<0){m+=12;y--;}
-    const d=get(y,m);
-    if(d){
-      const nw=d.checking+d.savings+d.brokerage+d.k401+d.ira+d.otherassets-d.cc-d.studentloan-d.otherdebt;
-      points.push({l:`${MONTHS[m]} ${y}`,v:nw});
-    }
+  const canvas = document.getElementById('nwChart');
+  const ctx = canvas.getContext('2d');
+  const points = [];
+  for (let i = 35; i >= 0; i--) {
+    let m = curMonth - i, y = curYear;
+    while (m < 0) { m += 12; y--; }
+    const d = get(y, m);
+    if (d) points.push({
+      l: MONTHS[m].slice(0,3) + '-' + String(y).slice(2),
+      checking: d.checking||0, savings: d.savings||0, ira: d.ira||0,
+      k401: d.k401||0, brokerage: d.brokerage||0, otherassets: d.otherassets||0,
+      nw: (d.checking||0)+(d.savings||0)+(d.brokerage||0)+(d.k401||0)+(d.ira||0)+(d.otherassets||0)-(d.cc||0)-(d.studentloan||0)-(d.otherdebt||0)
+    });
   }
-  const noD=document.getElementById('noChart');
-  if(points.length<2){canvas.style.display='none';noD.style.display='block';return;}
-  canvas.style.display='block';noD.style.display='none';
-  document.getElementById('chartPeriod').textContent = `${points[0].l} → ${points[points.length-1].l}`;
-  const W=canvas.parentElement.clientWidth-4,H=90;
-  canvas.width=W;canvas.height=H;
-  const min=Math.min(...points.map(p=>p.v));
-  const max=Math.max(...points.map(p=>p.v));
-  const range=max-min||1,pad=8;
-  const tx=i=>pad+i*((W-pad*2)/(points.length-1));
-  const ty=v=>H-pad-((v-min)/range)*(H-pad*2);
-  ctx.clearRect(0,0,W,H);
-  // Grid lines
-  ctx.strokeStyle='rgba(36,48,64,0.8)';ctx.lineWidth=1;
-  for(let i=0;i<4;i++){const y=pad+i*(H-pad*2)/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-  // Fill
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'rgba(0,229,160,0.2)');g.addColorStop(1,'rgba(0,229,160,0)');
-  ctx.beginPath();ctx.moveTo(tx(0),ty(points[0].v));
-  points.forEach((p,i)=>i>0&&ctx.lineTo(tx(i),ty(p.v)));
-  ctx.lineTo(tx(points.length-1),H);ctx.lineTo(tx(0),H);ctx.closePath();
-  ctx.fillStyle=g;ctx.fill();
-  // Line
-  ctx.beginPath();ctx.strokeStyle='#00e5a0';ctx.lineWidth=1.5;
-  points.forEach((p,i)=>i===0?ctx.moveTo(tx(i),ty(p.v)):ctx.lineTo(tx(i),ty(p.v)));ctx.stroke();
-  // Dots
-  points.forEach((p,i)=>{
-    ctx.beginPath();ctx.arc(tx(i),ty(p.v),2.5,0,Math.PI*2);
-    ctx.fillStyle='#00e5a0';ctx.fill();
+  const noD = document.getElementById('noChart');
+  if (points.length < 2) { canvas.style.display='none'; noD.style.display='block'; return; }
+  canvas.style.display='block'; noD.style.display='none';
+  document.getElementById('chartPeriod').textContent = points[0].l + ' → ' + points[points.length-1].l;
+
+  const DPR = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth - 4, H = 220;
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+
+  const pL = 58, pR = 12, pT = 8, pB = 58;
+  const cW = W - pL - pR, cH = H - pT - pB;
+
+  const LAYERS = ['checking','savings','ira','k401','brokerage','otherassets'];
+  const COLORS = { checking:'#5cb85c', savings:'#e8943a', ira:'#7b5ea7', k401:'#2e7d32', brokerage:'#c87a00', otherassets:'#4d9fff' };
+  const LABELS = { checking:'Checking', savings:'Savings', ira:'IRA / Roth', k401:'401(k)', brokerage:'Brokerage', otherassets:'Other' };
+
+  const totals = points.map(p => LAYERS.reduce((s,k) => s + p[k], 0));
+  const maxT = Math.max(...totals), minNW = Math.min(...points.map(p => p.nw));
+  const step = maxT < 200000 ? 25000 : maxT < 500000 ? 50000 : 100000;
+  const yMax = Math.ceil(maxT * 1.05 / step) * step;
+  const yMin = Math.max(0, Math.floor(minNW * 0.92 / step) * step);
+  const yRng = yMax - yMin;
+
+  const ty = v => pT + cH - ((v - yMin) / yRng) * cH;
+  const bW = Math.max(2, cW / points.length * 0.72);
+  const bX = i => pL + (i + 0.5) * (cW / points.length) - bW / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines + Y axis labels
+  for (let v = yMin; v <= yMax + step * 0.01; v += step) {
+    const gy = ty(v);
+    ctx.strokeStyle = '#1c1c2a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
+    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+    ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
+  }
+
+  // Stacked bars (bottom-to-top: checking → savings → ira → k401 → brokerage → otherassets)
+  points.forEach((p, i) => {
+    let bot = pT + cH;
+    LAYERS.forEach(key => {
+      const val = p[key]; if (val <= 0) return;
+      const pixH = (val / yRng) * cH;
+      ctx.fillStyle = COLORS[key];
+      ctx.fillRect(bX(i), bot - pixH, bW, pixH);
+      bot -= pixH;
+    });
   });
-  // Labels for first and last
-  ctx.font='9px DM Mono,monospace';ctx.fillStyle='rgba(122,154,184,0.7)';ctx.textAlign='left';
-  ctx.fillText(fmt(points[0].v),tx(0)+4,ty(points[0].v)-4);
-  ctx.textAlign='right';
-  ctx.fillText(fmt(points[points.length-1].v),tx(points.length-1)-4,ty(points[points.length-1].v)-4);
+
+  // Net worth line
+  ctx.beginPath(); ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 1.5;
+  points.forEach((p, i) => { const x = bX(i) + bW/2, y = ty(p.nw); i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); });
+  ctx.stroke();
+
+  // X axis labels (rotated 45°)
+  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+  const xStep = Math.ceil(points.length / 18);
+  points.forEach((p, i) => {
+    if (i % xStep !== 0 && i !== points.length - 1) return;
+    ctx.save(); ctx.translate(bX(i) + bW/2, pT + cH + 5); ctx.rotate(-Math.PI/4);
+    ctx.fillText(p.l, 0, 0); ctx.restore();
+  });
+
+  // Legend (centered, bottom)
+  const legendItems = [...LAYERS.map(k => ({c:COLORS[k], l:LABELS[k]})), {c:'#f5c842', l:'Net Worth', line:true}];
+  ctx.font = '8px DM Mono,monospace'; ctx.textAlign = 'left';
+  let totalLW = legendItems.reduce((s, item) => s + 14 + ctx.measureText(item.l).width + 8, 0);
+  let lx = Math.max(pL, (W - totalLW) / 2);
+  const lY = H - 7;
+  legendItems.forEach(item => {
+    if (item.line) {
+      ctx.strokeStyle = item.c; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(lx, lY-3); ctx.lineTo(lx+12, lY-3); ctx.stroke();
+    } else {
+      ctx.fillStyle = item.c; ctx.fillRect(lx, lY-8, 12, 8);
+    }
+    ctx.fillStyle = '#9090a8'; ctx.fillText(item.l, lx+14, lY);
+    lx += 14 + ctx.measureText(item.l).width + 8;
+  });
 }
 
 // ── NAV ──────────────────────────────────────────────────

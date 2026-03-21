@@ -474,6 +474,21 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         </div>
       </div>
       <div class="card-body">
+        <div class="fsec">Pay Stub Import</div>
+        <div style="padding:4px 0 8px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <label class="btn" style="cursor:pointer;margin:0">
+              Upload PDF Pay Stub
+              <input type="file" id="payStubInput" accept=".pdf,application/pdf" style="display:none" onchange="handlePayStub(this.files[0])">
+            </label>
+            <span id="payStubStatus" style="font-size:11px;color:var(--text2)"></span>
+          </div>
+          <div id="payStubResult" style="display:none;font-size:11px;color:var(--text2);margin-bottom:6px;line-height:1.7"></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" id="anthropicKey" type="password" placeholder="Anthropic API key (sk-ant-…)" style="flex:1;font-size:11px">
+            <button class="btn" onclick="saveApiKey()">Save Key</button>
+          </div>
+        </div>
         <div class="fsec">Income</div>
         <div class="form-grid">
           <div class="fg"><label class="fl">Gross Salary</label><input class="fi" id="f-salary" type="number" placeholder="0"></div>
@@ -509,21 +524,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         </div>
         <div class="fsec">Spending by Category</div>
         <div class="form-grid" id="spendForm"></div>
-        <div class="fsec">Pay Stub Import</div>
-        <div style="padding:4px 0 8px">
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-            <label class="btn" style="cursor:pointer;margin:0">
-              Upload PDF Pay Stub
-              <input type="file" id="payStubInput" accept=".pdf,application/pdf" style="display:none" onchange="handlePayStub(this.files[0])">
-            </label>
-            <span id="payStubStatus" style="font-size:11px;color:var(--text2)"></span>
-          </div>
-          <div id="payStubResult" style="display:none;font-size:11px;color:var(--text2);margin-bottom:6px;line-height:1.7"></div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <input class="fi" id="anthropicKey" type="password" placeholder="Anthropic API key (sk-ant-…)" style="flex:1;font-size:11px">
-            <button class="btn" onclick="saveApiKey()">Save Key</button>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -535,6 +535,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXRZXsZmwxuTLrbLiJmemQea2ml7IE9_lRXBnMVb-x51O5JqYhrsyb1g3SM3_f6bvh/exec';
 let ANTHROPIC_KEY = '';
+let processedHashes = new Set();
 
 const CATS = ['Rent','Utilities','Transportation','Groceries','Restaurants','Coffee / Snacks','Alcohol','Entertainment','Fitness','Clothing','Personal','Gas','Household','Travel','Gifts','Medical/Dental','Other'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -612,6 +613,7 @@ async function init() {
     setSyncStatus('error', 'Offline');
     showToast('Could not reach Google Sheets', 'err');
   }
+  Object.values(allData).forEach(d => (d._stub_hashes||[]).forEach(h => processedHashes.add(h)));
   if (ANTHROPIC_KEY) document.getElementById('anthropicKey').value = '••••••••';
   document.getElementById('loadingOverlay').style.display = 'none';
   loadForm();
@@ -694,6 +696,8 @@ function loadForm() {
 
 async function saveData() {
   const data = getFormData();
+  const existing = get(curYear, curMonth);
+  if (existing?._stub_hashes) data._stub_hashes = existing._stub_hashes;
   setSyncStatus('syncing', 'Saving...');
   try {
     const ok = await sheetsSave(curYear, curMonth, data);
@@ -738,6 +742,12 @@ async function saveApiKey() {
   } catch(e) { showToast('Failed to save key', 'err'); }
 }
 
+async function hashFile(file) {
+  const buf = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 async function handlePayStub(file) {
   const statusEl = document.getElementById('payStubStatus');
   const resultEl = document.getElementById('payStubResult');
@@ -745,6 +755,16 @@ async function handlePayStub(file) {
   document.getElementById('payStubInput').value = '';
   if (!file) return;
   if (!ANTHROPIC_KEY) { showToast('Enter your Anthropic API key first', 'err'); return; }
+
+  statusEl.textContent = 'Checking…';
+  statusEl.style.color = 'var(--text2)';
+  const fileHash = await hashFile(file);
+  if (processedHashes.has(fileHash)) {
+    statusEl.textContent = 'Duplicate';
+    statusEl.style.color = 'var(--yellow)';
+    showToast('This pay stub has already been uploaded', 'err');
+    return;
+  }
 
   statusEl.textContent = 'Parsing…';
   statusEl.style.color = 'var(--text2)';
@@ -803,6 +823,13 @@ async function handlePayStub(file) {
         detectedLabel = opt.textContent;
       }
     }
+
+    // Record hash so this stub can't be re-uploaded (persists into allData for save)
+    processedHashes.add(fileHash);
+    const stubKey = ck(curYear, curMonth);
+    if (!allData[stubKey]) allData[stubKey] = {};
+    if (!allData[stubKey]._stub_hashes) allData[stubKey]._stub_hashes = [];
+    allData[stubKey]._stub_hashes.push(fileHash);
 
     // ADD to existing form values so multiple pay stubs in the same month accumulate
     const addField = (id, val) => {

@@ -8,28 +8,28 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --bg2: #111118;
-    --bg3: #1a1a24;
-    --bg4: #222230;
-    --border: #2a2a3a;
-    --border2: #3a3a4a;
-    --text: #e8e8f0;
-    --text2: #9090a8;
-    --text3: #5a5a72;
-    --green: #00d4aa;
-    --green-dim: #003d2a;
-    --red: #ff4d6a;
-    --red-dim: #4d0015;
-    --yellow: #f5c842;
-    --yellow-dim: #3d2e00;
-    --blue: #4d9fff;
-    --blue-dim: #002040;
-    --purple: #7b5ea7;
-    --purple-dim: #2d1f4a;
-    --teal: #00c4c4;
-    --body-font: Calibri, 'Nunito Sans', 'Gill Sans MT', 'Gill Sans', sans-serif;
-    --mono-font: 'DM Mono', monospace;
+    --bg:         #f4f6f9;
+    --bg2:        #ffffff;
+    --bg3:        #f8fafc;
+    --bg4:        #edf0f4;
+    --border:     #e2e8f0;
+    --border2:    #cbd5e1;
+    --text:       #0f172a;
+    --text2:      #64748b;
+    --text3:      #94a3b8;
+    --green:      #16a34a;
+    --green-dim:  #dcfce7;
+    --red:        #dc2626;
+    --red-dim:    #fee2e2;
+    --yellow:     #d97706;
+    --yellow-dim: #fef3c7;
+    --blue:       #2563eb;
+    --blue-dim:   #dbeafe;
+    --purple:     #7c3aed;
+    --purple-dim: #ede9fe;
+    --teal:       #0891b2;
+    --body-font:  Calibri, 'Nunito Sans', 'Gill Sans MT', 'Gill Sans', sans-serif;
+    --mono-font:  'DM Mono', monospace;
   }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1344,9 +1344,9 @@ function drawFireProjectionChart(inv) {
 
   for (let v = 0; v <= yMax + step * 0.01; v += step) {
     const gy = ty(v);
-    ctx.strokeStyle = '#1c1c2a'; ctx.lineWidth = 1;
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
-    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
     ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
   }
 
@@ -1356,7 +1356,7 @@ function drawFireProjectionChart(inv) {
   ctx.setLineDash([]);
 
   // Inflation-adjusted FIRE target (gray dashed)
-  ctx.strokeStyle = '#5a5a72'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
   ctx.beginPath();
   fireAdj.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
   ctx.stroke(); ctx.setLineDash([]);
@@ -1374,7 +1374,7 @@ function drawFireProjectionChart(inv) {
       if (pf2 >= tgt) {
         ctx.beginPath(); ctx.arc(tx(yr), ty(portfolio[yr]), 4, 0, Math.PI * 2);
         ctx.fillStyle = ti === 0 ? '#00c4c4' : '#4d9fff'; ctx.fill();
-        ctx.strokeStyle = '#0a0a0f'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
         break;
       }
       pf2 = pf2 * (1 + rate) + ctb;
@@ -1382,7 +1382,7 @@ function drawFireProjectionChart(inv) {
   });
 
   // X axis labels
-  ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'center';
+  ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'center';
   const xStep = Math.ceil(years.length / 10);
   years.forEach((y, i) => {
     if (i % xStep !== 0 && i !== years.length - 1) return;
@@ -1549,7 +1549,7 @@ function drawNWChart() {
   const cW = W - pL - pR, cH = H - pT - pB;
 
   const LAYERS = ['checking','savings','ira','k401','brokerage','hsa','otherassets'];
-  const COLORS = { checking:'#00d4aa', savings:'#f5c842', ira:'#7b5ea7', k401:'#4d9fff', brokerage:'#00c4c4', hsa:'#ff9f6b', otherassets:'#9090a8' };
+  const COLORS = { checking:'#00d4aa', savings:'#f5c842', ira:'#7b5ea7', k401:'#4d9fff', brokerage:'#00c4c4', hsa:'#ff9f6b', otherassets:'#64748b' };
   const LABELS = { checking:'Checking', savings:'Savings', ira:'IRA / Roth', k401:'401(k)', brokerage:'Brokerage', hsa:'HSA', otherassets:'Other' };
 
   const totals = points.map(p => LAYERS.reduce((s,k) => s + p[k], 0));
@@ -1568,9 +1568,9 @@ function drawNWChart() {
   // Grid lines + Y axis labels
   for (let v = yMin; v <= yMax + step * 0.01; v += step) {
     const gy = ty(v);
-    ctx.strokeStyle = '#1c1c2a'; ctx.lineWidth = 1;
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
-    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
     ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
   }
 
@@ -1598,7 +1598,7 @@ function drawNWChart() {
   ctx.stroke();
 
   // X axis labels (rotated 45°)
-  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
   const xStep = Math.ceil(points.length / 18);
   points.forEach((p, i) => {
     if (i % xStep !== 0 && i !== points.length - 1) return;
@@ -1619,7 +1619,7 @@ function drawNWChart() {
     } else {
       ctx.fillStyle = item.c; ctx.fillRect(lx, lY-8, 12, 8);
     }
-    ctx.fillStyle = '#9090a8'; ctx.fillText(item.l, lx+14, lY);
+    ctx.fillStyle = '#64748b'; ctx.fillText(item.l, lx+14, lY);
     lx += 14 + ctx.measureText(item.l).width + 8;
   });
 }
@@ -1698,9 +1698,9 @@ function drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, isPercent) {
   const ty = v => pT + cH - ((v - yMin) / yRng) * cH;
   for (let v = yMin; v <= yMax + step * 0.01; v += step) {
     const gy = ty(v);
-    ctx.strokeStyle = '#1c1c2a'; ctx.lineWidth = 1;
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
-    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
     const av = Math.abs(v);
     const lbl = isPercent
       ? (v * 100).toFixed(0) + '%'
@@ -1711,7 +1711,7 @@ function drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, isPercent) {
 }
 
 function drawXAxisLabels(ctx, labels, pT, cH, xFn) {
-  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
   const step = Math.ceil(labels.length / 14);
   labels.forEach((l, i) => {
     if (i % step !== 0 && i !== labels.length - 1) return;
@@ -1747,7 +1747,7 @@ function drawIncSpendChart(points) {
     const lx = pL + i * 90;
     ctx.strokeStyle = c; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(lx, lY - 3); ctx.lineTo(lx + 12, lY - 3); ctx.stroke();
-    ctx.fillStyle = '#9090a8'; ctx.fillText(l, lx + 14, lY);
+    ctx.fillStyle = '#64748b'; ctx.fillText(l, lx + 14, lY);
   });
 }
 
@@ -1979,10 +1979,10 @@ function drawCatTrendChart() {
   // Avg line
   const avg = valid.reduce((s, p) => s + p.v, 0) / valid.length;
   const ay = ty(avg);
-  ctx.setLineDash([4, 4]); ctx.strokeStyle = '#5a5a72'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pL, ay); ctx.lineTo(pL + cW, ay); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'left';
+  ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'left';
   ctx.fillText('avg ' + fmt(avg), pL + 3, ay - 2);
   drawXAxisLabels(ctx, pts.map(p => p.label), pT, cH, tx);
 }
@@ -2046,7 +2046,7 @@ function drawContribGrowthChart() {
   [['rgba(77,159,255,0.7)','Contributions'],['rgba(0,212,170,0.7)','Market Gains']].forEach(([c,l],i) => {
     const lx = pL + i * 110;
     ctx.fillStyle = c; ctx.fillRect(lx, H - 9, 12, 7);
-    ctx.fillStyle = '#9090a8'; ctx.fillText(l, lx + 15, H - 2);
+    ctx.fillStyle = '#64748b'; ctx.fillText(l, lx + 15, H - 2);
   });
 }
 
@@ -2093,7 +2093,7 @@ function drawAllocHistChart() {
   lItems.forEach(([c,l],i) => {
     const lx = pL + i * 48;
     ctx.fillStyle = c; ctx.fillRect(lx, H - 9, 8, 7);
-    ctx.fillStyle = '#9090a8'; ctx.fillText(l, lx + 10, H - 2);
+    ctx.fillStyle = '#64748b'; ctx.fillText(l, lx + 10, H - 2);
   });
 }
 
@@ -2209,7 +2209,7 @@ function updateMonteCarlo(d) {
   });
 
   // X axis (ages)
-  ctx.font='8px DM Mono,monospace'; ctx.fillStyle='#5a5a72'; ctx.textAlign='center';
+  ctx.font='8px DM Mono,monospace'; ctx.fillStyle='#94a3b8'; ctx.textAlign='center';
   const ageStep = Math.ceil(ages.length/12);
   ages.forEach((a,i) => { if(i%ageStep!==0&&i!==ages.length-1)return; ctx.fillText(a, tx(i), pT+cH+14); });
 
@@ -2218,7 +2218,7 @@ function updateMonteCarlo(d) {
   [['rgba(77,159,255,0.20)','10–90th pct'],['rgba(77,159,255,0.40)','25–75th pct'],['#4d9fff','Median']].forEach(([c,l],i) => {
     const lx = pL + i*90;
     ctx.fillStyle=c; ctx.fillRect(lx, H-9, 12, 7);
-    ctx.fillStyle='#9090a8'; ctx.fillText(l, lx+15, H-2);
+    ctx.fillStyle='#64748b'; ctx.fillText(l, lx+15, H-2);
   });
 }
 
@@ -2293,7 +2293,7 @@ function drawIncGrowthChart() {
     }
 
     // Year label
-    ctx.font='9px DM Mono,monospace'; ctx.fillStyle='#9090a8'; ctx.textAlign='center';
+    ctx.font='9px DM Mono,monospace'; ctx.fillStyle='#64748b'; ctx.textAlign='center';
     ctx.fillText(labels[i], bX(i)+bW/2, pT+cH+13);
   });
 }

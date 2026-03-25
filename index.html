@@ -294,6 +294,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- OVERVIEW -->
 
   <section id="section-overview" class="section active">
+    <div class="section-label">CURRENT PERIOD</div>
     <div class="kpi-row cols-4">
       <div class="kpi g"><div class="kpi-label">Net Worth</div><div class="kpi-val pos" id="kpi-nw">—</div><div class="kpi-sub" id="kpi-nw-sub">Assets minus liabilities</div></div>
       <div class="kpi b"><div class="kpi-label">Monthly Income</div><div class="kpi-val blue" id="kpi-inc">—</div><div class="kpi-sub">This period</div></div>
@@ -302,6 +303,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     </div>
 
 ```
+<div class="section-label">NET WORTH TREND</div>
 <div class="g2">
   <div class="card">
     <div class="card-head"><div class="card-title">Net Worth Trend</div><span id="chartPeriod" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)"></span></div>
@@ -316,6 +318,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   </div>
 </div>
 
+<div class="section-label">KEY METRICS</div>
 <div class="g3">
   <div class="kpi p" style="border-radius:4px">
     <div class="kpi-label">Savings Rate</div>
@@ -334,23 +337,19 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   </div>
 </div>
 
-<div class="kpi-row cols-4" style="margin-top:0">
+<div class="section-label">FINANCIAL HEALTH</div>
+<div class="kpi-row cols-4">
   <div class="kpi g"><div class="kpi-label">Years to FIRE</div><div class="kpi-val pos" id="kpi-fireryr">—</div><div class="kpi-sub" id="kpi-fireryr-sub">at 7% return</div></div>
   <div class="kpi b"><div class="kpi-label">Projected Retire Age</div><div class="kpi-val blue" id="kpi-retage">—</div><div class="kpi-sub">based on FIRE target</div></div>
   <div class="kpi y"><div class="kpi-label">Effective Tax Rate</div><div class="kpi-val yellow" id="kpi-taxrate">—</div><div class="kpi-sub">taxes / gross income</div></div>
   <div class="kpi t"><div class="kpi-label">Months of Expenses</div><div class="kpi-val" style="color:var(--teal)" id="kpi-moexp">—</div><div class="kpi-sub">liquid / monthly spend</div></div>
 </div>
 
-<div class="g2">
-  <div class="card">
-    <div class="card-head"><div class="card-title">FIRE Progress</div></div>
-    <div class="card-body" id="fireProgressOverview"></div>
-  </div>
-  <div class="card">
-    <div class="card-head"><div class="card-title">Net Worth Milestones</div></div>
-    <div class="card-body" id="milestonesOverview"></div>
-  </div>
-</div>
+<div class="section-label">FIRE OVERVIEW</div>
+<div class="milestone-grid" id="fireProgressOverview"></div>
+
+<div class="section-label">NET WORTH MILESTONES</div>
+<div class="milestone-grid" id="milestonesOverview"></div>
 ```
 
   </section>
@@ -472,6 +471,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- P&L -->
 
   <section id="section-pnl" class="section">
+    <div class="section-label">INCOME STATEMENT</div>
     <div class="g2">
       <div class="card">
         <div class="card-head"><div class="card-title" id="pnlTitle">Income Statement</div></div>
@@ -487,6 +487,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- CASH FLOW -->
 
   <section id="section-cashflow" class="section">
+    <div class="section-label">MONTHLY CASH FLOW</div>
     <div class="card">
       <div class="card-head"><div class="card-title" id="cfTitle">Cash Flow Statement</div></div>
       <div style="padding:0"><table class="tbl" id="cfTbl"></table></div>
@@ -496,20 +497,24 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- SPENDING -->
 
   <section id="section-spending" class="section">
+    <div class="section-label">CURRENT PERIOD</div>
     <div class="kpi-row cols-3">
       <div class="kpi r"><div class="kpi-label">Total Spend</div><div class="kpi-val neg" id="spendTotal">—</div></div>
       <div class="kpi y"><div class="kpi-label">Avg / Category</div><div class="kpi-val" id="spendAvg">—</div></div>
       <div class="kpi p"><div class="kpi-label">% of Income</div><div class="kpi-val purple" id="spendPct">—</div></div>
     </div>
+    <div class="section-label">BREAKDOWN</div>
     <div class="card">
       <div class="card-head"><div class="card-title" id="spendTblTitle">Category Breakdown</div></div>
       <div style="padding:0"><table class="tbl" id="spendTbl"></table></div>
     </div>
-    <div class="card" style="margin-top:6px">
+    <div class="section-label">YEAR-TO-DATE</div>
+    <div class="card" style="margin-top:0">
       <div class="card-head"><div class="card-title">Year-to-Date Spending Comparison</div></div>
       <div style="padding:0"><table class="tbl" id="yoyTbl"></table></div>
     </div>
-    <div class="card" style="margin-top:6px">
+    <div class="section-label">TREND</div>
+    <div class="card" style="margin-top:0">
       <div class="card-head">
         <div class="card-title">Category Trend — 24 Months</div>
         <select id="catTrendSel" class="fi" style="font-size:11px;padding:2px 6px;width:auto" onchange="drawCatTrendChart()"></select>
@@ -521,12 +526,14 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- TRENDS -->
 
   <section id="section-trends" class="section">
+    <div class="section-label">TRAILING 12 MONTHS</div>
     <div class="kpi-row cols-4">
       <div class="kpi b"><div class="kpi-label">12M Avg Income</div><div class="kpi-val blue" id="tr-avginc">—</div><div class="kpi-sub">monthly avg</div></div>
       <div class="kpi r"><div class="kpi-label">12M Avg Spend</div><div class="kpi-val neg" id="tr-avgspend">—</div><div class="kpi-sub">monthly avg</div></div>
       <div class="kpi p"><div class="kpi-label">12M Avg Savings Rate</div><div class="kpi-val purple" id="tr-avgsav">—</div><div class="kpi-sub">last twelve months</div></div>
       <div class="kpi g"><div class="kpi-label">Best NW Month</div><div class="kpi-val pos" id="tr-bestnw">—</div><div class="kpi-sub" id="tr-bestnw-sub"></div></div>
     </div>
+    <div class="section-label">INCOME & SPENDING</div>
     <div class="g2">
       <div class="card">
         <div class="card-head"><div class="card-title">Income vs Spending — 24 Months</div></div>
@@ -537,6 +544,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         <div class="card-body" style="padding:6px 10px 10px"><canvas id="savRateChart" height="170"></canvas></div>
       </div>
     </div>
+    <div class="section-label">NET WORTH CHANGE</div>
     <div class="g2">
       <div class="card">
         <div class="card-head"><div class="card-title">Month-over-Month Net Worth Change</div></div>
@@ -547,11 +555,13 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         <div style="padding:0"><table class="tbl" id="yoySpendTbl"></table></div>
       </div>
     </div>
-    <div class="card" style="margin-top:6px">
+    <div class="section-label">INCOME GROWTH</div>
+    <div class="card" style="margin-top:0">
       <div class="card-head"><div class="card-title">Annual Income Growth Rate</div></div>
       <div class="card-body" style="padding:6px 10px 10px"><canvas id="incGrowthChart" height="150"></canvas></div>
     </div>
-    <div class="g2" style="margin-top:6px">
+    <div class="section-label">WEALTH COMPOSITION</div>
+    <div class="g2" style="margin-top:0">
       <div class="card">
         <div class="card-head"><div class="card-title">Cumulative Contributions vs. Market Growth</div></div>
         <div class="card-body" style="padding:6px 10px 10px"><canvas id="contribGrowthChart" height="160"></canvas></div>
@@ -1028,8 +1038,8 @@ function updateOverview(d) {
   if (!d) {
     ['kpi-nw','kpi-inc','kpi-spend','kpi-net','savRate','topCat','topCatAmt','liquid','kpi-fireryr','kpi-retage','kpi-taxrate','kpi-moexp'].forEach(empty);
     document.getElementById('allocBars').innerHTML = '<div class="empty">No data for this period</div>';
-    document.getElementById('fireProgressOverview').innerHTML = '<div class="empty">No data</div>';
-    document.getElementById('milestonesOverview').innerHTML = '<div class="empty">No data</div>';
+    document.getElementById('fireProgressOverview').innerHTML = '<div class="empty" style="grid-column:1/-1">No data</div>';
+    document.getElementById('milestonesOverview').innerHTML = '<div class="empty" style="grid-column:1/-1">No data</div>';
     return;
   }
 
@@ -1066,29 +1076,52 @@ function updateOverview(d) {
     ? alloc.map(a=>`<div class="bar-row"><div class="bar-lbl">${a.l}</div><div class="bar-track"><div class="bar-fill ${a.c}" style="width:${(a.v/maxV*100).toFixed(1)}%"></div></div><div class="bar-amt">${fmt(a.v)}</div></div>`).join('')
     : '<div class="empty">No asset data</div>';
 
-  // FIRE progress on overview
+  // Milestone cards helper (shared style with FIRE tab)
   const nw = d.nw;
-  const goals = [{l:'LeanFIRE',t:FIRE_CONFIG.leanFire,c:'#00e5a0'},{l:'FIRE',t:FIRE_CONFIG.fire,c:'#3d9fff'},{l:'FatFIRE',t:FIRE_CONFIG.fatFire,c:'#9d70ff'}];
-  document.getElementById('fireProgressOverview').innerHTML = goals.map(g => {
-    const p = Math.min(nw/g.t, 1);
-    return `<div class="progress-item">
-      <div class="progress-header"><span class="progress-label">${g.l} — ${fmt(g.t)}</span><span class="progress-pct" style="color:${g.c}">${pct(p)}</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:${(p*100).toFixed(1)}%;background:${g.c}"></div></div>
-    </div>`;
-  }).join('');
+  const inv = d.invested;
+  const liveAge = getAge();
+  const cy2 = _now.getFullYear();
+  const rate2 = FIRE_CONFIG.returnRate;
+  const ctb2 = FIRE_CONFIG.annualContribution;
 
-  // Milestones
-  const milestones = [10000,50000,100000,250000,500000,1000000,1500000,2000000];
-  document.getElementById('milestonesOverview').innerHTML = milestones.map(m => {
-    const done = nw >= m;
-    const p = Math.min(nw/m, 1);
-    return `<div class="progress-item">
-      <div class="progress-header">
-        <span class="progress-label" style="color:${done?'var(--green)':'var(--text2)'}">${done?'✓ ':''} ${fmt(m)} NW</span>
-        <span class="progress-pct" style="color:${done?'var(--green)':'var(--text2)'}">${done?'Complete':pct(p)}</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" style="width:${(p*100).toFixed(1)}%;background:${done?'var(--green)':'var(--blue)'}"></div></div>
+  function fwdYear(target, base) {
+    if (base >= target) return { year: cy2, age: Math.round(liveAge), yrs: 0 };
+    let pf = base;
+    for (let yr = 1; yr <= 60; yr++) {
+      pf = pf * (1 + rate2) + ctb2;
+      if (pf >= target) return { year: cy2 + yr, age: Math.round(liveAge + yr), yrs: yr };
+    }
+    return null;
+  }
+
+  function ovCard(badge, badgeClass, subtitle, base, target) {
+    const r = fwdYear(target, base);
+    const achieved = base >= target;
+    const yc = achieved ? 'achieved' : r && r.yrs <= 5 ? 'soon' : r && r.yrs <= 15 ? 'future' : 'far';
+    const yearTxt = achieved ? 'Now ✓' : r ? `~${r.year}` : '—';
+    const subTxt = achieved ? `Age ${Math.round(liveAge)} · ${cy2}` : r ? `Age ~${r.age} · ${r.yrs} yr${r.yrs === 1 ? '' : 's'} away` : '—';
+    const prog = Math.min(base / target * 100, 100).toFixed(0);
+    return `<div class="milestone-card">
+      <span class="milestone-badge ${badgeClass}">${badge}</span>
+      <div class="milestone-title">${subtitle}</div>
+      <div class="milestone-year ${yc}">${yearTxt}</div>
+      <div class="milestone-sub">${subTxt}</div>
+      <div class="milestone-desc">${fmt(base)} / ${fmt(target)} — ${achieved ? 'complete' : prog + '% there'}</div>
     </div>`;
+  }
+
+  // FIRE progress (3 cards using invested assets)
+  document.getElementById('fireProgressOverview').innerHTML = [
+    ovCard('LeanFIRE', 'lean', fmt(FIRE_CONFIG.leanFire) + ' portfolio', inv, FIRE_CONFIG.leanFire),
+    ovCard('Full FIRE', 'fire', fmt(FIRE_CONFIG.fire) + ' portfolio', inv, FIRE_CONFIG.fire),
+    ovCard('FatFIRE', 'fat', fmt(FIRE_CONFIG.fatFire) + ' portfolio', inv, FIRE_CONFIG.fatFire),
+  ].join('');
+
+  // Net Worth milestone cards (8 thresholds, using nw)
+  const nwThresholds = [10000, 50000, 100000, 250000, 500000, 1000000, 1500000, 2000000];
+  document.getElementById('milestonesOverview').innerHTML = nwThresholds.map(m => {
+    const achieved = nw >= m;
+    return ovCard(fmt(m), achieved ? 'coast' : 'fire', 'Net Worth', nw, m);
   }).join('');
 }
 
@@ -1516,7 +1549,7 @@ function drawNWChart() {
   const cW = W - pL - pR, cH = H - pT - pB;
 
   const LAYERS = ['checking','savings','ira','k401','brokerage','hsa','otherassets'];
-  const COLORS = { checking:'#5cb85c', savings:'#e8943a', ira:'#7b5ea7', k401:'#2e7d32', brokerage:'#c87a00', hsa:'#00c4c4', otherassets:'#4d9fff' };
+  const COLORS = { checking:'#00d4aa', savings:'#f5c842', ira:'#7b5ea7', k401:'#4d9fff', brokerage:'#00c4c4', hsa:'#ff9f6b', otherassets:'#9090a8' };
   const LABELS = { checking:'Checking', savings:'Savings', ira:'IRA / Roth', k401:'401(k)', brokerage:'Brokerage', hsa:'HSA', otherassets:'Other' };
 
   const totals = points.map(p => LAYERS.reduce((s,k) => s + p[k], 0));

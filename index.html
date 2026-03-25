@@ -223,8 +223,26 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-@media (max-width: 1100px) { .kpi-row.cols-4, .kpi-row.cols-5 { grid-template-columns: repeat(2,1fr); } .g3 { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 768px) { main { padding: 7px 10px; } header, .nav { padding: 0 10px; } .kpi-row.cols-4, .kpi-row.cols-3, .kpi-row.cols-5 { grid-template-columns: 1fr 1fr; } .g2, .g3, .g21, .g12 { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } .fire-inputs { grid-template-columns: 1fr 1fr; } }
+/* MILESTONE CARDS */
+.milestone-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+.milestone-card { background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:12px 14px; display:flex; flex-direction:column; gap:5px; }
+.milestone-badge { display:inline-block; font-size:9px; font-family:var(--mono-font); padding:2px 7px; border-radius:3px; font-weight:600; align-self:flex-start; }
+.milestone-badge.coast { background:rgba(0,212,170,0.15); color:var(--green); border:1px solid rgba(0,212,170,0.3); }
+.milestone-badge.lean  { background:rgba(245,200,66,0.15); color:var(--yellow); border:1px solid rgba(245,200,66,0.3); }
+.milestone-badge.fire  { background:rgba(77,159,255,0.15); color:var(--blue); border:1px solid rgba(77,159,255,0.3); }
+.milestone-badge.fat   { background:rgba(123,94,167,0.15); color:var(--purple); border:1px solid rgba(123,94,167,0.3); }
+.milestone-title { font-size:11px; color:var(--text2); }
+.milestone-year { font-size:30px; font-family:var(--mono-font); font-weight:700; line-height:1.1; }
+.milestone-year.achieved { color:var(--green); }
+.milestone-year.soon { color:var(--yellow); }
+.milestone-year.future { color:var(--blue); }
+.milestone-year.far { color:var(--purple); }
+.milestone-sub { font-size:10px; color:var(--text3); }
+.milestone-desc { font-size:10px; color:var(--text2); line-height:1.5; border-top:1px solid var(--border); padding-top:6px; margin-top:2px; }
+.section-label { font-size:9px; letter-spacing:0.08em; color:var(--text3); font-family:var(--mono-font); margin:8px 0 5px; }
+
+@media (max-width: 1100px) { .kpi-row.cols-4, .kpi-row.cols-5 { grid-template-columns: repeat(2,1fr); } .g3 { grid-template-columns: 1fr 1fr; } .milestone-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 768px) { main { padding: 7px 10px; } header, .nav { padding: 0 10px; } .kpi-row.cols-4, .kpi-row.cols-3, .kpi-row.cols-5 { grid-template-columns: 1fr 1fr; } .g2, .g3, .g21, .g12 { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } .fire-inputs { grid-template-columns: 1fr 1fr; } .milestone-grid { grid-template-columns: 1fr 1fr; } }
 </style>
 
 </head>
@@ -363,24 +381,45 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   </div>
 </div>
 
-<div class="kpi-row cols-5">
-  <div class="kpi g"><div class="kpi-label">Net Worth</div><div class="kpi-val pos" id="fire-nw">—</div></div>
-  <div class="kpi b"><div class="kpi-label">Invested Assets</div><div class="kpi-val blue" id="fire-inv">—</div></div>
-  <div class="kpi p"><div class="kpi-label">% to FIRE</div><div class="kpi-val purple" id="fire-pct">—</div><div class="kpi-sub" id="fire-pct-sub">target</div></div>
-  <div class="kpi y"><div class="kpi-label">Coast FI</div><div class="kpi-val yellow" id="fire-coast">—</div><div class="kpi-sub" id="fire-coast-sub">needed today</div></div>
-  <div class="kpi t"><div class="kpi-label">2025 Saved</div><div class="kpi-val" style="color:var(--teal)" id="fire-saved">—</div><div class="kpi-sub" id="fire-saved-rate"></div></div>
+<div class="kpi-row cols-4" style="margin-bottom:10px">
+  <div class="kpi g"><div class="kpi-label">Net Worth</div><div class="kpi-val pos" id="snap-nw">—</div><div class="kpi-sub" id="snap-nw-sub"></div></div>
+  <div class="kpi b"><div class="kpi-label">Annual Spending</div><div class="kpi-val blue" id="snap-spend">—</div><div class="kpi-sub" id="snap-spend-sub">avg 2024–2025</div></div>
+  <div class="kpi y"><div class="kpi-label">Current Salary</div><div class="kpi-val yellow" id="snap-sal">—</div><div class="kpi-sub" id="snap-sal-sub"></div></div>
+  <div class="kpi t"><div class="kpi-label">Annual Investing</div><div class="kpi-val" style="color:var(--teal)" id="snap-inv">—</div><div class="kpi-sub">401k · Roth · Brokerage · HSA</div></div>
 </div>
 
-<div class="g2">
-  <div class="card">
-    <div class="card-head"><div class="card-title">FIRE Goals Progress</div></div>
-    <div class="card-body" id="fireGoals"></div>
-  </div>
-  <div class="card">
-    <div class="card-head"><div class="card-title">Investment Milestones</div></div>
-    <div class="card-body" id="invMilestones"></div>
+<div class="section-label">FIRE MILESTONES</div>
+<div class="milestone-grid" id="fireMilestones"></div>
+
+<div class="card" id="fireFullDetails" style="margin-bottom:10px">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr)">
+    <div style="padding:14px 18px;border-right:1px solid var(--border)">
+      <div class="kpi-label">Target Year</div>
+      <div style="font-size:40px;font-family:var(--mono-font);font-weight:700;color:var(--blue);line-height:1" id="ffd-year">—</div>
+      <div class="kpi-sub" id="ffd-year-sub"></div>
+    </div>
+    <div style="padding:14px 18px;border-right:1px solid var(--border)">
+      <div class="kpi-label">FIRE Number (inflation-adj)</div>
+      <div style="font-size:22px;font-family:var(--mono-font);font-weight:600;color:var(--text);line-height:1.2" id="ffd-num">—</div>
+      <div class="kpi-sub" id="ffd-num-sub"></div>
+    </div>
+    <div style="padding:14px 18px">
+      <div class="kpi-label">Projected Portfolio at FIRE</div>
+      <div style="font-size:22px;font-family:var(--mono-font);font-weight:600;color:var(--green);line-height:1.2" id="ffd-proj">—</div>
+      <div class="kpi-sub" id="ffd-proj-sub"></div>
+    </div>
   </div>
 </div>
+
+<div class="card" style="margin-bottom:10px">
+  <div class="card-head">
+    <div class="card-title">Portfolio Growth Projection</div>
+    <div id="fireChartLegend" style="display:flex;gap:14px;font-size:9px;color:var(--text2);font-family:var(--mono-font)"></div>
+  </div>
+  <div class="card-body" style="padding:6px 10px 10px"><canvas id="fireProjectionChart" height="200"></canvas></div>
+</div>
+
+<div id="fireAssumptions" style="font-size:10px;color:var(--text3);padding:4px 2px 10px;line-height:1.7"></div>
 
 <div class="g3">
   <div class="kpi g" style="border-radius:4px">
@@ -409,7 +448,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   </div>
 </div>
 
-<div class="card">
+<div class="card" style="margin-bottom:6px">
   <div class="card-head"><div class="card-title">Coast FI Proximity by Age</div></div>
   <div style="overflow-x:auto">
     <table class="swr-table" id="coastTable"></table>
@@ -1057,84 +1096,145 @@ function updateOverview(d) {
 function updateFire(d) {
   const nw = d ? d.nw : 0;
   const inv = d ? d.invested : 0;
+  const liveAge = getAge();
+  const cy = _now.getFullYear();
+  const rate = FIRE_CONFIG.returnRate;
+  const ctb = FIRE_CONFIG.annualContribution;
+  const wr = FIRE_CONFIG.withdrawalRate;
 
-  document.getElementById('fire-nw').textContent = fmt(nw);
-  document.getElementById('fire-inv').textContent = fmt(inv);
-  document.getElementById('fire-pct').textContent = pct(nw / FIRE_CONFIG.fire);
-  document.getElementById('fire-pct-sub').textContent = fmt(FIRE_CONFIG.fire) + ' target';
-  document.getElementById('fire-coast').textContent = fmt(FIRE_CONFIG.coastFiAt65);
-  document.getElementById('fire-coast-sub').textContent = `needed today, age ${getAge().toFixed(1)}`;
-  // Live: YTD investment contributions this year
-  const ytdSaved = computeYTDInvContribs(_now.getFullYear());
-  const ytdInc = computeYTDIncome(_now.getFullYear());
-  document.getElementById('fire-saved').textContent = fmt(ytdSaved);
-  document.getElementById('fire-saved-rate').textContent = (ytdInc > 0 ? pct(ytdSaved / ytdInc) : '—') + ' invest rate';
-  // Live: CMGR computed from NW history
+  // ── Current Snapshot KPIs ─────────────────────────────
+  document.getElementById('snap-nw').textContent = fmt(nw);
+  document.getElementById('snap-nw-sub').textContent = fmt(inv) + ' invested';
+
+  const spendYrs = [cy - 2, cy - 1];
+  let totalSpend = 0, spendMs = 0;
+  spendYrs.forEach(y => {
+    for (let m = 0; m <= 11; m++) {
+      const rd = get(y, m); if (!rd) continue;
+      totalSpend += CATS.reduce((s, c) => s + (rd.spending[c] || 0), 0);
+      spendMs++;
+    }
+  });
+  const avgSpend = spendMs > 0 ? totalSpend / spendMs * 12 : 0;
+  document.getElementById('snap-spend').textContent = fmt(avgSpend);
+  document.getElementById('snap-spend-sub').textContent = `avg ${spendYrs[0]}–${spendYrs[1]}`;
+
+  let annualSal = 0;
+  for (let m = 0; m <= 11; m++) { const rd = get(cy, m); if (rd) annualSal += (rd.salary || 0); }
+  document.getElementById('snap-sal').textContent = fmt(annualSal);
+  document.getElementById('snap-sal-sub').textContent = `salary ${cy}`;
+
+  document.getElementById('snap-inv').textContent = fmt(computeYTDInvContribs(cy));
+
+  // ── CMGR ──────────────────────────────────────────────
   const cmgrAll = computeLiveCMGR(null);
   const cmgrLtm = computeLiveCMGR(12);
   document.getElementById('cmgr-total').textContent = cmgrAll !== null ? pct(cmgrAll, 2) : pct(FIRE_CONFIG.cmgrTotal, 2);
   document.getElementById('cmgr-ltm').textContent = cmgrLtm !== null ? pct(cmgrLtm, 2) : pct(FIRE_CONFIG.cmgrLtm, 2);
   document.getElementById('fire-spend').textContent = fmt(FIRE_CONFIG.annualRetirementSpend);
-
-  // FIRE goals
-  const fireGoals = [
-    {l:'LeanFIRE',t:FIRE_CONFIG.leanFire,c:'var(--green)'}, 
-    {l:'FIRE',t:FIRE_CONFIG.fire,c:'var(--blue)'},
-    {l:'FatFIRE',t:FIRE_CONFIG.fatFire,c:'var(--purple)'},
-  ];
-  document.getElementById('fireGoals').innerHTML = fireGoals.map(g => {
-    const p = Math.min(nw/g.t, 1);
-    return `<div class="progress-item">
-      <div class="progress-header">
-        <span class="progress-label">${g.l} — ${fmt(g.t)}</span>
-        <span class="progress-pct" style="color:${g.c}">${pct(p)} · ${fmt(nw)} / ${fmt(g.t)}</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" style="width:${(p*100).toFixed(1)}%;background:${g.c}"></div></div>
-    </div>`;
-  }).join('');
-
-  // Investment milestones
-  const iMilestones = [10000,50000,100000,250000,500000,1000000,1500000,2000000];
-  document.getElementById('invMilestones').innerHTML = iMilestones.map(m => {
-    const done = inv >= m;
-    const p = Math.min(inv/m, 1);
-    return `<div class="progress-item">
-      <div class="progress-header">
-        <span class="progress-label" style="color:${done?'var(--green)':'var(--text2)'}">${done?'✓ ':''} ${fmt(m)} Invested</span>
-        <span class="progress-pct" style="color:${done?'var(--green)':'var(--text2)'}">${done?'Complete':pct(p)}</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" style="width:${(p*100).toFixed(1)}%;background:${done?'var(--green)':'var(--yellow)'}"></div></div>
-    </div>`;
-  }).join('');
-
-  // SWR Projection Matrix
-  const liveAge = getAge();
   const swrSub = document.getElementById('fire-swr-sub');
-  if (swrSub) swrSub.textContent = `${(FIRE_CONFIG.withdrawalRate*100).toFixed(1)}% SWR target`;
-  const centralRate = Math.round(FIRE_CONFIG.returnRate * 100) / 100;
+  if (swrSub) swrSub.textContent = `${(wr * 100).toFixed(1)}% SWR target`;
+
+  // ── Milestone calculations ────────────────────────────
+  function coastMilestone(retireAge, target) {
+    let pf = inv;
+    for (let yr = 0; yr <= 50; yr++) {
+      const ageNow = liveAge + yr;
+      if (retireAge <= ageNow + 1) return null;
+      const needed = target / Math.pow(1 + rate, retireAge - ageNow);
+      if (pf >= needed) return { year: cy + yr, age: Math.round(ageNow), yrs: yr };
+      pf = pf * (1 + rate) + ctb;
+    }
+    return null;
+  }
+  function accumMilestone(target) {
+    if (inv >= target) return { year: cy, age: Math.round(liveAge), yrs: 0 };
+    let pf = inv;
+    for (let yr = 1; yr <= 60; yr++) {
+      pf = pf * (1 + rate) + ctb;
+      if (pf >= target) return { year: cy + yr, age: Math.round(liveAge + yr), yrs: yr };
+    }
+    return null;
+  }
+  const coast65 = coastMilestone(65, FIRE_CONFIG.fire);
+  const coast55 = coastMilestone(55, FIRE_CONFIG.fire);
+  const leanM = accumMilestone(FIRE_CONFIG.leanFire);
+  const fullM = accumMilestone(FIRE_CONFIG.fire);
+
+  function milestoneCard(badge, badgeClass, title, result, descFn) {
+    if (!result) return `<div class="milestone-card"><span class="milestone-badge ${badgeClass}">${badge}</span><div class="milestone-title">${title}</div><div class="milestone-year" style="color:var(--text3)">—</div><div class="milestone-desc">Not achievable within projection window.</div></div>`;
+    const yc = result.yrs === 0 ? 'achieved' : result.yrs <= 5 ? 'soon' : result.yrs <= 15 ? 'future' : 'far';
+    const yearTxt = result.yrs === 0 ? 'Now ✓' : `~${result.year}`;
+    const subTxt = result.yrs === 0 ? `Age ${result.age} · ${cy}` : `Age ~${result.age} · ${result.yrs} yr${result.yrs === 1 ? '' : 's'} away`;
+    return `<div class="milestone-card">
+      <span class="milestone-badge ${badgeClass}">${badge}</span>
+      <div class="milestone-title">${title}</div>
+      <div class="milestone-year ${yc}">${yearTxt}</div>
+      <div class="milestone-sub">${subTxt}</div>
+      <div class="milestone-desc">${descFn(result)}</div>
+    </div>`;
+  }
+
+  document.getElementById('fireMilestones').innerHTML = [
+    milestoneCard('Coast FIRE · 65', 'coast', 'Stop contributing, retire at 65', coast65,
+      r => r.yrs === 0
+        ? `Already coast FI for 65! ${fmt(inv)} invested grows to ${fmt(FIRE_CONFIG.fire)} by 65 at ${(rate*100).toFixed(0)}%/yr with no further contributions.`
+        : `${fmt(inv)} invested grows to ${fmt(FIRE_CONFIG.fire)} by age 65 at ${(rate*100).toFixed(0)}%/yr — no more contributions needed.`),
+    milestoneCard('Coast FIRE · 55', 'coast', 'Stop contributing, retire at 55', coast55,
+      r => {
+        if (r.yrs === 0) return `Already coast FI for 55! Portfolio grows to ${fmt(FIRE_CONFIG.fire)} by age 55 with no contributions.`;
+        const needed = FIRE_CONFIG.fire / Math.pow(1 + rate, 55 - (liveAge + r.yrs));
+        return `Need ~${fmt(needed)} invested. At your trajectory, stop all contributions in ${r.yrs} yr${r.yrs === 1 ? '' : 's'} and still retire at 55.`;
+      }),
+    milestoneCard('LeanFIRE', 'lean', 'Lean retirement lifestyle', leanM,
+      r => `Portfolio hits ${fmt(FIRE_CONFIG.leanFire)}. ${(wr*100).toFixed(0)}% SWR → ${fmt(FIRE_CONFIG.leanFire * wr)}/yr. Lean but fully funded retirement.`),
+    milestoneCard('Full FIRE', 'fire', 'Never work again', fullM,
+      r => `Portfolio hits ${fmt(FIRE_CONFIG.fire)}. ${(wr*100).toFixed(0)}% SWR → ${fmt(FIRE_CONFIG.fire * wr)}/yr — covers full retirement spending.`),
+  ].join('');
+
+  // ── Full FIRE Details ─────────────────────────────────
+  if (fullM) {
+    const inflAdj = FIRE_CONFIG.fire * Math.pow(1.02, fullM.yrs);
+    const projPf = inv > 0 ? inv * Math.pow(1 + rate, fullM.yrs) + ctb * (Math.pow(1 + rate, fullM.yrs) - 1) / rate : 0;
+    document.getElementById('ffd-year').textContent = fullM.year;
+    document.getElementById('ffd-year-sub').textContent = `Age ~${fullM.age} · ${fullM.yrs} yrs away`;
+    document.getElementById('ffd-num').textContent = fmt(inflAdj);
+    document.getElementById('ffd-num-sub').textContent = `${fmt(FIRE_CONFIG.fire)} × 2%/yr inflation over ${fullM.yrs} yrs`;
+    document.getElementById('ffd-proj').textContent = fmt(projPf);
+    document.getElementById('ffd-proj-sub').textContent = `${fmt(inv)} today + ~${fmt(ctb)}/yr at ${(rate*100).toFixed(0)}%`;
+  }
+
+  // ── Assumptions ───────────────────────────────────────
+  document.getElementById('fireAssumptions').innerHTML =
+    `<strong style="color:var(--text2)">Spending:</strong> ${fmt(avgSpend)}/yr avg · ` +
+    `<strong style="color:var(--text2)">Contributions:</strong> ${fmt(ctb)}/yr · ` +
+    `<strong style="color:var(--text2)">Return:</strong> ${(rate*100).toFixed(0)}% nominal · ` +
+    `<strong style="color:var(--text2)">Starting portfolio:</strong> ${fmt(inv)} invested · ` +
+    `<strong style="color:var(--text2)">Coast FIRE</strong> uses invested assets only`;
+
+  // ── SWR Projection Matrix ─────────────────────────────
+  const centralRate = Math.round(rate * 100) / 100;
   const rateStart = Math.max(0.01, centralRate - 0.03);
   const rates = Array.from({length: 8}, (_, i) => +((rateStart + i * 0.01).toFixed(4)));
   const maxAge = Math.max(FIRE_CONFIG.retirementAge + 20, 70);
   const ages = [];
   for (let a = Math.floor(liveAge); a <= maxAge; a++) ages.push(a);
 
-  function projectedWithdrawal(currentAge, targetAge, currentInv, annualCtb, rate) {
+  function projectedWithdrawal(currentAge, targetAge, currentInv, annualCtb, r) {
     const n = targetAge - currentAge;
-    if (n <= 0) return currentInv * FIRE_CONFIG.withdrawalRate;
-    const fv = currentInv * Math.pow(1+rate, n) + annualCtb * (Math.pow(1+rate, n) - 1) / rate;
-    return fv * FIRE_CONFIG.withdrawalRate;
+    if (n <= 0) return currentInv * wr;
+    const fv = currentInv * Math.pow(1 + r, n) + annualCtb * (Math.pow(1 + r, n) - 1) / r;
+    return fv * wr;
   }
 
-  const currentAge = liveAge;
   const currentInv = inv || 1;
   const target = FIRE_CONFIG.annualRetirementSpend;
-  const preferredRate = FIRE_CONFIG.returnRate;
-  const preferredRateIdx = rates.findIndex(r => Math.abs(r - preferredRate) < 0.005);
+  const preferredRateIdx = rates.findIndex(r => Math.abs(r - rate) < 0.005);
 
-  const swrHtml = `<thead><tr><th>Age</th>${rates.map(r=>`<th style="color:${Math.abs(r-preferredRate)<0.005?'var(--green)':'var(--text3)'}">${(r*100).toFixed(0)}%</th>`).join('')}</tr></thead>
+  const swrHtml = `<thead><tr><th>Age</th>${rates.map(r=>`<th style="color:${Math.abs(r-rate)<0.005?'var(--green)':'var(--text3)'}">${(r*100).toFixed(0)}%</th>`).join('')}</tr></thead>
     <tbody>${ages.map(age => {
-      const isCurrent = age === Math.floor(currentAge);
-      const vals = rates.map(r => projectedWithdrawal(currentAge, age, currentInv, FIRE_CONFIG.annualContribution, r));
+      const isCurrent = age === Math.floor(liveAge);
+      const vals = rates.map(r => projectedWithdrawal(liveAge, age, currentInv, ctb, r));
       return `<tr>
         <td class="${isCurrent?'current-age':''}">${age}</td>
         ${vals.map((v,i) => {
@@ -1145,20 +1245,19 @@ function updateFire(d) {
     }).join('')}</tbody>`;
   document.getElementById('swrTable').innerHTML = swrHtml;
 
-  // Coast FI table
+  // ── Coast FI Proximity ────────────────────────────────
   const coastAge = FIRE_CONFIG.coastAge || 65;
   const coastHtml = `<thead><tr><th>Age</th><th style="color:var(--green)">LeanFIRE Coast %</th><th style="color:var(--blue)">FIRE Coast %</th><th style="color:var(--purple)">FatFIRE Coast %</th></tr></thead>
     <tbody>${ages.map(age => {
-      const isCurrent = age === Math.floor(currentAge);
+      const isCurrent = age === Math.floor(liveAge);
       function coastNeeded(fireTarget, retAge, growthRate) {
         const n = retAge - age;
         if (n <= 0) return fireTarget;
         return fireTarget / Math.pow(1 + growthRate, n);
       }
-      const r = FIRE_CONFIG.returnRate;
-      const leanCoast = inv / coastNeeded(FIRE_CONFIG.leanFire, coastAge, r);
-      const fireCoast = inv / coastNeeded(FIRE_CONFIG.fire, coastAge, r);
-      const fatCoast  = inv / coastNeeded(FIRE_CONFIG.fatFire, coastAge, r);
+      const leanCoast = inv / coastNeeded(FIRE_CONFIG.leanFire, coastAge, rate);
+      const fireCoast = inv / coastNeeded(FIRE_CONFIG.fire, coastAge, rate);
+      const fatCoast  = inv / coastNeeded(FIRE_CONFIG.fatFire, coastAge, rate);
       return `<tr>
         <td class="${isCurrent?'current-age':''}">${age}</td>
         <td class="${leanCoast>=1?'achieved':''}" style="color:${leanCoast>=1?'var(--green)':'var(--text2)'}">${pct(Math.min(leanCoast,9.99))}</td>
@@ -1167,8 +1266,104 @@ function updateFire(d) {
       </tr>`;
     }).join('')}</tbody>`;
   document.getElementById('coastTable').innerHTML = coastHtml;
+
+  drawFireProjectionChart(inv);
   updateMonteCarlo(d);
   updateContribCalc(d);
+}
+
+function drawFireProjectionChart(inv) {
+  const canvas = document.getElementById('fireProjectionChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rate = FIRE_CONFIG.returnRate;
+  const ctb = FIRE_CONFIG.annualContribution;
+  const fire = FIRE_CONFIG.fire;
+  const leanFire = FIRE_CONFIG.leanFire;
+  const cy = _now.getFullYear();
+  const endYear = cy + 40;
+  const years = [];
+  for (let y = cy; y <= endYear; y++) years.push(y);
+
+  const portfolio = [];
+  let pf = inv;
+  years.forEach(() => { portfolio.push(pf); pf = pf * (1 + rate) + ctb; });
+  const fireAdj = years.map((y, i) => fire * Math.pow(1.02, i));
+
+  const DPR = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth - 4, H = 220;
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+
+  const pL = 62, pR = 12, pT = 8, pB = 28;
+  const cW = W - pL - pR, cH = H - pT - pB;
+
+  const visLen = Math.min(years.length, 35);
+  const maxVal = Math.max(...portfolio.slice(0, visLen), ...fireAdj.slice(0, visLen), FIRE_CONFIG.fatFire);
+  const step = maxVal < 1e6 ? 250000 : maxVal < 4e6 ? 500000 : 1000000;
+  const yMax = Math.ceil(maxVal * 1.05 / step) * step;
+
+  const tx = i => pL + (i / (years.length - 1)) * cW;
+  const ty = v => pT + cH - Math.max(0, Math.min(1, v / yMax)) * cH;
+
+  ctx.clearRect(0, 0, W, H);
+
+  for (let v = 0; v <= yMax + step * 0.01; v += step) {
+    const gy = ty(v);
+    ctx.strokeStyle = '#1c1c2a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
+    ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'right';
+    ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
+  }
+
+  // LeanFIRE horizontal dashed (teal)
+  ctx.strokeStyle = '#00c4c4'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 5]);
+  ctx.beginPath(); ctx.moveTo(pL, ty(leanFire)); ctx.lineTo(pL + cW, ty(leanFire)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Inflation-adjusted FIRE target (gray dashed)
+  ctx.strokeStyle = '#5a5a72'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  fireAdj.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // Portfolio line (blue)
+  ctx.strokeStyle = '#4d9fff'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  portfolio.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
+  ctx.stroke();
+
+  // Dots at milestone years
+  [leanFire, fire].forEach((tgt, ti) => {
+    let pf2 = inv;
+    for (let yr = 0; yr <= years.length - 1; yr++) {
+      if (pf2 >= tgt) {
+        ctx.beginPath(); ctx.arc(tx(yr), ty(portfolio[yr]), 4, 0, Math.PI * 2);
+        ctx.fillStyle = ti === 0 ? '#00c4c4' : '#4d9fff'; ctx.fill();
+        ctx.strokeStyle = '#0a0a0f'; ctx.lineWidth = 1.5; ctx.stroke();
+        break;
+      }
+      pf2 = pf2 * (1 + rate) + ctb;
+    }
+  });
+
+  // X axis labels
+  ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#5a5a72'; ctx.textAlign = 'center';
+  const xStep = Math.ceil(years.length / 10);
+  years.forEach((y, i) => {
+    if (i % xStep !== 0 && i !== years.length - 1) return;
+    ctx.fillText(y, tx(i), pT + cH + 14);
+  });
+
+  // Legend
+  const legendEl = document.getElementById('fireChartLegend');
+  if (legendEl) {
+    legendEl.innerHTML =
+      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:#4d9fff;display:inline-block;border-radius:1px"></span>Portfolio value</span>` +
+      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #888;display:inline-block"></span>FIRE # (inflation-adj)</span>` +
+      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #00c4c4;display:inline-block"></span>LeanFIRE (${fmt(leanFire)})</span>`;
+  }
 }
 
 // ── P&L ─────────────────────────────────────────────────

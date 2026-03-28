@@ -189,6 +189,11 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* TOAST */
+#tablePopup { position:fixed; z-index:500; background:var(--bg2); border:1px solid var(--border2); border-radius:6px; padding:10px 14px; max-width:280px; font-size:11px; color:var(--text2); line-height:1.7; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:none; pointer-events:auto; }
+#tablePopup .pop-close { float:right; cursor:pointer; color:var(--text3); font-size:15px; margin-left:8px; line-height:1; }
+#tablePopup strong { color:var(--text); }
+.swr-table td[data-popup], .swr-table th[data-popup] { cursor:pointer; }
+.swr-table td[data-popup]:hover { background:var(--bg3); }
 .toast { position: fixed; bottom: 16px; right: 16px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); padding: 7px 14px; border-radius: 3px; font-family: var(--mono-font); font-size: 11px; z-index: 1000; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.ok { border-color: var(--green); color: var(--green); }
@@ -283,7 +288,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <div class="tab active" onclick="showSection('overview')">Overview</div>
   <div class="tab" onclick="showSection('fire')">FIRE</div>
   <div class="tab" onclick="showSection('pnl')">P&L</div>
-  <div class="tab" onclick="showSection('cashflow')">Cash Flow</div>
+
   <div class="tab" onclick="showSection('spending')">Spending</div>
   <div class="tab" onclick="showSection('trends')">Trends</div>
   <div class="tab" onclick="showSection('entry')">Data Entry</div>
@@ -370,11 +375,11 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
       <div class="fg"><label class="fl">Withdrawal Rate %</label><input class="fi" id="fc-swr" type="number" placeholder="4" step="0.1"></div>
       <div class="fg"><label class="fl">Return Rate %</label><input class="fi" id="fc-return" type="number" placeholder="7" step="0.1"></div>
       <div class="fg"><label class="fl">Retirement Age</label><input class="fi" id="fc-retage" type="number" placeholder="45"></div>
-      <div class="fg"><label class="fl">Annual Contribution</label><input class="fi" id="fc-ctb" type="number" placeholder="80000"></div>
-      <div class="fg"><label class="fl">Annual Ret. Spend</label><input class="fi" id="fc-spend" type="number" placeholder="80000"></div>
-      <div class="fg"><label class="fl">LeanFIRE Target</label><input class="fi" id="fc-lean" type="number" placeholder="1600000"></div>
-      <div class="fg"><label class="fl">FIRE Target</label><input class="fi" id="fc-fire" type="number" placeholder="2000000"></div>
-      <div class="fg"><label class="fl">FatFIRE Target</label><input class="fi" id="fc-fat" type="number" placeholder="3000000"></div>
+      <div class="fg"><label class="fl">Annual Contribution</label><input class="fi" id="fc-ctb" type="text" placeholder="80,000"></div>
+      <div class="fg"><label class="fl">Annual Ret. Spend</label><input class="fi" id="fc-spend" type="text" placeholder="80,000"></div>
+      <div class="fg"><label class="fl">LeanFIRE Target</label><input class="fi" id="fc-lean" type="text" placeholder="1,600,000"></div>
+      <div class="fg"><label class="fl">FIRE Target</label><input class="fi" id="fc-fire" type="text" placeholder="2,000,000"></div>
+      <div class="fg"><label class="fl">FatFIRE Target</label><input class="fi" id="fc-fat" type="text" placeholder="3,000,000"></div>
       <div class="fg"><label class="fl">Coast FI Age</label><input class="fi" id="fc-coastage" type="number" placeholder="65"></div>
     </div>
   </div>
@@ -454,15 +459,9 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   </div>
 </div>
 
-<div class="g2" style="margin-top:6px">
-  <div class="card">
-    <div class="card-head"><div class="card-title">Monte Carlo Projection — 500 Runs (σ=15%)</div></div>
-    <div class="card-body" style="padding:6px 10px 10px"><canvas id="mcChart" height="200"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="card-head"><div class="card-title">Contribution Impact on FIRE Date</div></div>
-    <div style="padding:0"><table class="tbl" id="ctbImpactTable"></table></div>
-  </div>
+<div class="card" style="margin-top:6px">
+  <div class="card-head"><div class="card-title">Contribution Impact on FIRE Date</div></div>
+  <div style="padding:0"><table class="tbl" id="ctbImpactTable"></table></div>
 </div>
 ```
 
@@ -485,14 +484,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   </section>
 
   <!-- CASH FLOW -->
-
-  <section id="section-cashflow" class="section">
-    <div class="section-label">MONTHLY CASH FLOW</div>
-    <div class="card">
-      <div class="card-head"><div class="card-title" id="cfTitle">Cash Flow Statement</div></div>
-      <div style="padding:0"><table class="tbl" id="cfTbl"></table></div>
-    </div>
-  </section>
 
   <!-- SPENDING -->
 
@@ -648,6 +639,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 </main>
 
 <div class="toast" id="toast"></div>
+<div id="tablePopup"><span class="pop-close" onclick="document.getElementById('tablePopup').style.display='none'">×</span><span id="tablePopupBody"></span></div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXRZXsZmwxuTLrbLiJmemQea2ml7IE9_lRXBnMVb-x51O5JqYhrsyb1g3SM3_f6bvh/exec';
@@ -1004,6 +996,7 @@ function compute(d) {
   const netTakeHome = inc - preTaxContribs - totalTaxes;
   const spend = CATS.reduce((s,c) => s+(d.spending[c]||0), 0);
   const netInc = netTakeHome - spend;
+  const netCash = netTakeHome - spend - brokerage_contrib - roth_contrib;
   const hsa = d.hsa || 0;
   const assets = (d.checking||0) + (d.savings||0) + (d.brokerage||0) + (d.k401||0) + (d.ira||0) + hsa + (d.otherassets||0);
   const liab = (d.cc||0) + (d.studentloan||0) + (d.otherdebt||0);
@@ -1015,7 +1008,7 @@ function compute(d) {
   const taxRate = inc > 0 ? totalTaxes / inc : null;
   const monthsOfExpenses = spend > 0 ? liquid / spend : null;
   const topCat = CATS.reduce((a,c) => (d.spending[c]||0)>(d.spending[a]||0)?c:a, CATS[0]);
-  return { inc, k401_contrib, hsa_contrib, brokerage_contrib, roth_contrib, preTaxContribs, totalInvContribs, federal_tax, state_tax, local_tax, fica_tax, totalTaxes, netTakeHome, spend, netInc, hsa, assets, liab, nw, invested, liquid, savRate, trueSavRate, taxRate, monthsOfExpenses, topCat, ...d };
+  return { inc, k401_contrib, hsa_contrib, brokerage_contrib, roth_contrib, preTaxContribs, totalInvContribs, federal_tax, state_tax, local_tax, fica_tax, totalTaxes, netTakeHome, spend, netInc, netCash, hsa, assets, liab, nw, invested, liquid, savRate, trueSavRate, taxRate, monthsOfExpenses, topCat, ...d };
 }
 
 // ── REFRESH ALL ─────────────────────────────────────────
@@ -1025,7 +1018,7 @@ function refreshAll() {
   updateFire(d);
   updatePnL(d);
   updateAnnualPnL();
-  updateCashFlow(d);
+
   updateSpending(d);
   updateTrends();
   drawNWChart();
@@ -1081,15 +1074,16 @@ function updateOverview(d) {
   const inv = d.invested;
   const liveAge = getAge();
   const cy2 = _now.getFullYear();
+  const cy2_month = _now.getMonth();
   const rate2 = FIRE_CONFIG.returnRate;
   const ctb2 = FIRE_CONFIG.annualContribution;
 
   function fwdYear(target, base) {
-    if (base >= target) return { year: cy2, age: Math.round(liveAge), yrs: 0 };
+    if (base >= target) return { year: cy2, month: _now.getMonth(), age: Math.round(liveAge), yrs: 0 };
     let pf = base;
     for (let yr = 1; yr <= 60; yr++) {
       pf = pf * (1 + rate2) + ctb2;
-      if (pf >= target) return { year: cy2 + yr, age: Math.round(liveAge + yr), yrs: yr };
+      if (pf >= target) return { year: cy2 + yr, month: _now.getMonth(), age: Math.round(liveAge + yr), yrs: yr };
     }
     return null;
   }
@@ -1098,8 +1092,8 @@ function updateOverview(d) {
     const r = fwdYear(target, base);
     const achieved = base >= target;
     const yc = achieved ? 'achieved' : r && r.yrs <= 5 ? 'soon' : r && r.yrs <= 15 ? 'future' : 'far';
-    const yearTxt = achieved ? 'Now ✓' : r ? `~${r.year}` : '—';
-    const subTxt = achieved ? `Age ${Math.round(liveAge)} · ${cy2}` : r ? `Age ~${r.age} · ${r.yrs} yr${r.yrs === 1 ? '' : 's'} away` : '—';
+    const yearTxt = achieved ? 'Now ✓' : r ? `~${MONTHS[r.month]} ${r.year}` : '—';
+    const subTxt = achieved ? `Age ${Math.round(liveAge)} · ${MONTHS[cy2_month]} ${cy2}` : r ? `Age ~${r.age} · ${r.yrs} yr${r.yrs === 1 ? '' : 's'} away` : '—';
     const prog = Math.min(base / target * 100, 100).toFixed(0);
     return `<div class="milestone-card">
       <span class="milestone-badge ${badgeClass}">${badge}</span>
@@ -1169,23 +1163,24 @@ function updateFire(d) {
   if (swrSub) swrSub.textContent = `${(wr * 100).toFixed(1)}% SWR target`;
 
   // ── Milestone calculations ────────────────────────────
+  const curMon = _now.getMonth();
   function coastMilestone(retireAge, target) {
     let pf = inv;
     for (let yr = 0; yr <= 50; yr++) {
       const ageNow = liveAge + yr;
       if (retireAge <= ageNow + 1) return null;
       const needed = target / Math.pow(1 + rate, retireAge - ageNow);
-      if (pf >= needed) return { year: cy + yr, age: Math.round(ageNow), yrs: yr };
+      if (pf >= needed) return { year: cy + yr, month: curMon, age: Math.round(ageNow), yrs: yr };
       pf = pf * (1 + rate) + ctb;
     }
     return null;
   }
   function accumMilestone(target) {
-    if (inv >= target) return { year: cy, age: Math.round(liveAge), yrs: 0 };
+    if (inv >= target) return { year: cy, month: curMon, age: Math.round(liveAge), yrs: 0 };
     let pf = inv;
     for (let yr = 1; yr <= 60; yr++) {
       pf = pf * (1 + rate) + ctb;
-      if (pf >= target) return { year: cy + yr, age: Math.round(liveAge + yr), yrs: yr };
+      if (pf >= target) return { year: cy + yr, month: curMon, age: Math.round(liveAge + yr), yrs: yr };
     }
     return null;
   }
@@ -1197,8 +1192,8 @@ function updateFire(d) {
   function milestoneCard(badge, badgeClass, title, result, descFn) {
     if (!result) return `<div class="milestone-card"><span class="milestone-badge ${badgeClass}">${badge}</span><div class="milestone-title">${title}</div><div class="milestone-year" style="color:var(--text3)">—</div><div class="milestone-desc">Not achievable within projection window.</div></div>`;
     const yc = result.yrs === 0 ? 'achieved' : result.yrs <= 5 ? 'soon' : result.yrs <= 15 ? 'future' : 'far';
-    const yearTxt = result.yrs === 0 ? 'Now ✓' : `~${result.year}`;
-    const subTxt = result.yrs === 0 ? `Age ${result.age} · ${cy}` : `Age ~${result.age} · ${result.yrs} yr${result.yrs === 1 ? '' : 's'} away`;
+    const yearTxt = result.yrs === 0 ? 'Now ✓' : `~${MONTHS[result.month]} ${result.year}`;
+    const subTxt = result.yrs === 0 ? `Age ${result.age} · ${MONTHS[curMon]} ${cy}` : `Age ~${result.age} · ${result.yrs} yr${result.yrs === 1 ? '' : 's'} away`;
     return `<div class="milestone-card">
       <span class="milestone-badge ${badgeClass}">${badge}</span>
       <div class="milestone-title">${title}</div>
@@ -1272,7 +1267,9 @@ function updateFire(d) {
         <td class="${isCurrent?'current-age':''}">${age}</td>
         ${vals.map((v,i) => {
           const achieved = v >= target;
-          return `<td class="${isCurrent?'current-age':achieved?'achieved':''}" style="${i===preferredRateIdx?'color:var(--green)':''}">${v>=1000?'$'+(v/1000).toFixed(0)+'k':fmt(v)}</td>`;
+          const r = rates[i];
+          const popHtml = `At a <strong>${(r*100).toFixed(0)}%</strong> annual return, retiring at <strong>age ${age}</strong> lets you withdraw an estimated <strong>${fmt(v)}/yr</strong> using the ${(wr*100).toFixed(1)}% rule. Assumes <strong>${fmt(ctb)}/yr</strong> in contributions from today's <strong>${fmt(currentInv)}</strong> invested.`;
+          return `<td class="${isCurrent?'current-age':achieved?'achieved':''}" style="${i===preferredRateIdx?'color:var(--green)':''}" data-popup="1" onclick="showPopup('${popHtml.replace(/'/g,'&#39;')}',event)">${v>=1000?'$'+(v/1000).toFixed(0)+'k':fmt(v)}</td>`;
         }).join('')}
       </tr>`;
     }).join('')}</tbody>`;
@@ -1291,17 +1288,24 @@ function updateFire(d) {
       const leanCoast = inv / coastNeeded(FIRE_CONFIG.leanFire, coastAge, rate);
       const fireCoast = inv / coastNeeded(FIRE_CONFIG.fire, coastAge, rate);
       const fatCoast  = inv / coastNeeded(FIRE_CONFIG.fatFire, coastAge, rate);
+      function coastPop(pct2, target, label) {
+        const needed = coastNeeded(target, coastAge, rate);
+        const gap = Math.max(0, needed - inv);
+        const achieved2 = inv >= needed;
+        return achieved2
+          ? `At <strong>age ${age}</strong>, your <strong>${fmt(inv)}</strong> portfolio already covers <strong>${pct(Math.min(pct2,9.99))}</strong> of the ${label} coast number — you can stop contributing now and retire at <strong>age ${coastAge}</strong>.`
+          : `At <strong>age ${age}</strong>, your portfolio covers <strong>${pct(Math.min(pct2,9.99))}</strong> of the <strong>${fmt(needed)}</strong> needed to coast to ${label} by <strong>age ${coastAge}</strong>. You need <strong>${fmt(gap)}</strong> more to reach coast FI at this age.`;
+      }
       return `<tr>
         <td class="${isCurrent?'current-age':''}">${age}</td>
-        <td class="${leanCoast>=1?'achieved':''}" style="color:${leanCoast>=1?'var(--green)':'var(--text2)'}">${pct(Math.min(leanCoast,9.99))}</td>
-        <td class="${fireCoast>=1?'achieved':''}" style="color:${fireCoast>=1?'var(--green)':'var(--text2)'}">${pct(Math.min(fireCoast,9.99))}</td>
-        <td class="${fatCoast>=1?'achieved':''}" style="color:${fatCoast>=1?'var(--green)':'var(--text2)'}">${pct(Math.min(fatCoast,9.99))}</td>
+        <td class="${leanCoast>=1?'achieved':''}" style="color:${leanCoast>=1?'var(--green)':'var(--text2)'}" data-popup="1" onclick="showPopup('${coastPop(leanCoast,FIRE_CONFIG.leanFire,'LeanFIRE').replace(/'/g,'&#39;')}',event)">${pct(Math.min(leanCoast,9.99))}</td>
+        <td class="${fireCoast>=1?'achieved':''}" style="color:${fireCoast>=1?'var(--green)':'var(--text2)'}" data-popup="1" onclick="showPopup('${coastPop(fireCoast,FIRE_CONFIG.fire,'Full FIRE').replace(/'/g,'&#39;')}',event)">${pct(Math.min(fireCoast,9.99))}</td>
+        <td class="${fatCoast>=1?'achieved':''}" style="color:${fatCoast>=1?'var(--green)':'var(--text2)'}" data-popup="1" onclick="showPopup('${coastPop(fatCoast,FIRE_CONFIG.fatFire,'FatFIRE').replace(/'/g,'&#39;')}',event)">${pct(Math.min(fatCoast,9.99))}</td>
       </tr>`;
     }).join('')}</tbody>`;
   document.getElementById('coastTable').innerHTML = coastHtml;
 
   drawFireProjectionChart(inv);
-  updateMonteCarlo(d);
   updateContribCalc(d);
 }
 
@@ -1325,6 +1329,7 @@ function drawFireProjectionChart(inv) {
 
   const DPR = window.devicePixelRatio || 1;
   const W = canvas.parentElement.clientWidth - 4, H = 220;
+  if (W <= 0) return;
   canvas.width = W * DPR; canvas.height = H * DPR;
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.scale(DPR, DPR);
@@ -1332,8 +1337,7 @@ function drawFireProjectionChart(inv) {
   const pL = 62, pR = 12, pT = 8, pB = 28;
   const cW = W - pL - pR, cH = H - pT - pB;
 
-  const visLen = Math.min(years.length, 35);
-  const maxVal = Math.max(...portfolio.slice(0, visLen), ...fireAdj.slice(0, visLen), FIRE_CONFIG.fatFire);
+  const maxVal = Math.max(...portfolio, ...fireAdj, FIRE_CONFIG.fatFire);
   const step = maxVal < 1e6 ? 250000 : maxVal < 4e6 ? 500000 : 1000000;
   const yMax = Math.ceil(maxVal * 1.05 / step) * step;
 
@@ -1413,7 +1417,7 @@ function updatePnL(d) {
     {l:'NET TAKE-HOME',v:d.netTakeHome,tot:true},
     {s:'POST-TAX INVESTMENTS'},{l:'Brokerage Contribution',v:d.brokerage_contrib||0},{l:'Roth IRA Contribution',v:d.roth_contrib||0},{l:'TOTAL POST-TAX INVESTED',v:(d.brokerage_contrib||0)+(d.roth_contrib||0),tot:true},
     {s:'EXPENSES'},...CATS.map(c=>({l:c,v:d.spending[c]||0})),{l:'TOTAL EXPENSES',v:d.spend,tot:true},
-    {s:'NET'},{l:'NET CASH SURPLUS',v:d.netInc,tot:true},{l:'TOTAL SAVINGS RATE',v:d.trueSavRate,isRate:true,tot:true},
+    {s:'NET'},{l:'NET CASH SURPLUS',v:d.netCash,tot:true},{l:'TOTAL SAVINGS RATE',v:d.trueSavRate,isRate:true,tot:true},
   ];
   t.innerHTML='<thead><tr><th>Line Item</th><th>Amount</th></tr></thead><tbody>'+
     rows.map(r=>r.s?`<tr class="sec"><td colspan="2">${r.s}</td></tr>`:
@@ -1449,8 +1453,9 @@ function updateAnnualPnL() {
     const netTakeHome = inc-preTaxContribs-totalTaxes;
     const spend = CATS.reduce((s,c)=>s+(a.spending[c]||0),0);
     const netInc = netTakeHome-spend;
+    const netCash = netTakeHome-spend-a.brokerage_contrib-a.roth_contrib;
     const savRate = inc > 0 ? (netInc+preTaxContribs)/inc : null;
-    return {...a, inc, preTaxContribs, totalInvContribs, totalTaxes, netTakeHome, spend, netInc, savRate};
+    return {...a, inc, preTaxContribs, totalInvContribs, totalTaxes, netTakeHome, spend, netInc, netCash, savRate};
   });
   const rows = [
     {s:'INCOME'},{l:'Gross Salary',k:'salary'},{l:'Bonus / Commission',k:'bonus'},{l:'Other Income',k:'otherincome'},{l:'TOTAL GROSS INCOME',k:'inc',tot:true},
@@ -1458,7 +1463,7 @@ function updateAnnualPnL() {
     {s:'TAXES'},{l:'Federal Tax',k:'federal_tax'},{l:'State Tax',k:'state_tax'},{l:'Local Tax',k:'local_tax'},{l:'FICA (SS + Medicare)',k:'fica_tax'},{l:'TOTAL TAXES',k:'totalTaxes',tot:true},{l:'NET TAKE-HOME',k:'netTakeHome',tot:true},
     {s:'POST-TAX INVESTMENTS'},{l:'Brokerage Contribution',k:'brokerage_contrib'},{l:'Roth IRA Contribution',k:'roth_contrib'},{l:'TOTAL POST-TAX INVESTED',k:'brokerage_contrib+roth_contrib',tot:true},
     {s:'EXPENSES'},...CATS.map(c=>({l:c,cat:c})),{l:'TOTAL EXPENSES',k:'spend',tot:true},
-    {s:'NET'},{l:'NET CASH SURPLUS',k:'netInc',tot:true},{l:'SAVINGS RATE (incl. 401k/HSA)',k:'savRate',tot:true,isRate:true},
+    {s:'NET'},{l:'NET CASH SURPLUS',k:'netCash',tot:true},{l:'SAVINGS RATE (incl. 401k/HSA)',k:'savRate',tot:true,isRate:true},
   ];
   const hdr = `<thead><tr><th>Line Item</th>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
   const body = rows.map(r => {
@@ -1470,29 +1475,6 @@ function updateAnnualPnL() {
 }
 
 // ── CASH FLOW ────────────────────────────────────────────
-function updateCashFlow(d) {
-  document.getElementById('cfTitle').textContent = `Cash Flow Statement — ${MONTHS[curMonth]} ${curYear}`;
-  const t=document.getElementById('cfTbl');
-  if (!d){t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>';return;}
-  let pm=curMonth-1, py=curYear;
-  if(pm<0){pm=11;py--;}
-  const prev=get(py,pm);
-  const pi=prev?prev.salary+prev.bonus+prev.otherincome:null;
-  const ps=prev?CATS.reduce((s,c)=>s+(prev.spending[c]||0),0):null;
-  const pnw=prev?(prev.checking||0)+(prev.savings||0)+(prev.brokerage||0)+(prev.k401||0)+(prev.ira||0)+(prev.hsa||0)+(prev.otherassets||0)-(prev.cc||0)-(prev.studentloan||0)-(prev.otherdebt||0):null;
-  const nwChg=pnw!==null?d.nw-pnw:null;
-  const mkRow=(l,cur,prv,tot=false)=>{
-    const chg=(cur!==null&&cur!==undefined&&prv!==null&&prv!==undefined)?cur-prv:null;
-    return `<tr class="${tot?'tot':''}"><td>${l}</td><td>${cur!==null&&cur!==undefined?fmt(cur):'—'}</td><td>${prv!==null&&prv!==undefined?fmt(prv):'—'}</td><td class="${cc(chg)}">${chg!==null?fmt(chg,true):'—'}</td></tr>`;
-  };
-  const mkS=s=>`<tr class="sec"><td colspan="4">${s}</td></tr>`;
-  t.innerHTML='<thead><tr><th>Item</th><th>Current</th><th>Prior Month</th><th>Change</th></tr></thead><tbody>'+[
-    mkS('OPERATING'),mkRow('Total Income',d.inc,pi),mkRow('Total Spending',d.spend,ps),mkRow('NET OPERATING CF',d.netInc,pi!==null?pi-ps:null,true),
-    mkS('BALANCE CHANGES'),mkRow('Checking',d.checking,prev?.checking),mkRow('Savings',d.savings,prev?.savings),mkRow('Brokerage',d.brokerage,prev?.brokerage),mkRow('401(k)',d.k401,prev?.k401),mkRow('IRA / Roth',d.ira,prev?.ira),mkRow('HSA',d.hsa||0,prev?.hsa||0),
-    mkS('NET'),`<tr class="tot"><td>NET WORTH CHANGE</td><td colspan="2"></td><td class="${cc(nwChg)}">${nwChg!==null?fmt(nwChg,true):'—'}</td></tr>`,
-  ].join('')+'</tbody>';
-}
-
 // ── SPENDING ─────────────────────────────────────────────
 function updateSpending(d) {
   document.getElementById('spendTblTitle').textContent = `Category Breakdown — ${MONTHS[curMonth]} ${curYear}`;
@@ -1574,21 +1556,19 @@ function drawNWChart() {
     ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
   }
 
-  // Stacked bars (bottom-to-top: checking → savings → ira → k401 → brokerage → otherassets)
-  // Debt drawn as a red deduction on top so bar height == net worth
+  // Stacked bars using Y-axis scale — each bar's total height equals net worth
   points.forEach((p, i) => {
-    let bot = pT + cH;
+    let cumV = 0;
     LAYERS.forEach(key => {
       const val = p[key]; if (val <= 0) return;
-      const pixH = (val / yRng) * cH;
-      ctx.fillStyle = COLORS[key];
-      ctx.fillRect(bX(i), bot - pixH, bW, pixH);
-      bot -= pixH;
+      const y0 = Math.min(pT + cH, ty(cumV));     // bottom of segment, clamped
+      const y1 = Math.max(pT, ty(cumV + val));     // top of segment, clamped
+      if (y0 > y1) { ctx.fillStyle = COLORS[key]; ctx.fillRect(bX(i), y1, bW, y0 - y1); }
+      cumV += val;
     });
     if (p.debt > 0) {
-      const debtH = (p.debt / yRng) * cH;
-      ctx.fillStyle = '#ff4d6a';
-      ctx.fillRect(bX(i), bot, bW, debtH);
+      const yNW = ty(p.nw), yAss = ty(cumV);
+      if (yNW > yAss) { ctx.fillStyle = '#dc2626'; ctx.fillRect(bX(i), yAss, bW, yNW - yAss); }
     }
   });
 
@@ -1629,11 +1609,26 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(`section-${id}`)?.classList.add('active');
-  const tabs=['overview','fire','pnl','cashflow','spending','trends','entry'];
+  const tabs=['overview','fire','pnl','spending','trends','entry'];
   document.querySelectorAll('.tab')[tabs.indexOf(id)]?.classList.add('active');
   if (id === 'entry') loadForm();
   if (id === 'trends') updateTrends();
+  if (id === 'fire') { const d2 = compute(get(curYear, curMonth)); if (d2) drawFireProjectionChart(d2.invested); }
 }
+
+// ── POPUP ─────────────────────────────────────────────────
+function showPopup(html, e) {
+  const p = document.getElementById('tablePopup');
+  document.getElementById('tablePopupBody').innerHTML = html;
+  p.style.display = 'block';
+  const rect = e.target.getBoundingClientRect();
+  p.style.top = Math.min(rect.bottom + 6, window.innerHeight - 180) + 'px';
+  p.style.left = Math.min(rect.left, window.innerWidth - 300) + 'px';
+  e.stopPropagation();
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#tablePopup')) document.getElementById('tablePopup').style.display = 'none';
+});
 
 // ── TOAST ─────────────────────────────────────────────────
 function showToast(msg, type='') {
@@ -1649,11 +1644,11 @@ function populateFireInputs() {
   document.getElementById('fc-swr').value = (FIRE_CONFIG.withdrawalRate * 100).toFixed(1);
   document.getElementById('fc-return').value = (FIRE_CONFIG.returnRate * 100).toFixed(1);
   document.getElementById('fc-retage').value = FIRE_CONFIG.retirementAge;
-  document.getElementById('fc-ctb').value = FIRE_CONFIG.annualContribution;
-  document.getElementById('fc-spend').value = FIRE_CONFIG.annualRetirementSpend;
-  document.getElementById('fc-lean').value = FIRE_CONFIG.leanFire;
-  document.getElementById('fc-fire').value = FIRE_CONFIG.fire;
-  document.getElementById('fc-fat').value = FIRE_CONFIG.fatFire;
+  document.getElementById('fc-ctb').value = FIRE_CONFIG.annualContribution.toLocaleString();
+  document.getElementById('fc-spend').value = FIRE_CONFIG.annualRetirementSpend.toLocaleString();
+  document.getElementById('fc-lean').value = FIRE_CONFIG.leanFire.toLocaleString();
+  document.getElementById('fc-fire').value = FIRE_CONFIG.fire.toLocaleString();
+  document.getElementById('fc-fat').value = FIRE_CONFIG.fatFire.toLocaleString();
   document.getElementById('fc-coastage').value = FIRE_CONFIG.coastAge || 65;
 }
 
@@ -1662,11 +1657,12 @@ function applyFireSettings() {
   FIRE_CONFIG.withdrawalRate = (parseFloat(document.getElementById('fc-swr').value) || 4) / 100;
   FIRE_CONFIG.returnRate = (parseFloat(document.getElementById('fc-return').value) || 7) / 100;
   FIRE_CONFIG.retirementAge = parseFloat(document.getElementById('fc-retage').value) || FIRE_CONFIG.retirementAge;
-  FIRE_CONFIG.annualContribution = parseFloat(document.getElementById('fc-ctb').value) || FIRE_CONFIG.annualContribution;
-  FIRE_CONFIG.annualRetirementSpend = parseFloat(document.getElementById('fc-spend').value) || FIRE_CONFIG.annualRetirementSpend;
-  FIRE_CONFIG.leanFire = parseFloat(document.getElementById('fc-lean').value) || FIRE_CONFIG.leanFire;
-  FIRE_CONFIG.fire = parseFloat(document.getElementById('fc-fire').value) || FIRE_CONFIG.fire;
-  FIRE_CONFIG.fatFire = parseFloat(document.getElementById('fc-fat').value) || FIRE_CONFIG.fatFire;
+  const noComma = id => parseFloat(document.getElementById(id).value.replace(/,/g, ''));
+  FIRE_CONFIG.annualContribution = noComma('fc-ctb') || FIRE_CONFIG.annualContribution;
+  FIRE_CONFIG.annualRetirementSpend = noComma('fc-spend') || FIRE_CONFIG.annualRetirementSpend;
+  FIRE_CONFIG.leanFire = noComma('fc-lean') || FIRE_CONFIG.leanFire;
+  FIRE_CONFIG.fire = noComma('fc-fire') || FIRE_CONFIG.fire;
+  FIRE_CONFIG.fatFire = noComma('fc-fat') || FIRE_CONFIG.fatFire;
   FIRE_CONFIG.coastAge = parseFloat(document.getElementById('fc-coastage').value) || 65;
 
   // Recalculate derived values
@@ -1852,15 +1848,16 @@ function updateYoYSpend() {
   yrs.forEach(y => {
     totals[y] = {};
     CATS.forEach(c => totals[y][c] = 0);
-    for (let m = 0; m <= 11; m++) {
+    for (let m = 0; m <= curMonth; m++) {
       const d = get(y, m);
       if (d) CATS.forEach(c => totals[y][c] += d.spending[c] || 0);
     }
   });
+  const per = `Jan–${MONTHS[curMonth]}`;
   const sorted = [...CATS].sort((a, b) => totals[curYear][b] - totals[curYear][a]);
   const rowTotals = yrs.map(y => sorted.reduce((s, c) => s + totals[y][c], 0));
   const yoyPct = rowTotals[1] > 0 ? (rowTotals[0] - rowTotals[1]) / rowTotals[1] : null;
-  t.innerHTML = `<thead><tr><th>Category</th><th>${yrs[0]}</th><th>${yrs[1]}</th><th>${yrs[2]}</th><th>YoY %</th></tr></thead><tbody>` +
+  t.innerHTML = `<thead><tr><th>Category</th><th>${yrs[0]} ${per}</th><th>${yrs[1]} ${per}</th><th>${yrs[2]} ${per}</th><th>YoY %</th></tr></thead><tbody>` +
     sorted.map(c => {
       const [a, b, c2] = yrs.map(y => totals[y][c]);
       const cp = b > 0 ? (a - b) / b : null;
@@ -2143,85 +2140,6 @@ function exportCSV() {
   a.click();
 }
 
-// ── MONTE CARLO ───────────────────────────────────────────
-function updateMonteCarlo(d) {
-  const s = setupCanvas('mcChart', 200); if (!s) return;
-  const { ctx, W, H } = s;
-  const inv = d ? (d.invested || 0) : 0;
-  const startAge = getAge();
-  const endAge = Math.max(FIRE_CONFIG.retirementAge + 20, 75);
-  const ages = [];
-  for (let a = Math.floor(startAge); a <= endAge; a++) ages.push(a);
-
-  const mu = FIRE_CONFIG.returnRate, sigma = 0.15, annualCtb = FIRE_CONFIG.annualContribution, N = 500;
-  function randn() {
-    const u1 = Math.max(1e-10, Math.random()), u2 = Math.random();
-    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-  }
-  const sims = [];
-  for (let i = 0; i < N; i++) {
-    let pf = inv; const traj = [pf];
-    for (let j = 1; j < ages.length; j++) { pf = Math.max(0, pf * (1 + mu + sigma * randn()) + annualCtb); traj.push(pf); }
-    sims.push(traj);
-  }
-  function pctile(arr, p) { const s = [...arr].sort((a,b)=>a-b); return s[Math.min(Math.floor(p*s.length), s.length-1)]; }
-  const p10 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.10));
-  const p25 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.25));
-  const p50 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.50));
-  const p75 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.75));
-  const p90 = ages.map((_,i) => pctile(sims.map(s=>s[i]), 0.90));
-
-  const fireTargets = [{v:FIRE_CONFIG.leanFire,c:'#00d4aa',l:'LeanFIRE'},{v:FIRE_CONFIG.fire,c:'#4d9fff',l:'FIRE'},{v:FIRE_CONFIG.fatFire,c:'#7b5ea7',l:'FatFIRE'}];
-  const allVals = [...p90, ...fireTargets.map(f=>f.v)];
-  const rawMax = Math.max(...allVals);
-  const step = rawMax < 1e6 ? 250000 : rawMax < 5e6 ? 500000 : 1000000;
-  const yMax = Math.ceil(rawMax * 1.05 / step) * step, yMin = 0;
-
-  const pL = 68, pR = 12, pT = 8, pB = 24, cW = W - pL - pR, cH = H - pT - pB;
-  const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
-  const tx = i => pL + (i / Math.max(ages.length - 1, 1)) * cW;
-
-  // p10–p90 band
-  ctx.beginPath();
-  p90.forEach((v,i) => i===0?ctx.moveTo(tx(i),ty(v)):ctx.lineTo(tx(i),ty(v)));
-  [...p10].reverse().forEach((v,i) => ctx.lineTo(tx(ages.length-1-i), ty(v)));
-  ctx.closePath(); ctx.fillStyle='rgba(77,159,255,0.10)'; ctx.fill();
-
-  // p25–p75 band
-  ctx.beginPath();
-  p75.forEach((v,i) => i===0?ctx.moveTo(tx(i),ty(v)):ctx.lineTo(tx(i),ty(v)));
-  [...p25].reverse().forEach((v,i) => ctx.lineTo(tx(ages.length-1-i), ty(v)));
-  ctx.closePath(); ctx.fillStyle='rgba(77,159,255,0.20)'; ctx.fill();
-
-  // median line
-  ctx.beginPath(); ctx.strokeStyle='#4d9fff'; ctx.lineWidth=2;
-  p50.forEach((v,i) => i===0?ctx.moveTo(tx(i),ty(v)):ctx.lineTo(tx(i),ty(v))); ctx.stroke();
-
-  // FIRE target lines
-  fireTargets.forEach(ft => {
-    if (ft.v > yMax) return;
-    const fy = ty(ft.v);
-    ctx.setLineDash([4,4]); ctx.strokeStyle=ft.c; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(pL,fy); ctx.lineTo(pL+cW,fy); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font='8px DM Mono,monospace'; ctx.fillStyle=ft.c; ctx.textAlign='left';
-    ctx.fillText(ft.l, pL+3, fy-2);
-  });
-
-  // X axis (ages)
-  ctx.font='8px DM Mono,monospace'; ctx.fillStyle='#94a3b8'; ctx.textAlign='center';
-  const ageStep = Math.ceil(ages.length/12);
-  ages.forEach((a,i) => { if(i%ageStep!==0&&i!==ages.length-1)return; ctx.fillText(a, tx(i), pT+cH+14); });
-
-  // legend
-  ctx.textAlign='left';
-  [['rgba(77,159,255,0.20)','10–90th pct'],['rgba(77,159,255,0.40)','25–75th pct'],['#4d9fff','Median']].forEach(([c,l],i) => {
-    const lx = pL + i*90;
-    ctx.fillStyle=c; ctx.fillRect(lx, H-9, 12, 7);
-    ctx.fillStyle='#64748b'; ctx.fillText(l, lx+15, H-2);
-  });
-}
-
 // ── CONTRIBUTION IMPACT ───────────────────────────────────
 function updateContribCalc(d) {
   const t = document.getElementById('ctbImpactTable'); if (!t) return;
@@ -2236,16 +2154,34 @@ function updateContribCalc(d) {
   }
 
   const baseYrs = yearsToFire(base);
-  const scenarios = [0, 250, 500, 1000, 2000, 5000];
-  const rows = scenarios.map(extra => {
+  const reductions = [-2000, -1000, -500, -250];
+  const additions  = [250, 500, 1000, 2000, 5000];
+  const buildRow = extra => {
     const ann = base + extra * 12;
+    if (ann <= 0) return { extra, ann: 0, yrs: null, diff: null, retAge: 'N/A' };
     const yrs = yearsToFire(ann);
-    const saved = baseYrs !== null && yrs !== null ? baseYrs - yrs : null;
+    const diff = baseYrs !== null && yrs !== null ? baseYrs - yrs : null; // positive = saved, negative = added
     const retAge = yrs !== null ? (startAge + yrs).toFixed(1) : 'Never';
-    return {extra, ann, yrs, saved, retAge};
-  });
-  t.innerHTML = `<thead><tr><th>Extra/Mo</th><th>Annual Ctb</th><th>Retire Age</th><th>Yrs Saved</th></tr></thead><tbody>`+
-    rows.map(r=>`<tr class="${r.extra===0?'tot':''}"><td>${r.extra===0?'Base':'+'+fmt(r.extra)}</td><td>${fmt(r.ann)}</td><td class="${r.extra>0?'pos':''}">${r.retAge}</td><td class="${r.saved>0?'pos':''}">${r.saved!==null&&r.extra>0?r.saved+' yr'+(r.saved===1?'':'s'):'—'}</td></tr>`).join('')+
+    return { extra, ann, yrs, diff, retAge };
+  };
+  const redRows = reductions.map(buildRow);
+  const baseRow = { extra: 0, ann: base, yrs: baseYrs, diff: 0, retAge: baseYrs !== null ? (startAge + baseYrs).toFixed(1) : 'Never' };
+  const addRows = additions.map(buildRow);
+
+  const renderRow = (r, isBase) => {
+    const label = isBase ? 'Base' : r.extra < 0 ? `−${fmt(Math.abs(r.extra))}` : `+${fmt(r.extra)}`;
+    const ageClass = r.extra > 0 ? 'pos' : r.extra < 0 ? 'neg' : '';
+    const diffTxt = isBase ? '—' : r.diff === null ? '—' : r.diff > 0 ? `−${r.diff} yr${r.diff===1?'':'s'}` : r.diff < 0 ? `+${Math.abs(r.diff)} yr${Math.abs(r.diff)===1?'':'s'}` : '0';
+    const diffClass = isBase ? '' : r.diff !== null && r.diff > 0 ? 'pos' : r.diff !== null && r.diff < 0 ? 'neg' : '';
+    return `<tr class="${isBase?'tot':''}"><td>${label}</td><td>${r.ann > 0 ? fmt(r.ann) : '—'}</td><td class="${ageClass}">${r.retAge}</td><td class="${diffClass}">${diffTxt}</td></tr>`;
+  };
+
+  t.innerHTML = `<thead><tr><th>Δ/Mo</th><th>Annual Ctb</th><th>Retire Age</th><th>Yrs ±</th></tr></thead><tbody>` +
+    redRows.map(r => renderRow(r, false)).join('') +
+    `<tr class="sec"><td colspan="4">— Base —</td></tr>` +
+    renderRow(baseRow, true) +
+    `<tr class="sec"><td colspan="4">— Additional —</td></tr>` +
+    addRows.map(r => renderRow(r, false)).join('') +
     `</tbody>`;
 }
 

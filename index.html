@@ -288,7 +288,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <div class="tab active" onclick="showSection('overview')">Overview</div>
   <div class="tab" onclick="showSection('fire')">FIRE</div>
   <div class="tab" onclick="showSection('pnl')">P&L</div>
-
+  <div class="tab" onclick="showSection('balance')">Balance Sheet</div>
   <div class="tab" onclick="showSection('spending')">Spending</div>
   <div class="tab" onclick="showSection('trends')">Trends</div>
   <div class="tab" onclick="showSection('entry')">Data Entry</div>
@@ -307,7 +307,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
       <div class="kpi y"><div class="kpi-label">Net Income</div><div class="kpi-val" id="kpi-net">—</div><div class="kpi-sub">Savings this period</div></div>
     </div>
 
-```
 <div class="section-label">NET WORTH TREND</div>
 <div class="g2">
   <div class="card">
@@ -355,7 +354,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
 <div class="section-label">NET WORTH MILESTONES</div>
 <div class="milestone-grid" id="milestonesOverview"></div>
-```
 
   </section>
 
@@ -363,7 +361,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
   <section id="section-fire" class="section">
 
-```
 <div class="card" style="margin-bottom:10px">
   <div class="card-head">
     <div class="card-title">FIRE Settings</div>
@@ -463,7 +460,6 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <div class="card-head"><div class="card-title">Contribution Impact on FIRE Date</div></div>
   <div style="padding:0"><table class="tbl" id="ctbImpactTable"></table></div>
 </div>
-```
 
   </section>
 
@@ -483,7 +479,21 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     </div>
   </section>
 
-  <!-- CASH FLOW -->
+  <!-- BALANCE SHEET -->
+
+  <section id="section-balance" class="section">
+    <div class="section-label">ASSETS</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Assets</div></div>
+        <div style="padding:0"><table class="tbl" id="assetsTbl"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Liabilities &amp; Net Worth</div></div>
+        <div style="padding:0"><table class="tbl" id="liabTbl"></table></div>
+      </div>
+    </div>
+  </section>
 
   <!-- SPENDING -->
 
@@ -1018,7 +1028,7 @@ function refreshAll() {
   updateFire(d);
   updatePnL(d);
   updateAnnualPnL();
-
+  updateBalance(d);
   updateSpending(d);
   updateTrends();
   drawNWChart();
@@ -1474,7 +1484,26 @@ function updateAnnualPnL() {
   t.innerHTML = hdr+'<tbody>'+body+'</tbody>';
 }
 
-// ── CASH FLOW ────────────────────────────────────────────
+// ── BALANCE SHEET ────────────────────────────────────────
+function updateBalance(d) {
+  const at = document.getElementById('assetsTbl'), lt = document.getElementById('liabTbl');
+  if (!at || !lt) return;
+  const noData = '<tbody><tr><td style="padding:20px;color:var(--text3)">No data</td></tr></tbody>';
+  if (!d) { at.innerHTML = noData; lt.innerHTML = noData; return; }
+  const mkR = rows => '<tbody>' + rows.map(r => r.s
+    ? `<tr class="sec"><td colspan="2">${r.s}</td></tr>`
+    : `<tr class="${r.tot?'tot':''}"><td>${r.l}</td><td class="${r.tot?cc(r.v):''}">${fmt(r.v)}</td></tr>`
+  ).join('') + '</tbody>';
+  at.innerHTML = '<thead><tr><th>Asset</th><th>Balance</th></tr></thead>' + mkR([
+    {s:'LIQUID'},{l:'Checking',v:d.checking||0},{l:'Savings',v:d.savings||0},{l:'Total Liquid',v:d.liquid,tot:true},
+    {s:'INVESTMENTS'},{l:'Brokerage',v:d.brokerage||0},{l:'401(k)',v:d.k401||0},{l:'IRA / Roth IRA',v:d.ira||0},{l:'HSA',v:d.hsa||0},{l:'Other Assets',v:d.otherassets||0},{l:'TOTAL ASSETS',v:d.assets,tot:true},
+  ]);
+  lt.innerHTML = '<thead><tr><th>Liability / Equity</th><th>Balance</th></tr></thead>' + mkR([
+    {s:'LIABILITIES'},{l:'Credit Cards',v:d.cc||0},{l:'Student Loans',v:d.studentloan||0},{l:'Other Debt',v:d.otherdebt||0},{l:'TOTAL LIABILITIES',v:d.liab,tot:true},
+    {s:'NET WORTH'},{l:'NET WORTH',v:d.nw,tot:true},
+  ]);
+}
+
 // ── SPENDING ─────────────────────────────────────────────
 function updateSpending(d) {
   document.getElementById('spendTblTitle').textContent = `Category Breakdown — ${MONTHS[curMonth]} ${curYear}`;
@@ -1609,7 +1638,7 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(`section-${id}`)?.classList.add('active');
-  const tabs=['overview','fire','pnl','spending','trends','entry'];
+  const tabs=['overview','fire','pnl','balance','spending','trends','entry'];
   document.querySelectorAll('.tab')[tabs.indexOf(id)]?.classList.add('active');
   if (id === 'entry') loadForm();
   if (id === 'trends') updateTrends();

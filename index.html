@@ -244,7 +244,25 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .milestone-year.far { color:var(--purple); }
 .milestone-sub { font-size:10px; color:var(--text3); }
 .milestone-desc { font-size:10px; color:var(--text2); line-height:1.5; border-top:1px solid var(--border); padding-top:6px; margin-top:2px; }
+.milestone-pace { font-size:9px; font-family:var(--mono-font); font-weight:600; letter-spacing:0.04em; display:flex; align-items:center; gap:4px; }
+.milestone-pace.pace-ahead  { color:var(--green); }
+.milestone-pace.pace-on     { color:var(--blue); }
+.milestone-pace.pace-behind { color:var(--red); }
 .section-label { font-size:9px; letter-spacing:0.08em; color:var(--text3); font-family:var(--mono-font); margin:8px 0 5px; }
+
+/* SEGMENTED TOGGLE */
+.seg { display:inline-flex; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+.seg button { font-family:var(--mono-font); font-size:9px; letter-spacing:0.06em; text-transform:uppercase; padding:3px 9px; border:none; background:var(--bg2); color:var(--text3); cursor:pointer; transition:all 0.12s; border-left:1px solid var(--border); }
+.seg button:first-child { border-left:none; }
+.seg button.on { background:var(--blue); color:#fff; }
+.seg button:not(.on):hover { background:var(--bg4); color:var(--text2); }
+
+/* HEATMAP */
+.heatmap { border-collapse:separate; border-spacing:2px; font-family:var(--mono-font); }
+.heatmap th { font-size:8px; color:var(--text3); font-weight:500; padding:2px 3px; text-align:center; white-space:nowrap; font-family:var(--mono-font); letter-spacing:0; text-transform:none; border:none; }
+.heatmap th.cat-lbl { text-align:right; color:var(--text2); font-size:10px; padding-right:7px; position:sticky; left:0; background:var(--bg2); z-index:1; }
+.heatmap td { width:22px; height:18px; border-radius:2px; text-align:center; padding:0; border:none; }
+.heatmap td.hm-cell:hover { outline:1.5px solid var(--text2); outline-offset:-1px; }
 
 @media (max-width: 1100px) { .kpi-row.cols-4, .kpi-row.cols-5 { grid-template-columns: repeat(2,1fr); } .g3 { grid-template-columns: 1fr 1fr; } .milestone-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 768px) { main { padding: 7px 10px; } header, .nav { padding: 0 10px; } .kpi-row.cols-4, .kpi-row.cols-3, .kpi-row.cols-5 { grid-template-columns: 1fr 1fr; } .g2, .g3, .g21, .g12 { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } .fire-inputs { grid-template-columns: 1fr 1fr; } .milestone-grid { grid-template-columns: 1fr 1fr; } }
@@ -328,6 +346,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     <div class="kpi-label">Savings Rate</div>
     <div class="kpi-val purple" id="savRate" style="font-size:36px">—</div>
     <div class="kpi-sub" id="savRate-sub">of gross income</div>
+    <canvas id="savRateSpark" height="34" style="width:100%;margin-top:8px;display:block"></canvas>
+    <div class="kpi-sub" id="savRateSpark-sub" style="margin-top:2px">trailing 12-mo avg</div>
   </div>
   <div class="kpi y" style="border-radius:4px">
     <div class="kpi-label">Top Spend Category</div>
@@ -414,7 +434,10 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
 <div class="card" style="margin-bottom:10px">
   <div class="card-head">
-    <div class="card-title">Portfolio Growth Projection</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="card-title">Portfolio Growth Projection</div>
+      <span id="fireTrackStatus" style="font-size:9px;font-family:var(--mono-font);font-weight:600;padding:2px 7px;border-radius:3px"></span>
+    </div>
     <div id="fireChartLegend" style="display:flex;gap:14px;font-size:9px;color:var(--text2);font-family:var(--mono-font)"></div>
   </div>
   <div class="card-body" style="padding:6px 10px 10px"><canvas id="fireProjectionChart" height="200"></canvas></div>
@@ -466,6 +489,17 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- P&L -->
 
   <section id="section-pnl" class="section">
+    <div class="section-label">INCOME FLOW</div>
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-head">
+        <div class="card-title" id="waterfallTitle">Where Your Income Goes</div>
+        <div class="seg" id="waterfallToggle">
+          <button class="on" onclick="setWaterfallMode('month')">This Month</button>
+          <button onclick="setWaterfallMode('ytd')">YTD</button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:8px 10px 10px"><canvas id="waterfallChart" height="210"></canvas></div>
+    </div>
     <div class="section-label">INCOME STATEMENT</div>
     <div class="g2">
       <div class="card">
@@ -513,6 +547,23 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     <div class="card" style="margin-top:0">
       <div class="card-head"><div class="card-title">Year-to-Date Spending Comparison</div></div>
       <div style="padding:0"><table class="tbl" id="yoyTbl"></table></div>
+    </div>
+    <div class="section-label">SEASONALITY</div>
+    <div class="card" style="margin-top:0">
+      <div class="card-head">
+        <div class="card-title">Spending Heatmap — by Category &amp; Month</div>
+        <div style="display:flex;gap:8px">
+          <div class="seg" id="heatModeToggle">
+            <button class="on" onclick="setHeatMode('cat')">Per Category</button>
+            <button onclick="setHeatMode('abs')">Absolute</button>
+          </div>
+          <div class="seg" id="heatMonthsToggle">
+            <button class="on" onclick="setHeatMonths(12)">12 mo</button>
+            <button onclick="setHeatMonths(24)">24 mo</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:8px 10px 10px;overflow-x:auto"><div id="spendHeatmap"></div></div>
     </div>
     <div class="section-label">TREND</div>
     <div class="card" style="margin-top:0">
@@ -684,6 +735,8 @@ const _now = new Date();
 let curMonth = _now.getMonth() === 0 ? 11 : _now.getMonth() - 1;
 let curYear = _now.getMonth() === 0 ? _now.getFullYear() - 1 : _now.getFullYear();
 let allData = {};
+let waterfallMode = 'month';
+let spendHeatMonths = 12, spendHeatMode = 'cat';
 
 // ── SYNC ────────────────────────────────────────────────
 function setSyncStatus(state, label) {
@@ -1055,6 +1108,7 @@ function updateOverview(d) {
   document.getElementById('savRate').textContent = d.trueSavRate !== null ? pct(d.trueSavRate) : '—';
   document.getElementById('savRate').className = 'kpi-val purple' + (d.trueSavRate >= 0.2 ? ' pos' : d.trueSavRate < 0 ? ' neg' : '');
   document.getElementById('savRate-sub').textContent = d.savRate !== null ? `incl. 401k/HSA · ${pct(d.savRate)} net` : 'of gross income';
+  drawSavRateSpark();
   document.getElementById('topCat').textContent = d.topCat;
   document.getElementById('topCatAmt').textContent = fmt(d.spending[d.topCat]);
   document.getElementById('liquid').textContent = fmt(d.liquid);
@@ -1088,6 +1142,10 @@ function updateOverview(d) {
   const rate2 = FIRE_CONFIG.returnRate;
   const ctb2 = FIRE_CONFIG.annualContribution;
 
+  // Actual annualized NW growth from trailing-12mo CMGR, for milestone pacing
+  const cmgrLtm = computeLiveCMGR(12);
+  const actualAnnualRate = cmgrLtm !== null ? Math.pow(1 + cmgrLtm, 12) - 1 : null;
+
   function fwdYear(target, base) {
     if (base >= target) return { year: cy2, month: _now.getMonth(), age: Math.round(liveAge), yrs: 0 };
     let pf = base;
@@ -1098,19 +1156,32 @@ function updateOverview(d) {
     return null;
   }
 
-  function ovCard(badge, badgeClass, subtitle, base, target) {
+  // Pacing: actual recent NW CAGR vs the rate needed to hit target by the projected date
+  function paceHtml(base, target, r, achieved) {
+    if (achieved || !r || r.yrs <= 0 || actualAnnualRate === null || base <= 0 || target <= base) return '';
+    const neededRate = Math.pow(target / base, 1 / r.yrs) - 1;
+    const rel = neededRate > 0 ? (actualAnnualRate - neededRate) / neededRate : 0;
+    const cls = rel > 0.1 ? 'pace-ahead' : rel < -0.1 ? 'pace-behind' : 'pace-on';
+    const icon = rel > 0.1 ? '▲' : rel < -0.1 ? '▼' : '●';
+    const txt = rel > 0.1 ? 'Ahead of pace' : rel < -0.1 ? 'Behind pace' : 'On pace';
+    return `<div class="milestone-pace ${cls}" title="Recent NW growth ${pct(actualAnnualRate)}/yr vs ${pct(neededRate)}/yr needed">${icon} ${txt}</div>`;
+  }
+
+  function ovCard(badge, badgeClass, subtitle, base, target, showPace) {
     const r = fwdYear(target, base);
     const achieved = base >= target;
     const yc = achieved ? 'achieved' : r && r.yrs <= 5 ? 'soon' : r && r.yrs <= 15 ? 'future' : 'far';
     const yearTxt = achieved ? 'Now ✓' : r ? `~${MONTHS[r.month]} ${r.year}` : '—';
     const subTxt = achieved ? `Age ${Math.round(liveAge)} · ${MONTHS[cy2_month]} ${cy2}` : r ? `Age ~${r.age} · ${r.yrs} yr${r.yrs === 1 ? '' : 's'} away` : '—';
     const prog = Math.min(base / target * 100, 100).toFixed(0);
+    const pace = showPace ? paceHtml(base, target, r, achieved) : '';
     return `<div class="milestone-card">
       <span class="milestone-badge ${badgeClass}">${badge}</span>
       <div class="milestone-title">${subtitle}</div>
       <div class="milestone-year ${yc}">${yearTxt}</div>
       <div class="milestone-sub">${subTxt}</div>
       <div class="milestone-desc">${fmt(base)} / ${fmt(target)} — ${achieved ? 'complete' : prog + '% there'}</div>
+      ${pace}
     </div>`;
   }
 
@@ -1125,8 +1196,49 @@ function updateOverview(d) {
   const nwThresholds = [10000, 50000, 100000, 250000, 500000, 1000000, 1500000, 2000000];
   document.getElementById('milestonesOverview').innerHTML = nwThresholds.map(m => {
     const achieved = nw >= m;
-    return ovCard(fmt(m), achieved ? 'coast' : 'fire', 'Net Worth', nw, m);
+    return ovCard(fmt(m), achieved ? 'coast' : 'fire', 'Net Worth', nw, m, true);
   }).join('');
+}
+
+// Rolling 12-month average savings-rate sparkline on the Overview card
+function drawSavRateSpark() {
+  const s = setupCanvas('savRateSpark', 34); if (!s) return;
+  const { ctx, W, H } = s;
+  const subEl = document.getElementById('savRateSpark-sub');
+  const POINTS = 18;
+  const series = [];
+  for (let i = POINTS - 1; i >= 0; i--) {
+    const vals = [];
+    for (let j = 0; j < 12; j++) {
+      let m = curMonth - i - j, y = curYear;
+      while (m < 0) { m += 12; y--; }
+      const d = get(y, m);
+      if (d) { const c = compute(d); if (c.trueSavRate !== null) vals.push(c.trueSavRate); }
+    }
+    series.push(vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null);
+  }
+  const valid = series.filter(v => v !== null);
+  if (valid.length < 2) { if (subEl) subEl.textContent = 'trailing 12-mo avg'; return; }
+  const min = Math.min(...valid), max = Math.max(...valid), rng = max - min || 0.01;
+  const pad = 3, n = series.length;
+  const tx = i => pad + (i / (n - 1)) * (W - pad * 2);
+  const ty = v => H - pad - ((v - min) / rng) * (H - pad * 2);
+  if (min < 0 && max > 0) {
+    const zy = ty(0);
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+    ctx.beginPath(); ctx.moveTo(pad, zy); ctx.lineTo(W - pad, zy); ctx.stroke(); ctx.setLineDash([]);
+  }
+  const firstI = series.findIndex(v => v !== null);
+  const lastI = series.reduceRight((a, v, i) => a === -1 && v !== null ? i : a, -1);
+  ctx.beginPath(); let started = false;
+  series.forEach((v, i) => { if (v === null) return; started ? ctx.lineTo(tx(i), ty(v)) : (ctx.moveTo(tx(i), ty(v)), started = true); });
+  ctx.strokeStyle = '#7b5ea7'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(tx(lastI), ty(series[lastI]), 2.5, 0, Math.PI * 2); ctx.fillStyle = '#7b5ea7'; ctx.fill();
+  if (subEl) {
+    const delta = series[lastI] - series[firstI];
+    const arrow = delta > 0.005 ? '↑' : delta < -0.005 ? '↓' : '→';
+    subEl.textContent = `12-mo avg ${pct(series[lastI])} ${arrow}`;
+  }
 }
 
 // ── FIRE ────────────────────────────────────────────────
@@ -1337,6 +1449,19 @@ function drawFireProjectionChart(inv) {
   years.forEach(() => { portfolio.push(pf); pf = pf * (1 + rate) + ctb; });
   const fireAdj = years.map((y, i) => fire * Math.pow(1.02, i));
 
+  // Goal path: required trajectory to hit the inflation-adjusted FIRE # by target retirement age
+  const goalAge = FIRE_CONFIG.retirementAge;
+  const ageNow = getAge();
+  const goalYrs = goalAge - ageNow;
+  let goalPath = null, goalIdx = null;
+  if (goalYrs >= 1 && inv > 0) {
+    goalIdx = Math.min(years.length - 1, Math.round(goalYrs));
+    const targetAtGoal = fire * Math.pow(1.02, goalYrs);
+    const reqRate = Math.pow(targetAtGoal / inv, 1 / goalYrs) - 1;
+    goalPath = [];
+    for (let i = 0; i <= goalIdx; i++) goalPath.push(inv * Math.pow(1 + reqRate, i));
+  }
+
   const DPR = window.devicePixelRatio || 1;
   const W = canvas.parentElement.clientWidth - 4, H = 220;
   if (W <= 0) return;
@@ -1375,6 +1500,19 @@ function drawFireProjectionChart(inv) {
   fireAdj.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
   ctx.stroke(); ctx.setLineDash([]);
 
+  // Goal path: required trajectory to hit FIRE # by target retirement age (orange dashed) + marker
+  if (goalPath) {
+    const gx = tx(goalIdx);
+    ctx.strokeStyle = 'rgba(245,158,11,0.45)'; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+    ctx.beginPath(); ctx.moveTo(gx, pT); ctx.lineTo(gx, pT + cH); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    goalPath.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#d97706'; ctx.textAlign = 'center';
+    ctx.fillText('Goal · age ' + goalAge, gx, pT + 8);
+  }
+
   // Portfolio line (blue)
   ctx.strokeStyle = '#4d9fff'; ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1408,8 +1546,30 @@ function drawFireProjectionChart(inv) {
   if (legendEl) {
     legendEl.innerHTML =
       `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:#4d9fff;display:inline-block;border-radius:1px"></span>Portfolio value</span>` +
+      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #f59e0b;display:inline-block"></span>Goal path (age ${goalAge})</span>` +
       `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #888;display:inline-block"></span>FIRE # (inflation-adj)</span>` +
       `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #00c4c4;display:inline-block"></span>LeanFIRE (${fmt(leanFire)})</span>`;
+  }
+
+  // On-track status pill: projected FIRE age (at plan assumptions) vs goal retirement age
+  const statusEl = document.getElementById('fireTrackStatus');
+  if (statusEl) {
+    const projIdx = portfolio.findIndex((v, i) => v >= fireAdj[i]);
+    if (projIdx < 0) {
+      statusEl.textContent = '✕ Target not reached in 40 yrs';
+      statusEl.style.background = 'var(--red-dim)'; statusEl.style.color = 'var(--red)';
+    } else {
+      const projAge = ageNow + projIdx;
+      const diff = goalAge - projAge; // positive => reach before goal
+      if (diff >= -0.5) {
+        statusEl.textContent = `✓ On track — FIRE ~age ${projAge.toFixed(0)} vs goal ${goalAge}`;
+        statusEl.style.background = 'var(--green-dim)'; statusEl.style.color = 'var(--green)';
+      } else {
+        const yrsBehind = Math.abs(diff);
+        statusEl.textContent = `▼ Behind — FIRE ~age ${projAge.toFixed(0)}, ${yrsBehind.toFixed(0)} yr${yrsBehind >= 1.5 ? 's' : ''} past goal ${goalAge}`;
+        statusEl.style.background = 'var(--red-dim)'; statusEl.style.color = 'var(--red)';
+      }
+    }
   }
 }
 
@@ -1434,6 +1594,84 @@ function updatePnL(d) {
       `<tr class="${r.tot?'tot':''}"><td>${r.l}</td><td class="${r.tot?cc(r.v):''}">${r.isRate?pct(r.v):fmt(r.v)}</td></tr>`
     ).join('')+'</tbody>';
 
+  drawWaterfallChart();
+}
+
+// ── INCOME WATERFALL ─────────────────────────────────────
+function setWaterfallMode(mode) {
+  waterfallMode = mode;
+  document.querySelectorAll('#waterfallToggle button').forEach((b, i) =>
+    b.classList.toggle('on', (mode === 'month') === (i === 0)));
+  drawWaterfallChart();
+}
+
+function drawWaterfallChart() {
+  const titleEl = document.getElementById('waterfallTitle');
+  // Aggregate the source figures for the selected window
+  let g = { inc:0, taxes:0, preTax:0, postTax:0, spend:0 };
+  if (waterfallMode === 'ytd') {
+    for (let m = 0; m <= curMonth; m++) {
+      const c = compute(get(curYear, m)); if (!c) continue;
+      g.inc += c.inc; g.taxes += c.totalTaxes; g.preTax += c.preTaxContribs;
+      g.postTax += (c.brokerage_contrib||0) + (c.roth_contrib||0); g.spend += c.spend;
+    }
+    if (titleEl) titleEl.textContent = `Where Your Income Goes — ${curYear} YTD (Jan–${MONTHS[curMonth]})`;
+  } else {
+    const c = compute(get(curYear, curMonth));
+    if (c) { g = { inc:c.inc, taxes:c.totalTaxes, preTax:c.preTaxContribs, postTax:(c.brokerage_contrib||0)+(c.roth_contrib||0), spend:c.spend }; }
+    if (titleEl) titleEl.textContent = `Where Your Income Goes — ${MONTHS[curMonth]} ${curYear}`;
+  }
+  const netCash = g.inc - g.taxes - g.preTax - g.postTax - g.spend;
+
+  const s = setupCanvas('waterfallChart', 210); if (!s) return;
+  const { ctx, W, H } = s;
+  if (g.inc <= 0) { ctx.font='11px DM Sans,sans-serif'; ctx.fillStyle='#94a3b8'; ctx.textAlign='center'; ctx.fillText('No income data for this period', W/2, H/2); return; }
+
+  // Waterfall steps: gross (full), then floating deductions, then net cash (full)
+  const steps = [
+    { label:'Gross',     sub:'Income',     delta:g.inc,      kind:'start', color:'#4d9fff' },
+    { label:'Taxes',     sub:'Paid',       delta:-g.taxes,   kind:'flow',  color:'#dc2626' },
+    { label:'Pre-Tax',   sub:'Invested',   delta:-g.preTax,  kind:'flow',  color:'#0891b2' },
+    { label:'Post-Tax',  sub:'Invested',   delta:-g.postTax, kind:'flow',  color:'#7c3aed' },
+    { label:'Spending',  sub:'Spent',      delta:-g.spend,   kind:'flow',  color:'#d97706' },
+    { label:'Net Cash',  sub:'Remaining',  delta:netCash,    kind:'end',   color:netCash>=0?'#16a34a':'#dc2626' },
+  ];
+
+  const pL = 56, pR = 12, pT = 14, pB = 40, cW = W - pL - pR, cH = H - pT - pB;
+  const yMax = niceStepCeil(g.inc * 1.08, 5);
+  const yMin = Math.min(0, netCash) < 0 ? -niceStepCeil(Math.abs(netCash) * 1.1, 3) : 0;
+  const step = niceStep(yMax - yMin, 5);
+  const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
+
+  const slotW = cW / steps.length;
+  const bW = Math.min(slotW * 0.62, 64);
+  let running = 0;
+  steps.forEach((st, i) => {
+    const cx = pL + (i + 0.5) * slotW;
+    let top, bot;
+    if (st.kind === 'start') { bot = 0; top = st.delta; running = st.delta; }
+    else if (st.kind === 'end') { bot = 0; top = st.delta; }
+    else { bot = running; top = running + st.delta; running = top; }
+    const yA = ty(Math.max(top, bot)), yB = ty(Math.min(top, bot));
+    ctx.fillStyle = st.color;
+    ctx.fillRect(cx - bW/2, yA, bW, Math.max(1, yB - yA));
+    // connector line to next bar
+    if (i < steps.length - 1 && st.kind !== 'end') {
+      ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
+      ctx.beginPath(); ctx.moveTo(cx - bW/2, ty(running)); ctx.lineTo(cx + slotW - bW/2, ty(running)); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // value label above/below bar
+    ctx.font = '9px DM Mono,monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = st.kind === 'flow' ? '#64748b' : st.color;
+    const valTxt = (st.delta >= 0 ? '' : '−') + fmt(Math.abs(st.delta));
+    ctx.fillText(valTxt, cx, yA - 4);
+    // x label (two lines)
+    ctx.fillStyle = '#475569'; ctx.font = '9px DM Sans,sans-serif';
+    ctx.fillText(st.label, cx, pT + cH + 14);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '8px DM Mono,monospace';
+    ctx.fillText(st.sub, cx, pT + cH + 25);
+  });
 }
 
 // ── ANNUAL P&L ───────────────────────────────────────────
@@ -1524,6 +1762,65 @@ function updateSpending(d) {
   const sel = document.getElementById('catTrendSel');
   if (sel && !sel.options.length) CATS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
   drawCatTrendChart();
+  drawSpendHeatmap();
+}
+
+// ── SPENDING HEATMAP ─────────────────────────────────────
+function setHeatMode(mode) {
+  spendHeatMode = mode;
+  document.querySelectorAll('#heatModeToggle button').forEach((b, i) => b.classList.toggle('on', (mode === 'cat') === (i === 0)));
+  drawSpendHeatmap();
+}
+function setHeatMonths(n) {
+  spendHeatMonths = n;
+  document.querySelectorAll('#heatMonthsToggle button').forEach((b, i) => b.classList.toggle('on', (n === 12) === (i === 0)));
+  drawSpendHeatmap();
+}
+function drawSpendHeatmap() {
+  const el = document.getElementById('spendHeatmap'); if (!el) return;
+  const N = spendHeatMonths;
+  const months = [];
+  for (let i = N - 1; i >= 0; i--) {
+    let m = curMonth - i, y = curYear;
+    while (m < 0) { m += 12; y--; }
+    months.push({ m, y });
+  }
+  const data = {}, rowMax = {}, rowTot = {};
+  let globalMax = 0;
+  CATS.forEach(cat => {
+    data[cat] = months.map(({ m, y }) => {
+      const d = get(y, m);
+      const v = d ? (d.spending?.[cat] || 0) : null;
+      if (v !== null) { globalMax = Math.max(globalMax, v); rowMax[cat] = Math.max(rowMax[cat] || 0, v); rowTot[cat] = (rowTot[cat] || 0) + v; }
+      return v;
+    });
+  });
+  const cats = CATS.filter(c => (rowTot[c] || 0) > 0).sort((a, b) => (rowTot[b] || 0) - (rowTot[a] || 0));
+  if (!cats.length) { el.innerHTML = '<div class="empty">No spending data for this window</div>'; return; }
+
+  const cellBg = intensity => intensity === null ? 'background:var(--bg4)' : `background:rgba(220,38,38,${(0.06 + Math.min(1, intensity) * 0.88).toFixed(3)})`;
+
+  let head = '<tr><th class="cat-lbl"></th>';
+  months.forEach(({ m, y }, i) => {
+    const yr = (m === 0 || i === 0) ? `'${String(y).slice(2)}` : '&nbsp;';
+    head += `<th><div>${MONTHS[m][0]}</div><div style="color:var(--text2)">${yr}</div></th>`;
+  });
+  head += '</tr>';
+
+  const body = cats.map(cat => {
+    let row = `<th class="cat-lbl">${cat}</th>`;
+    data[cat].forEach((v, i) => {
+      const lbl = `${cat} — ${MONTHS[months[i].m]} '${String(months[i].y).slice(2)}`;
+      if (v === null) { row += `<td class="hm-cell" style="${cellBg(null)}" title="${lbl}: no data"></td>`; return; }
+      const denom = spendHeatMode === 'cat' ? (rowMax[cat] || 1) : (globalMax || 1);
+      row += `<td class="hm-cell" style="${cellBg(v / denom)}" title="${lbl}: ${fmt(v)}"></td>`;
+    });
+    return `<tr>${row}</tr>`;
+  }).join('');
+
+  const scaleNote = spendHeatMode === 'cat' ? 'Each row shaded relative to its own peak (reveals seasonality)' : `Shaded against the single highest month (${fmt(globalMax)})`;
+  el.innerHTML = `<table class="heatmap"><thead>${head}</thead><tbody>${body}</tbody></table>` +
+    `<div style="font-size:9px;color:var(--text3);margin-top:7px;font-family:var(--mono-font)">${scaleNote} · darker = higher spend</div>`;
 }
 
 // ── NW CHART ─────────────────────────────────────────────
@@ -1643,6 +1940,8 @@ function showSection(id) {
   if (id === 'entry') loadForm();
   if (id === 'trends') updateTrends();
   if (id === 'fire') { const d2 = compute(get(curYear, curMonth)); if (d2) drawFireProjectionChart(d2.invested); }
+  if (id === 'pnl') drawWaterfallChart();
+  if (id === 'spending') { drawCatTrendChart(); drawSpendHeatmap(); }
 }
 
 // ── POPUP ─────────────────────────────────────────────────
@@ -1710,6 +2009,11 @@ function niceStep(range, targetLines) {
   const mag = Math.pow(10, Math.floor(Math.log10(raw)));
   const n = raw / mag;
   return (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * mag;
+}
+// Round a value up to a clean multiple of its nice step (for axis maxima).
+function niceStepCeil(val, targetLines) {
+  const step = niceStep(val, targetLines);
+  return Math.ceil(val / step) * step;
 }
 
 function setupCanvas(id, h) {

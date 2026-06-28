@@ -58,13 +58,18 @@ Rent, Utilities, Transportation, Groceries, Restaurants, Coffee / Snacks, Alcoho
 - High-density layout — tight padding, small font sizes, minimal whitespace
 - All colors defined as CSS variables in `:root`
 
+## Git Workflow
+- **Commit directly to `main`** — do not create feature branches or PRs
+- Push to `origin main` after every change so GitHub Pages deploys immediately
+- GitHub Pages auto-deploys from `main`; changes are live within ~30 seconds of push
+
 ## Tabs / Sections
 1. **Overview** — KPI cards, net worth trend chart (canvas), asset allocation bars, savings rate, FIRE progress bars, milestones
 2. **FIRE** — settings panel, KPI cards, FIRE goals, investment milestones, CMGR, SWR projection matrix, Coast FI table
-3. **P&L** — income statement table, spending bars
+3. **P&L** — income statement table, annual P&L comparison
 4. **Balance Sheet** — assets table, liabilities + net worth table
-5. **Cash Flow** — month-over-month comparison table
-6. **Spending** — ranked category breakdown
+5. **Spending** — ranked category breakdown, YTD comparison, category trend chart
+6. **Trends** — 24-month charts, YoY spending table, income growth, wealth composition
 7. **Data Entry** — form to input monthly data, saves to Google Sheets
 
 ## Key JS Functions

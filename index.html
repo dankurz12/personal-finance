@@ -1344,11 +1344,11 @@ function drawFireProjectionChart(inv) {
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.scale(DPR, DPR);
 
-  const pL = 62, pR = 12, pT = 8, pB = 28;
+  const pL = 68, pR = 12, pT = 8, pB = 36;
   const cW = W - pL - pR, cH = H - pT - pB;
 
   const maxVal = Math.max(...portfolio, ...fireAdj, FIRE_CONFIG.fatFire);
-  const step = maxVal < 1e6 ? 250000 : maxVal < 4e6 ? 500000 : 1000000;
+  const step = niceStep(maxVal * 1.05, 5);
   const yMax = Math.ceil(maxVal * 1.05 / step) * step;
 
   const tx = i => pL + (i / (years.length - 1)) * cW;
@@ -1565,7 +1565,7 @@ function drawNWChart() {
 
   const totals = points.map(p => LAYERS.reduce((s,k) => s + p[k], 0));
   const maxT = Math.max(...totals), minNW = Math.min(...points.map(p => p.nw));
-  const step = maxT < 200000 ? 25000 : maxT < 500000 ? 50000 : 100000;
+  const step = niceStep(maxT * 1.05, 5);
   const yMax = Math.ceil(maxT * 1.05 / step) * step;
   const yMin = Math.max(0, Math.floor(minNW * 0.92 / step) * step);
   const yRng = yMax - yMin;
@@ -1608,7 +1608,7 @@ function drawNWChart() {
 
   // X axis labels (rotated 45°)
   ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
-  const xStep = Math.ceil(points.length / 18);
+  const xStep = Math.ceil(points.length / 9);
   points.forEach((p, i) => {
     if (i % xStep !== 0 && i !== points.length - 1) return;
     ctx.save(); ctx.translate(bX(i) + bW/2, pT + cH + 5); ctx.rotate(-Math.PI/4);
@@ -1704,6 +1704,14 @@ function applyFireSettings() {
 }
 
 // ── CANVAS HELPERS ───────────────────────────────────────
+// Returns a visually-nice grid step that produces ~targetLines lines for the given range.
+function niceStep(range, targetLines) {
+  const raw = Math.abs(range || 1) / targetLines;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / mag;
+  return (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * mag;
+}
+
 function setupCanvas(id, h) {
   const canvas = document.getElementById(id);
   if (!canvas) return null;
@@ -1737,7 +1745,7 @@ function drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, isPercent) {
 
 function drawXAxisLabels(ctx, labels, pT, cH, xFn) {
   ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
-  const step = Math.ceil(labels.length / 14);
+  const step = Math.ceil(labels.length / 9);
   labels.forEach((l, i) => {
     if (i % step !== 0 && i !== labels.length - 1) return;
     ctx.save(); ctx.translate(xFn(i), pT + cH + 5); ctx.rotate(-Math.PI / 4);
@@ -1753,7 +1761,7 @@ function drawIncSpendChart(points) {
   const incV = points.map(p => p.inc), spV = points.map(p => p.spend);
   const all = [...incV, ...spV];
   const rawMax = Math.max(...all), rawMin = Math.min(0, ...all), range = rawMax - rawMin;
-  const step = range < 50000 ? 5000 : range < 150000 ? 10000 : range < 300000 ? 25000 : 50000;
+  const step = niceStep(range * 1.08, 5);
   const yMin = Math.floor(rawMin / step) * step;
   const yMax = Math.ceil(rawMax * 1.08 / step) * step;
   const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
@@ -1779,7 +1787,7 @@ function drawIncSpendChart(points) {
 function drawSavRateChart(points) {
   const s = setupCanvas('savRateChart', 170); if (!s || points.length < 2) return;
   const { ctx, W, H } = s;
-  const pL = 50, pR = 12, pT = 8, pB = 44, cW = W - pL - pR, cH = H - pT - pB;
+  const pL = 58, pR = 12, pT = 8, pB = 44, cW = W - pL - pR, cH = H - pT - pB;
   const vals = points.map(p => p.savRate);
   const valid = vals.filter(v => v !== null);
   if (!valid.length) return;
@@ -1822,7 +1830,7 @@ function drawNWDeltaChart(points) {
   if (!vals.length) return;
   const rawMin = Math.min(0, ...vals), rawMax = Math.max(0, ...vals);
   const range = Math.max(rawMax - rawMin, 1);
-  const step = range < 20000 ? 5000 : range < 50000 ? 10000 : range < 100000 ? 25000 : 50000;
+  const step = niceStep(range, 5);
   const yMin = Math.floor(rawMin / step) * step, yMax = Math.ceil(rawMax / step) * step;
   const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
   const bW = Math.max(2, cW / vals.length * 0.72);
@@ -1985,7 +1993,7 @@ function drawCatTrendChart() {
   const valid = pts.filter(p => p.v !== null);
   if (!valid.length) return;
   const rawMax = Math.max(...valid.map(p => p.v), 1);
-  const step = rawMax < 500 ? 100 : rawMax < 2000 ? 250 : rawMax < 5000 ? 500 : rawMax < 10000 ? 1000 : 2000;
+  const step = niceStep(rawMax * 1.15, 5);
   const yMax = Math.ceil(rawMax * 1.15 / step) * step, yMin = 0;
   const pL = 58, pR = 12, pT = 8, pB = 36, cW = W - pL - pR, cH = H - pT - pB;
   const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
@@ -2041,7 +2049,7 @@ function drawContribGrowthChart() {
   });
 
   const rawMax = Math.max(...series.map(s => s.total), 1);
-  const step = rawMax < 100000 ? 25000 : rawMax < 500000 ? 50000 : rawMax < 2e6 ? 250000 : 500000;
+  const step = niceStep(rawMax * 1.05, 3);
   const yMax = Math.ceil(rawMax * 1.05 / step) * step, yMin = 0;
   const pL = 68, pR = 12, pT = 8, pB = 36, cW = W - pL - pR, cH = H - pT - pB;
   const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
@@ -2096,7 +2104,7 @@ function drawAllocHistChart() {
   const COLS2 = { checking:'#5cb85c', savings:'#e8943a', brokerage:'#c87a00', k401:'#2e7d32', ira:'#7b5ea7', hsa:'#00c4c4', otherassets:'#4d9fff' };
   const totals = pts.map(p => LAYERS2.reduce((s,k)=>s+p[k],0));
   const rawMax = Math.max(...totals, 1);
-  const step = rawMax < 200000 ? 50000 : rawMax < 1e6 ? 100000 : 250000;
+  const step = niceStep(rawMax * 1.05, 5);
   const yMax = Math.ceil(rawMax * 1.05 / step) * step, yMin = 0;
   const pL = 68, pR = 12, pT = 8, pB = 36, cW = W - pL - pR, cH = H - pT - pB;
   const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
@@ -2237,7 +2245,7 @@ function drawIncGrowthChart() {
   const step = rawMax < 100000 ? 25000 : rawMax < 300000 ? 50000 : 100000;
   const yMax = Math.ceil(rawMax * 1.25 / step) * step, yMin = 0;
 
-  const pL = 58, pR = 12, pT = 8, pB = 20, cW = W - pL - pR, cH = H - pT - pB;
+  const pL = 58, pR = 12, pT = 8, pB = 28, cW = W - pL - pR, cH = H - pT - pB;
   const ty = drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, false);
   const bW = Math.max(12, cW / years.length * 0.55);
   const bX = i => pL + (i + 0.5) * (cW / years.length) - bW / 2;

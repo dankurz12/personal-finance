@@ -328,7 +328,17 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 <div class="section-label">NET WORTH TREND</div>
 <div class="g2">
   <div class="card">
-    <div class="card-head"><div class="card-title">Net Worth Trend</div><span id="chartPeriod" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)"></span></div>
+    <div class="card-head">
+      <div class="card-title">Net Worth Trend</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="chartPeriod" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)"></span>
+        <div class="seg" id="nwWindowToggle">
+          <button data-w="12" onclick="setNwWindow(12)">12M</button>
+          <button data-w="24" onclick="setNwWindow(24)">24M</button>
+          <button data-w="all" class="on" onclick="setNwWindow('all')">All</button>
+        </div>
+      </div>
+    </div>
     <div class="card-body" style="padding:8px 12px 12px">
       <canvas id="nwChart" height="220"></canvas>
       <div id="noChart" class="empty" style="display:none">Save multiple months to see trend.</div>
@@ -433,10 +443,11 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 </div>
 
 <div class="card" style="margin-bottom:10px">
-  <div class="card-head">
-    <div style="display:flex;align-items:center;gap:10px">
+  <div class="card-head" style="flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <div class="card-title">Portfolio Growth Projection</div>
       <span id="fireTrackStatus" style="font-size:9px;font-family:var(--mono-font);font-weight:600;padding:2px 7px;border-radius:3px"></span>
+      <div class="seg" id="fireScenarioToggle" title="Annual return scenario"></div>
     </div>
     <div id="fireChartLegend" style="display:flex;gap:14px;font-size:9px;color:var(--text2);font-family:var(--mono-font)"></div>
   </div>
@@ -568,8 +579,14 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     <div class="section-label">TREND</div>
     <div class="card" style="margin-top:0">
       <div class="card-head">
-        <div class="card-title">Category Trend — 24 Months</div>
-        <select id="catTrendSel" class="fi" style="font-size:11px;padding:2px 6px;width:auto" onchange="drawCatTrendChart()"></select>
+        <div class="card-title" id="catTrendTitle">Category Trend — 24 Months</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="seg" id="catTrendWindow">
+            <button data-n="12" onclick="setCatTrendMonths(12)">12M</button>
+            <button data-n="24" class="on" onclick="setCatTrendMonths(24)">24M</button>
+          </div>
+          <select id="catTrendSel" class="fi" style="font-size:11px;padding:2px 6px;width:auto" onchange="drawCatTrendChart()"></select>
+        </div>
       </div>
       <div class="card-body" style="padding:6px 10px 10px"><canvas id="catTrendChart" height="150"></canvas></div>
     </div>
@@ -588,11 +605,23 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     <div class="section-label">INCOME & SPENDING</div>
     <div class="g2">
       <div class="card">
-        <div class="card-head"><div class="card-title">Income vs Spending — 24 Months</div></div>
+        <div class="card-head">
+          <div class="card-title" id="incSpendTitle">Income vs Spending — 24 Months</div>
+          <div class="seg trends-win">
+            <button data-n="12" onclick="setTrendsWindow(12)">12M</button>
+            <button data-n="24" class="on" onclick="setTrendsWindow(24)">24M</button>
+          </div>
+        </div>
         <div class="card-body" style="padding:6px 10px 10px"><canvas id="incSpendChart" height="170"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-head"><div class="card-title">Savings Rate Trend — 24 Months</div></div>
+        <div class="card-head">
+          <div class="card-title" id="savRateTitle">Savings Rate Trend — 24 Months</div>
+          <div class="seg trends-win">
+            <button data-n="12" onclick="setTrendsWindow(12)">12M</button>
+            <button data-n="24" class="on" onclick="setTrendsWindow(24)">24M</button>
+          </div>
+        </div>
         <div class="card-body" style="padding:6px 10px 10px"><canvas id="savRateChart" height="170"></canvas></div>
       </div>
     </div>
@@ -619,7 +648,13 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         <div class="card-body" style="padding:6px 10px 10px"><canvas id="contribGrowthChart" height="160"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-head"><div class="card-title">Asset Allocation History — 24 Months</div></div>
+        <div class="card-head">
+          <div class="card-title" id="allocHistTitle">Asset Allocation History — 24 Months</div>
+          <div class="seg trends-win">
+            <button data-n="12" onclick="setTrendsWindow(12)">12M</button>
+            <button data-n="24" class="on" onclick="setTrendsWindow(24)">24M</button>
+          </div>
+        </div>
         <div class="card-body" style="padding:6px 10px 10px"><canvas id="allocHistChart" height="160"></canvas></div>
       </div>
     </div>
@@ -737,6 +772,10 @@ let curYear = _now.getMonth() === 0 ? _now.getFullYear() - 1 : _now.getFullYear(
 let allData = {};
 let waterfallMode = 'month';
 let spendHeatMonths = 12, spendHeatMode = 'cat';
+let nwChartWindow = 'all';        // 12 | 24 | 'all'
+let fireScenarioOffset = 0;       // -0.02 | 0 | +0.02 applied to FIRE_CONFIG.returnRate
+let catTrendMonths = 24;          // 12 | 24
+let trendsWindow = 24;            // 12 | 24
 
 // ── SYNC ────────────────────────────────────────────────
 function setSyncStatus(state, label) {
@@ -1427,15 +1466,36 @@ function updateFire(d) {
     }).join('')}</tbody>`;
   document.getElementById('coastTable').innerHTML = coastHtml;
 
+  renderFireScenarioToggle();
   drawFireProjectionChart(inv);
   updateContribCalc(d);
+}
+
+// Return-rate scenario toggle for the projection chart (config rate ± 2%)
+function fireScenarioRate() {
+  return Math.max(0.01, FIRE_CONFIG.returnRate + fireScenarioOffset);
+}
+function renderFireScenarioToggle() {
+  const el = document.getElementById('fireScenarioToggle'); if (!el) return;
+  const offsets = [-0.02, 0, 0.02];
+  el.innerHTML = offsets.map(o => {
+    const r = Math.max(0.01, FIRE_CONFIG.returnRate + o);
+    const lbl = o === 0 ? `${pct(r, 0)} base` : pct(r, 0);
+    return `<button data-off="${o}" class="${o === fireScenarioOffset ? 'on' : ''}" onclick="setFireScenario(${o})">${lbl}</button>`;
+  }).join('');
+}
+function setFireScenario(off) {
+  fireScenarioOffset = off;
+  document.querySelectorAll('#fireScenarioToggle button').forEach(b => b.classList.toggle('on', Number(b.dataset.off) === off));
+  const d2 = compute(get(curYear, curMonth));
+  if (d2) drawFireProjectionChart(d2.invested);
 }
 
 function drawFireProjectionChart(inv) {
   const canvas = document.getElementById('fireProjectionChart');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const rate = FIRE_CONFIG.returnRate;
+  const rate = fireScenarioRate();
   const ctb = FIRE_CONFIG.annualContribution;
   const fire = FIRE_CONFIG.fire;
   const leanFire = FIRE_CONFIG.leanFire;
@@ -1824,13 +1884,20 @@ function drawSpendHeatmap() {
 }
 
 // ── NW CHART ─────────────────────────────────────────────
+function setNwWindow(w) {
+  nwChartWindow = w;
+  document.querySelectorAll('#nwWindowToggle button').forEach(b => b.classList.toggle('on', b.dataset.w === String(w)));
+  drawNWChart();
+}
+
 function drawNWChart() {
   const canvas = document.getElementById('nwChart');
   const ctx = canvas.getContext('2d');
   const points = [];
   // Always chart up to the current calendar month, regardless of selected period
   const _chartEndM = _now.getMonth(), _chartEndY = _now.getFullYear();
-  for (let i = 35; i >= 0; i--) {
+  const _lookback = nwChartWindow === 'all' ? 600 : nwChartWindow;
+  for (let i = _lookback - 1; i >= 0; i--) {
     let m = _chartEndM - i, y = _chartEndY;
     while (m < 0) { m += 12; y--; }
     const d = get(y, m);
@@ -2150,9 +2217,19 @@ function drawNWDeltaChart(points) {
 }
 
 // ── TRENDS ───────────────────────────────────────────────
+function setTrendsWindow(n) {
+  trendsWindow = n;
+  document.querySelectorAll('.seg.trends-win button').forEach(b => b.classList.toggle('on', Number(b.dataset.n) === n));
+  ['incSpendTitle','savRateTitle','allocHistTitle'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    el.textContent = el.textContent.replace(/\d+ Months/, `${n} Months`);
+  });
+  updateTrends();
+}
+
 function updateTrends() {
   const points = [];
-  for (let i = 23; i >= 0; i--) {
+  for (let i = trendsWindow - 1; i >= 0; i--) {
     let m = curMonth - i, y = curYear;
     while (m < 0) { m += 12; y--; }
     const d = get(y, m);
@@ -2282,13 +2359,20 @@ function computeYTDIncome(year) {
 }
 
 // ── CATEGORY TREND CHART ─────────────────────────────────
+function setCatTrendMonths(n) {
+  catTrendMonths = n;
+  document.querySelectorAll('#catTrendWindow button').forEach(b => b.classList.toggle('on', Number(b.dataset.n) === n));
+  const t = document.getElementById('catTrendTitle'); if (t) t.textContent = `Category Trend — ${n} Months`;
+  drawCatTrendChart();
+}
+
 function drawCatTrendChart() {
   const s = setupCanvas('catTrendChart', 150); if (!s) return;
   const { ctx, W, H } = s;
   const sel = document.getElementById('catTrendSel');
   const cat = sel ? sel.value : CATS[0];
   const pts = [];
-  for (let i = 23; i >= 0; i--) {
+  for (let i = catTrendMonths - 1; i >= 0; i--) {
     let m = curMonth - i, y = curYear;
     while (m < 0) { m += 12; y--; }
     const d = get(y, m);
@@ -2393,7 +2477,7 @@ function drawAllocHistChart() {
   const s = setupCanvas('allocHistChart', 160); if (!s) return;
   const { ctx, W, H } = s;
   const pts = [];
-  for (let i = 23; i >= 0; i--) {
+  for (let i = trendsWindow - 1; i >= 0; i--) {
     let m = curMonth - i, y = curYear;
     while (m < 0) { m += 12; y--; }
     const d = get(y, m);

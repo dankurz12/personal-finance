@@ -985,7 +985,54 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <button class="btn btn-ghost" id="fillPrevBtn" onclick="fillFromPrev()">&#8635; Fill from prior month</button>
           <input class="fi" id="pasteSpendRow" placeholder="Paste a row of spending numbers (category order, tab or comma separated)" onchange="pasteSpendRow(this)">
           <button class="btn btn-ghost" onclick="clearSpendFields()">Clear spending</button>
+          <button class="btn btn-ghost" onclick="toggleBackfill()" style="white-space:nowrap">&#8681; Bulk backfill</button>
         </div>
+
+        <div id="backfillPanel" style="display:none;border:1px solid var(--border2);border-radius:4px;padding:9px 11px;margin-bottom:8px;background:var(--bg3)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:7px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2)">Bulk Backfill — One Field Across Many Months</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select class="fi" id="bf-field" style="width:auto">
+                <optgroup label="Balances">
+                  <option value="hsa">HSA balance</option>
+                  <option value="checking">Checking</option>
+                  <option value="savings">Savings</option>
+                  <option value="brokerage">Brokerage</option>
+                  <option value="k401">401(k)</option>
+                  <option value="ira">IRA / Roth</option>
+                  <option value="otherassets">Other assets</option>
+                </optgroup>
+                <optgroup label="Contributions">
+                  <option value="hsa_contrib">HSA contribution</option>
+                  <option value="k401_contrib">401(k) contribution</option>
+                  <option value="roth_contrib">Roth contribution</option>
+                  <option value="brokerage_contrib">Brokerage contribution</option>
+                </optgroup>
+                <optgroup label="Income / tax">
+                  <option value="salary">Salary</option>
+                  <option value="bonus">Bonus</option>
+                  <option value="otherincome">Other income</option>
+                  <option value="federal_tax">Federal tax</option>
+                  <option value="state_tax">State tax</option>
+                  <option value="local_tax">Local tax</option>
+                  <option value="fica_tax">FICA</option>
+                </optgroup>
+                <optgroup label="Liabilities">
+                  <option value="cc">Credit cards</option>
+                  <option value="studentloan">Student loans</option>
+                  <option value="otherdebt">Other debt</option>
+                </optgroup>
+              </select>
+              <select class="fi" id="bf-start" style="width:auto" title="Only used when your pasted rows have no month labels"></select>
+              <button class="btn btn-ghost" onclick="previewBackfill()">Preview</button>
+              <button class="btn btn-primary" id="bf-import" onclick="runBackfill()" disabled style="opacity:0.45">Import to Sheets</button>
+            </div>
+          </div>
+          <textarea class="fi" id="bf-input" rows="5" placeholder="Labelled — one month per line:&#10;Jan-23  2450&#10;Feb-23, 2780&#10;&#10;…or just a bare column of values, oldest first, and set the start month:&#10;$350&#10;$700" style="font-family:var(--mono-font);font-size:11px;resize:vertical"></textarea>
+          <div class="kpi-sub" id="bf-status" style="margin-top:5px;line-height:1.5">Paste, hit Preview, then Import. Only months whose value actually changes get written.</div>
+          <div id="bf-preview" style="max-height:220px;overflow-y:auto;margin-top:6px"></div>
+        </div>
+
         <div class="fsec">Income</div>
         <div class="form-grid">
           <div class="fg"><label class="fl">Gross Salary</label><input class="fi" id="f-salary" type="number" placeholder="0"></div>
@@ -2331,6 +2378,115 @@ function pasteSpendRow(input) {
 function clearSpendFields() {
   CATS.forEach(c => { const el = document.getElementById(sid(c)); if (el) el.value = ''; });
   showToast('Spending fields cleared', 'ok');
+}
+
+// ── BULK BACKFILL ─────────────────────────────────
+// Patches ONE field across many months and writes each changed month back through the
+// existing save API. The sheet stores a JSON blob per month, so a field-level edit has to
+// read the month, set the key, and re-save the whole object.
+let BF_PENDING = null;
+
+function toggleBackfill() {
+  const p = document.getElementById('backfillPanel');
+  p.style.display = p.style.display === 'none' ? '' : 'none';
+  const sel = document.getElementById('bf-start');
+  if (sel && !sel.options.length) {
+    for (let y = 2023; y <= _now.getFullYear(); y++) for (let m = 0; m < 12; m++) {
+      const o = document.createElement('option');
+      o.value = `${y}-${m}`; o.textContent = `starts ${MONTHS[m]} ${y}`;
+      sel.appendChild(o);
+    }
+    sel.value = '2023-0';
+  }
+}
+
+// Accepts Jan-23 / Jan 2023 / January 23 / 2023-01 / 1-2023 / 01/2023
+function parseMonthLabel(s) {
+  const t = String(s).trim().replace(/[.]/g, '');
+  let m = t.match(/^([A-Za-z]{3,})[\s\-\/]+(\d{2,4})$/);
+  if (m) {
+    const mi = MONTHS.findIndex(x => x.toLowerCase() === m[1].slice(0,3).toLowerCase());
+    if (mi < 0) return null;
+    let y = parseInt(m[2], 10); if (y < 100) y += 2000;
+    return { y, m: mi };
+  }
+  m = t.match(/^(\d{4})[\s\-\/](\d{1,2})$/);            // 2023-01
+  if (m) return { y: +m[1], m: +m[2] - 1 };
+  m = t.match(/^(\d{1,2})[\s\-\/](\d{4})$/);            // 01/2023
+  if (m) return { y: +m[2], m: +m[1] - 1 };
+  return null;
+}
+
+function previewBackfill() {
+  const field = document.getElementById('bf-field').value;
+  const lines = document.getElementById('bf-input').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const rows = [], bad = [];
+  // A bare column of values (no parseable labels) is walked forward from the chosen start month
+  const labelled = lines.some(l => parseMonthLabel(l.split(/[\t,;]+|\s{1,}/).filter(Boolean).slice(0, -1).join(' ')));
+  if (!labelled) {
+    const [sy, sm] = document.getElementById('bf-start').value.split('-').map(Number);
+    let y = sy, m = sm;
+    lines.forEach(line => {
+      const val = parseFloat(line.replace(/[$,()\s]/g, ''));
+      if (isNaN(val)) { bad.push(line); return; }
+      const existing = get(y, m);
+      rows.push({ y, m, val, existing: existing ? (existing[field] ?? null) : null, missingMonth: !existing });
+      m++; if (m > 11) { m = 0; y++; }
+    });
+  } else lines.forEach(line => {
+    const parts = line.split(/[\t,;]+|\s{1,}/).filter(Boolean);
+    if (parts.length < 2) { bad.push(line); return; }
+    const val = parseFloat(parts[parts.length - 1].replace(/[$,()]/g, ''));
+    const label = parts.slice(0, -1).join(' ');
+    const ym = parseMonthLabel(label);
+    if (!ym || isNaN(val)) { bad.push(line); return; }
+    const existing = get(ym.y, ym.m);
+    rows.push({ ...ym, val, existing: existing ? (existing[field] ?? null) : null, missingMonth: !existing });
+  });
+  const changed = rows.filter(r => !r.missingMonth && Math.round((r.existing ?? -1) * 100) !== Math.round(r.val * 100));
+  BF_PENDING = { field, rows: changed };
+  const btn = document.getElementById('bf-import');
+  btn.disabled = changed.length === 0;
+  btn.style.opacity = changed.length === 0 ? '0.45' : '1';
+  const noMonth = rows.filter(r => r.missingMonth);
+  document.getElementById('bf-status').innerHTML =
+    `<strong>${rows.length}</strong> rows parsed` + (labelled ? '' : ` from <strong>${rows.length ? MONTHS[rows[0].m] + ' ' + rows[0].y : '—'}</strong> forward`) +
+    ` · <strong style="color:var(--green)">${changed.length}</strong> will change` +
+    (rows.length - changed.length - noMonth.length > 0 ? ` · ${rows.length - changed.length - noMonth.length} already match` : '') +
+    (noMonth.length ? ` · <span style="color:var(--yellow)">${noMonth.length} have no month row in the sheet yet (skipped)</span>` : '') +
+    (bad.length ? ` · <span style="color:var(--red)">${bad.length} unparseable: ${bad.slice(0,3).join(' | ')}</span>` : '');
+  document.getElementById('bf-preview').innerHTML = changed.length
+    ? `<table class="tbl"><thead><tr><th>Month</th><th>Current</th><th>New</th><th>Change</th></tr></thead><tbody>` +
+      changed.map(r => `<tr><td>${MONTHS[r.m]} ${r.y}</td><td class="dim">${r.existing === null ? '—' : fmt(r.existing)}</td>` +
+        `<td style="font-weight:600">${fmt(r.val)}</td><td class="${cc(r.val - (r.existing||0))}">${fmt(r.val - (r.existing||0), true)}</td></tr>`).join('') +
+      '</tbody></table>'
+    : '';
+}
+
+async function runBackfill() {
+  if (!BF_PENDING || !BF_PENDING.rows.length) return;
+  const { field, rows } = BF_PENDING;
+  const btn = document.getElementById('bf-import');
+  btn.disabled = true; btn.style.opacity = '0.45';
+  const status = document.getElementById('bf-status');
+  let ok = 0, fail = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    status.textContent = `Writing ${MONTHS[r.m]} ${r.y} — ${i+1} of ${rows.length}…`;
+    const rec = { ...get(r.y, r.m) };
+    rec.spending = { ...(rec.spending || {}) };
+    rec[field] = r.val;
+    try {
+      const saved = await sheetsSave(r.y, r.m, rec);
+      if (saved) { allData[ck(r.y, r.m)] = rec; ok++; } else fail++;
+    } catch (e) { fail++; }
+  }
+  status.innerHTML = `<strong style="color:var(--green)">${ok} months written</strong>` +
+    (fail ? ` · <span style="color:var(--red)">${fail} failed — re-Preview and retry</span>` : ' · saved to Sheets');
+  showToast(`Backfilled ${field} — ${ok} month${ok===1?'':'s'}`, fail ? 'err' : 'ok');
+  BF_PENDING = null;
+  loadForm();
+  refreshAll();
 }
 
 // ── INCOME SANKEY ────────────────────────────────

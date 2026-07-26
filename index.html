@@ -410,8 +410,40 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
       </div>
     </div>
 
-    <div class="section-label row-between">WHAT CHANGED<a class="link-sm" onclick="showSection('review')">FULL REVIEW &#8594;</a></div>
-    <div class="insight-grid" id="ovInsights"></div>
+    <div id="householdWrap" style="display:none">
+      <div class="section-label">HOUSEHOLD — COMBINED</div>
+      <div class="card" style="margin-bottom:6px;border-top:2px solid var(--purple)">
+        <div class="card-head">
+          <div class="card-title">Combined With Partner's Savings</div>
+          <span class="note-mono" id="hh-note"></span>
+        </div>
+        <div class="perf-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="perf-cell">
+            <div class="kpi-label">Combined Net Worth</div>
+            <div class="perf-val" style="font-size:24px" id="hh-nw">—</div>
+            <div class="kpi-sub" id="hh-nw-sub"></div>
+          </div>
+          <div class="perf-cell">
+            <div class="kpi-label">Projected FIRE</div>
+            <div class="perf-val blue" style="font-size:24px" id="hh-fire">—</div>
+            <div class="kpi-sub" id="hh-fire-sub"></div>
+          </div>
+          <div class="perf-cell">
+            <div class="kpi-label">Progress to FIRE</div>
+            <div class="perf-val" style="font-size:24px;color:var(--purple)" id="hh-pct">—</div>
+            <div class="progress-track" style="height:4px;margin-top:4px"><div class="progress-fill" id="hh-bar" style="background:var(--purple);width:0%"></div></div>
+            <div class="kpi-sub" id="hh-pct-sub"></div>
+          </div>
+          <div class="perf-cell">
+            <div class="kpi-label">Pulled Forward By</div>
+            <div class="perf-val pos" style="font-size:24px" id="hh-shift">—</div>
+            <div class="kpi-sub" id="hh-shift-sub"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label row-between">WHAT CHANGED<a class="link-sm" onclick="showSection('review')">FULL REVIEW &#8594;</a></div>    <div class="insight-grid" id="ovInsights"></div>
 
     <div class="section-label">CURRENT PERIOD</div>
     <div class="kpi-row cols-4">
@@ -626,13 +658,32 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
       <div class="fg"><label class="fl">Current Age (auto)</label><input class="fi" id="fc-age" type="number" placeholder="29" readonly style="opacity:0.6;cursor:default"></div>
       <div class="fg"><label class="fl">Withdrawal Rate %</label><input class="fi" id="fc-swr" type="number" placeholder="4" step="0.1"></div>
       <div class="fg"><label class="fl">Return Rate %</label><input class="fi" id="fc-return" type="number" placeholder="7" step="0.1"></div>
-      <div class="fg"><label class="fl">Retirement Age</label><input class="fi" id="fc-retage" type="number" placeholder="45"></div>
-      <div class="fg"><label class="fl">Annual Contribution</label><input class="fi" id="fc-ctb" type="text" placeholder="80,000"></div>
-      <div class="fg"><label class="fl">Annual Ret. Spend</label><input class="fi" id="fc-spend" type="text" placeholder="80,000"></div>
-      <div class="fg"><label class="fl">LeanFIRE Target</label><input class="fi" id="fc-lean" type="text" placeholder="1,600,000"></div>
-      <div class="fg"><label class="fl">FIRE Target</label><input class="fi" id="fc-fire" type="text" placeholder="2,000,000"></div>
-      <div class="fg"><label class="fl">FatFIRE Target</label><input class="fi" id="fc-fat" type="text" placeholder="3,000,000"></div>
-      <div class="fg"><label class="fl">Coast FI Age</label><input class="fi" id="fc-coastage" type="number" placeholder="65"></div>
+      <div class="fg"><label class="fl">Retirement Age</label><input class="fi" id="fc-retage" type="number" placeholder="55"></div>
+      <div class="fg">
+        <label class="fl">Annual Contribution</label>
+        <div style="display:flex;gap:4px">
+          <input class="fi" id="fc-ctb" type="text" placeholder="80,000" style="flex:1">
+          <button class="btn btn-ghost" id="fc-ctb-mode" onclick="toggleCtbMode()" title="Switch between a manual figure and your trailing-twelve-month actual contributions" style="padding:4px 8px;font-size:9px;white-space:nowrap">LTM</button>
+        </div>
+        <div class="kpi-sub" id="fc-ctb-note" style="margin-top:2px"></div>
+      </div>
+      <div class="fg"><label class="fl">Annual Ret. Spend</label><input class="fi" id="fc-spend" type="text" placeholder="200,000"></div>
+      <div class="fg"><label class="fl">LeanFIRE Target</label><input class="fi" id="fc-lean" type="text" placeholder="4,000,000"></div>
+      <div class="fg"><label class="fl">FIRE Target</label><input class="fi" id="fc-fire" type="text" placeholder="5,000,000"></div>
+      <div class="fg"><label class="fl">FatFIRE Target</label><input class="fi" id="fc-fat" type="text" placeholder="6,000,000"></div>
+      <div class="fg"><label class="fl">Coast FI Age</label><input class="fi" id="fc-coastage" type="number" placeholder="55"></div>
+    </div>
+    <div class="fsec" style="margin-top:10px">Household</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:end">
+      <div class="fg">
+        <label class="fl">Include Partner's Savings</label>
+        <button class="btn btn-ghost" id="fc-partner-toggle" onclick="togglePartner()" style="padding:5px 10px;font-size:9px;width:100%">Off</button>
+      </div>
+      <div class="fg"><label class="fl">Partner Net Worth</label><input class="fi" id="fc-partner-nw" type="text" placeholder="0"></div>
+      <div class="fg" style="grid-column:span 3">
+        <label class="fl">&nbsp;</label>
+        <div class="kpi-sub" style="line-height:1.5">Partner savings are a single balance, so they stay out of the month-by-month analysis. When on, a combined household summary appears on Overview.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1000,11 +1051,16 @@ const FIRE_CONFIG = {
   withdrawalRate: 0.04,
   returnRate: 0.07,
   annualContribution: 80012,
-  annualRetirementSpend: 80000,
-  retirementAge: 45,
-  leanFire: 1600000,
-  fire: 2000000,
-  fatFire: 3000000,
+  annualRetirementSpend: 200000,
+  retirementAge: 55,
+  leanFire: 4000000,
+  fire: 5000000,
+  fatFire: 6000000,
+  coastAge: 55,
+  ctbMode: 'ltm',                    // 'ltm' = trailing-12-month actuals | 'manual' = the typed figure
+  ctbManual: 80012,
+  partnerInclude: false,
+  partnerNw: 0,
   coastFiAt65: 175070.91,
   cmgrTotal: 0.031688,
   cmgrLtm: 0.037337,
@@ -1057,12 +1113,15 @@ function loadSettings() {
   if (!s) return;
   if (s.fire) Object.assign(FIRE_CONFIG, s.fire);
   if (s.mtg) Object.assign(MTG, s.mtg);
+  syncContribution();
 }
 async function saveSettings() {
   const payload = { spending: {}, fire: {
     withdrawalRate: FIRE_CONFIG.withdrawalRate, returnRate: FIRE_CONFIG.returnRate, retirementAge: FIRE_CONFIG.retirementAge,
     annualContribution: FIRE_CONFIG.annualContribution, annualRetirementSpend: FIRE_CONFIG.annualRetirementSpend,
-    leanFire: FIRE_CONFIG.leanFire, fire: FIRE_CONFIG.fire, fatFire: FIRE_CONFIG.fatFire, coastAge: FIRE_CONFIG.coastAge || 65
+    leanFire: FIRE_CONFIG.leanFire, fire: FIRE_CONFIG.fire, fatFire: FIRE_CONFIG.fatFire, coastAge: FIRE_CONFIG.coastAge || 55,
+    ctbMode: FIRE_CONFIG.ctbMode, ctbManual: FIRE_CONFIG.ctbManual,
+    partnerInclude: FIRE_CONFIG.partnerInclude, partnerNw: FIRE_CONFIG.partnerNw
   }, mtg: { ...MTG } };
   try {
     const ok = await sheetsSave(SETTINGS_YEAR, 0, payload);
@@ -1143,6 +1202,34 @@ async function sheetsGetApiKey() {
 async function sheetsSetApiKey(key) {
   const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'setApiKey', key }) });
   return (await res.json()).success;
+}
+
+// Trailing-twelve-month actual contributions from the entered data (401k + HSA + Roth + brokerage)
+function ltmContributions() {
+  const s = seriesBack(12);
+  if (!s.length) return null;
+  const total = s.reduce((a, p) => a + (p.totalInvContribs || 0), 0);
+  return s.length === 12 ? total : total / s.length * 12;   // annualise a short window
+}
+// The contribution figure every projection uses
+function effectiveContribution() {
+  if (FIRE_CONFIG.ctbMode === 'ltm') { const v = ltmContributions(); if (v !== null) return v; }
+  return FIRE_CONFIG.ctbManual || FIRE_CONFIG.annualContribution || 0;
+}
+function syncContribution() { FIRE_CONFIG.annualContribution = effectiveContribution(); }
+
+function toggleCtbMode() {
+  FIRE_CONFIG.ctbMode = FIRE_CONFIG.ctbMode === 'ltm' ? 'manual' : 'ltm';
+  populateFireInputs();
+  applyFireSettings();
+}
+function togglePartner() {
+  FIRE_CONFIG.partnerInclude = !FIRE_CONFIG.partnerInclude;
+  const raw = document.getElementById('fc-partner-nw');
+  if (raw) FIRE_CONFIG.partnerNw = parseFloat(String(raw.value).replace(/,/g, '')) || 0;
+  populateFireInputs();
+  refreshAll();
+  saveSettings();
 }
 
 function ck(y, m) { return `${y}_${m}`; }
@@ -1467,6 +1554,7 @@ function refreshAll() {
   updateTrends();
   drawNWChart();
   updateHeadline(d);
+  updateHousehold(d);
   updateReview(d);
   updatePerf();
   checkMissingData();
@@ -2068,13 +2156,42 @@ function insightHtml(list) {
     `<div class="insight-title">${i.title}</div><div class="insight-body">${i.body}</div></div>`).join('');
 }
 
+// ── HOUSEHOLD (partner savings folded in at the headline level only) ──
+// Her balance is a single number with no history, so it informs the combined
+// picture and stays out of the month-by-month analysis everywhere else.
+function updateHousehold(d) {
+  const wrap = document.getElementById('householdWrap');
+  if (!wrap) return;
+  const on = FIRE_CONFIG.partnerInclude && (FIRE_CONFIG.partnerNw || 0) > 0;
+  wrap.style.display = on ? '' : 'none';
+  if (!on || !d) return;
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const partner = FIRE_CONFIG.partnerNw, ctb = effectiveContribution();
+  const combinedNw = d.nw + partner, combinedInv = d.invested + partner;
+  const yrsSolo = yearsToFireDet(d.invested, ctb, FIRE_CONFIG.returnRate, FIRE_CONFIG.fire);
+  const yrsBoth = yearsToFireDet(combinedInv, ctb, FIRE_CONFIG.returnRate, FIRE_CONFIG.fire);
+  const cy = _now.getFullYear();
+  set('hh-nw', fmt(combinedNw));
+  set('hh-nw-sub', `${fmt(d.nw)} yours + ${fmt(partner)} partner`);
+  set('hh-fire', yrsBoth !== null ? `${MONTHS[_now.getMonth()]} ${cy + yrsBoth}` : '—');
+  set('hh-fire-sub', yrsBoth !== null ? `age ${(getAge()+yrsBoth).toFixed(0)} · ${yrsBoth} yrs out` : '');
+  const p = combinedInv / FIRE_CONFIG.fire;
+  set('hh-pct', pct(p, 0));
+  document.getElementById('hh-bar').style.width = Math.min(100, p*100).toFixed(1) + '%';
+  set('hh-pct-sub', `${fmt(combinedInv)} of ${fmt(FIRE_CONFIG.fire)}`);
+  const shift = yrsSolo !== null && yrsBoth !== null ? yrsSolo - yrsBoth : null;
+  set('hh-shift', shift === null ? '—' : shift > 0 ? `${shift} yr${shift===1?'':'s'}` : 'no change');
+  set('hh-shift-sub', yrsSolo !== null ? `vs ${cy + yrsSolo} on your savings alone` : '');
+  set('hh-note', `partner balance excluded from all other tabs · ${fmt(ctb)}/yr contributed (${FIRE_CONFIG.ctbMode === 'ltm' ? 'LTM actual' : 'manual'})`);
+}
+
 // ── HEADLINE STRIP ────────────────────────────────
 function updateHeadline(d) {
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
   if (!d) { ['hl-nw','hl-fire','hl-pct'].forEach(i => set(i, '—')); return; }
   const hist = seriesBack(13), yearAgo = hist.length ? hist[0] : null;
   const gain = yearAgo ? d.nw - yearAgo.nw : 0, gpct = yearAgo && yearAgo.nw > 0 ? gain/yearAgo.nw : null;
-  const ytf = yearsToFireDet(d.invested, FIRE_CONFIG.annualContribution, FIRE_CONFIG.returnRate, FIRE_CONFIG.fire);
+  const ytf = yearsToFireDet(d.invested, effectiveContribution(), FIRE_CONFIG.returnRate, FIRE_CONFIG.fire);
   const fireYear = ytf !== null ? _now.getFullYear() + ytf : null;
   set('hl-nw', fmt(d.nw));
   const g = document.getElementById('hl-nw-gain');
@@ -2088,14 +2205,14 @@ function updateHeadline(d) {
   document.getElementById('hl-bar').style.width = Math.min(100, pctThere*100).toFixed(1) + '%';
   set('hl-pct-sub', `${fmt(d.invested)} invested of ${fmt(FIRE_CONFIG.fire)}`);
   set('hl-sentence', `Net worth is ${fmt(d.nw)}, up ${fmt(gain)} over the last twelve months. At ${pct(FIRE_CONFIG.returnRate,0)} returns and ` +
-    `${fmt(FIRE_CONFIG.annualContribution)}/yr invested you reach ${fmt(FIRE_CONFIG.fire)} around ${fireYear || '—'}, age ${ytf !== null ? (getAge()+ytf).toFixed(0) : '—'}.`);
+    `${fmt(effectiveContribution())}/yr invested you reach ${fmt(FIRE_CONFIG.fire)} around ${fireYear || '—'}, age ${ytf !== null ? (getAge()+ytf).toFixed(0) : '—'}.`);
   const st = document.getElementById('hl-status');
   const pill = fireStatusPill(d.invested);
   st.textContent = pill.text; st.style.background = pill.bg; st.style.color = pill.fg;
   document.getElementById('ovInsights').innerHTML = insightHtml(insights().slice(0, 4));
 }
 function fireStatusPill(inv) {
-  const rate = FIRE_CONFIG.returnRate, ctb = FIRE_CONFIG.annualContribution;
+  const rate = FIRE_CONFIG.returnRate, ctb = effectiveContribution();
   let pf = inv, idx = -1;
   for (let i = 0; i <= 40; i++) { if (pf >= FIRE_CONFIG.fire * Math.pow(1.02, i)) { idx = i; break; } pf = pf*(1+rate)+ctb; }
   if (idx < 0) return { text:'✕ Target not reached in 40 yrs', bg:'var(--red-dim)', fg:'var(--red)' };
@@ -3009,12 +3126,28 @@ function populateFireInputs() {
   document.getElementById('fc-swr').value = (FIRE_CONFIG.withdrawalRate * 100).toFixed(1);
   document.getElementById('fc-return').value = (FIRE_CONFIG.returnRate * 100).toFixed(1);
   document.getElementById('fc-retage').value = FIRE_CONFIG.retirementAge;
-  document.getElementById('fc-ctb').value = FIRE_CONFIG.annualContribution.toLocaleString();
+  const ltm = ltmContributions();
+  const isLtm = FIRE_CONFIG.ctbMode === 'ltm' && ltm !== null;
+  const ctbEl = document.getElementById('fc-ctb');
+  ctbEl.value = (isLtm ? Math.round(ltm) : (FIRE_CONFIG.ctbManual || FIRE_CONFIG.annualContribution)).toLocaleString();
+  ctbEl.readOnly = isLtm;
+  ctbEl.style.opacity = isLtm ? '0.6' : '1';
+  const modeBtn = document.getElementById('fc-ctb-mode');
+  modeBtn.textContent = isLtm ? 'LTM' : 'Manual';
+  modeBtn.style.color = isLtm ? 'var(--green)' : 'var(--text2)';
+  document.getElementById('fc-ctb-note').textContent = isLtm
+    ? 'trailing 12 months of actual contributions'
+    : ltm === null ? 'no history yet — manual only' : `manual · LTM actual is ${fmt(ltm)}`;
+  const pBtn = document.getElementById('fc-partner-toggle');
+  pBtn.textContent = FIRE_CONFIG.partnerInclude ? 'On' : 'Off';
+  pBtn.style.color = FIRE_CONFIG.partnerInclude ? 'var(--green)' : 'var(--text2)';
+  pBtn.style.borderColor = FIRE_CONFIG.partnerInclude ? 'var(--green)' : 'var(--border)';
+  document.getElementById('fc-partner-nw').value = (FIRE_CONFIG.partnerNw || 0).toLocaleString();
   document.getElementById('fc-spend').value = FIRE_CONFIG.annualRetirementSpend.toLocaleString();
   document.getElementById('fc-lean').value = FIRE_CONFIG.leanFire.toLocaleString();
   document.getElementById('fc-fire').value = FIRE_CONFIG.fire.toLocaleString();
   document.getElementById('fc-fat').value = FIRE_CONFIG.fatFire.toLocaleString();
-  document.getElementById('fc-coastage').value = FIRE_CONFIG.coastAge || 65;
+  document.getElementById('fc-coastage').value = FIRE_CONFIG.coastAge || 55;
 }
 
 function applyFireSettings() {
@@ -3023,12 +3156,14 @@ function applyFireSettings() {
   FIRE_CONFIG.returnRate = (parseFloat(document.getElementById('fc-return').value) || 7) / 100;
   FIRE_CONFIG.retirementAge = parseFloat(document.getElementById('fc-retage').value) || FIRE_CONFIG.retirementAge;
   const noComma = id => parseFloat(document.getElementById(id).value.replace(/,/g, ''));
-  FIRE_CONFIG.annualContribution = noComma('fc-ctb') || FIRE_CONFIG.annualContribution;
+  if (FIRE_CONFIG.ctbMode === 'manual') FIRE_CONFIG.ctbManual = noComma('fc-ctb') || FIRE_CONFIG.ctbManual;
+  FIRE_CONFIG.partnerNw = noComma('fc-partner-nw') || 0;
+  syncContribution();
   FIRE_CONFIG.annualRetirementSpend = noComma('fc-spend') || FIRE_CONFIG.annualRetirementSpend;
   FIRE_CONFIG.leanFire = noComma('fc-lean') || FIRE_CONFIG.leanFire;
   FIRE_CONFIG.fire = noComma('fc-fire') || FIRE_CONFIG.fire;
   FIRE_CONFIG.fatFire = noComma('fc-fat') || FIRE_CONFIG.fatFire;
-  FIRE_CONFIG.coastAge = parseFloat(document.getElementById('fc-coastage').value) || 65;
+  FIRE_CONFIG.coastAge = parseFloat(document.getElementById('fc-coastage').value) || 55;
 
   // Recalculate derived values
   const n = FIRE_CONFIG.coastAge - getAge();

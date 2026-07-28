@@ -5,34 +5,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Personal Finance Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:         #f4f6f9;
-    --bg2:        #ffffff;
-    --bg3:        #f8fafc;
-    --bg4:        #edf0f4;
-    --border:     #e2e8f0;
-    --border2:    #cbd5e1;
-    --text:       #0f172a;
-    --text2:      #64748b;
-    --text3:      #94a3b8;
-    --green:      #16a34a;
-    --green-dim:  #dcfce7;
-    --red:        #dc2626;
-    --red-dim:    #fee2e2;
-    --yellow:     #d97706;
-    --yellow-dim: #fef3c7;
-    --blue:       #2563eb;
-    --blue-dim:   #dbeafe;
-    --purple:     #7c3aed;
-    --purple-dim: #ede9fe;
-    --teal:       #0891b2;
-    --body-font:  Calibri, 'Nunito Sans', 'Gill Sans MT', 'Gill Sans', sans-serif;
+    --bg:         #f4f3f0;
+    --bg2:        #faf9f6;
+    --bg3:        #efeeea;
+    --bg4:        #e6e5e1;
+    --border:     #e4e2dd;
+    --border2:    #d0cec8;
+    --text:       #16181a;
+    --text2:      #55555c;
+    --text3:      #8a8a88;
+    --green:      #2f6a43;
+    --green-dim:  #e2ebe4;
+    --red:        #b0413a;
+    --red-dim:    #f1e2e0;
+    --yellow:     #8a6d2e;
+    --yellow-dim: #ece4d2;
+    --blue:       #5980a6;
+    --blue-dim:   #e0e6ed;
+    --purple:     #6b6b73;
+    --purple-dim: #e6e6e6;
+    --teal:       #5a6b74;
+    --accent:     #5980a6;
+    --accent-dim: #e0e6ed;
+    --body-font:  'Barlow', Calibri, 'Nunito Sans', sans-serif;
+    --head-font:  'Barlow Condensed', 'Barlow', sans-serif;
     --mono-font:  'DM Mono', monospace;
   }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: #46688a; text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 body {
   font-family: var(--body-font);
@@ -65,23 +71,23 @@ header {
   text-transform: uppercase;
   color: var(--text2);
 }
-.logo em { color: var(--green); font-style: normal; }
+.logo em { color: var(--accent); font-style: normal; }
 
 .header-right { display: flex; align-items: center; gap: 10px; }
 
 .sync-status { display: flex; align-items: center; gap: 5px; font-family: var(--mono-font); font-size: 10px; letter-spacing: 0.08em; color: var(--text3); }
 .sync-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
-.sync-dot.synced { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.sync-dot.synced { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
 .sync-dot.syncing { background: var(--yellow); animation: blink 0.8s infinite; }
 .sync-dot.error { background: var(--red); }
 
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 .month-sel { display: flex; align-items: center; gap: 6px; font-family: var(--mono-font); font-size: 10px; color: var(--text3); }
-.month-sel select { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); padding: 3px 7px; font-family: var(--mono-font); font-size: 10px; border-radius: 3px; cursor: pointer; }
+.month-sel select { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); padding: 3px 7px; font-family: var(--mono-font); font-size: 10px; border-radius: 0; cursor: pointer; }
 
-.btn { font-family: var(--mono-font); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 11px; border-radius: 3px; border: none; cursor: pointer; transition: all 0.15s; }
-.btn-primary { background: var(--green); color: #000; }
+.btn { font-family: var(--mono-font); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 11px; border-radius: 0; border: none; cursor: pointer; transition: all 0.15s; }
+.btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { filter: brightness(1.15); }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
 .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
@@ -92,7 +98,7 @@ header {
 .nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 18px; display: flex; overflow-x: auto; gap: 0; }
 .tab { font-family: var(--body-font); font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; padding: 8px 13px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
 .tab:hover { color: var(--text2); }
-.tab.active { color: var(--green); border-bottom-color: var(--green); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
 /* MAIN */
 main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
@@ -105,22 +111,22 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .kpi-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .kpi-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
 
-.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 7px 10px; position: relative; overflow: hidden; }
+.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 0; padding: 7px 10px; position: relative; overflow: hidden; }
 .kpi::after { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 1px; }
-.kpi.g::after { background: var(--green); }
-.kpi.r::after { background: var(--red); }
-.kpi.b::after { background: var(--blue); }
-.kpi.y::after { background: var(--yellow); }
-.kpi.p::after { background: var(--purple); }
-.kpi.t::after { background: var(--teal); }
+.kpi.g::after { background: transparent; }
+.kpi.r::after { background: transparent; }
+.kpi.b::after { background: transparent; }
+.kpi.y::after { background: transparent; }
+.kpi.p::after { background: transparent; }
+.kpi.t::after { background: transparent; }
 
-.kpi-label { font-family: var(--body-font); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text3); margin-bottom: 2px; }
-.kpi-val { font-family: var(--mono-font); font-size: 17px; font-weight: 400; color: var(--text); line-height: 1; }
+.kpi-label { font-family: var(--mono-font); font-size: 9px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text3); margin-bottom: 3px; }
+.kpi-val { font-family: var(--head-font); font-size: 21px; font-weight: 600; color: var(--text); line-height: 1; letter-spacing: 0.3px; }
 .kpi-val.pos { color: var(--green); }
 .kpi-val.neg { color: var(--red); }
-.kpi-val.blue { color: var(--blue); }
-.kpi-val.yellow { color: var(--yellow); }
-.kpi-val.purple { color: var(--purple); }
+.kpi-val.blue { color: var(--text); }
+.kpi-val.yellow { color: var(--text); }
+.kpi-val.purple { color: var(--text); }
 .kpi-sub { font-family: var(--body-font); font-size: 10px; color: var(--text3); margin-top: 2px; }
 
 /* GRID */
@@ -130,9 +136,9 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 6px; margin-bottom: 6px; }
 
 /* CARD */
-.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 0; overflow: hidden; }
 .card-head { padding: 5px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.card-title { font-family: var(--body-font); font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text3); }
+.card-title { font-family: var(--mono-font); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text3); }
 .card-body { padding: 7px 10px; }
 
 /* TABLE */
@@ -153,13 +159,13 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .bars { padding: 1px 0; }
 .bar-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
 .bar-lbl { font-family: var(--body-font); font-size: 11px; color: var(--text2); width: 120px; flex-shrink: 0; text-align: right; }
-.bar-track { flex: 1; height: 2px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
-.bar-fill.g { background: var(--green); }
+.bar-track { flex: 1; height: 2px; background: var(--bg4); border-radius: 0; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0; transition: width 0.5s ease; }
+.bar-fill.g { background: #5980a6; }
 .bar-fill.r { background: var(--red); }
-.bar-fill.y { background: var(--yellow); }
-.bar-fill.b { background: var(--blue); }
-.bar-fill.p { background: var(--purple); }
+.bar-fill.y { background: #9fb3c8; }
+.bar-fill.b { background: #7090b0; }
+.bar-fill.p { background: #456888; }
 .bar-amt { font-family: var(--mono-font); font-size: 10px; color: var(--text2); width: 70px; text-align: right; flex-shrink: 0; }
 
 /* PROGRESS BAR */
@@ -167,8 +173,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
 .progress-label { font-family: var(--body-font); font-size: 11px; color: var(--text2); }
 .progress-pct { font-family: var(--mono-font); font-size: 10px; font-weight: 500; }
-.progress-track { height: 2px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.progress-track { height: 2px; background: var(--bg4); border-radius: 0; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 0; transition: width 0.6s ease; }
 
 /* FIRE GAUGE */
 .fire-gauge { text-align: center; padding: 8px 0; }
@@ -179,22 +185,22 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .pw-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; gap: 16px; }
 .pw-overlay .pw-title { font-family: var(--mono-font); font-size: 13px; letter-spacing: 0.15em; color: var(--text2); text-transform: uppercase; }
 .pw-overlay .pw-box { display: flex; gap: 8px; }
-.pw-overlay input[type=password] { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono-font); font-size: 13px; padding: 7px 12px; border-radius: 4px; outline: none; width: 200px; }
-.pw-overlay input[type=password]:focus { border-color: var(--green); }
+.pw-overlay input[type=password] { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--mono-font); font-size: 13px; padding: 7px 12px; border-radius: 0; outline: none; width: 200px; }
+.pw-overlay input[type=password]:focus { border-color: var(--accent); }
 .pw-overlay .pw-err { font-family: var(--mono-font); font-size: 10px; color: var(--red); letter-spacing: 0.1em; min-height: 14px; }
 .loading-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 14px; }
 .loading-overlay span { font-family: var(--mono-font); font-size: 11px; letter-spacing: 0.18em; color: var(--text3); text-transform: uppercase; }
-.spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 .spinner.sm { width: 12px; height: 12px; border-width: 1.5px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* TOAST */
-#tablePopup { position:fixed; z-index:500; background:var(--bg2); border:1px solid var(--border2); border-radius:6px; padding:10px 14px; max-width:280px; font-size:11px; color:var(--text2); line-height:1.7; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:none; pointer-events:auto; }
+#tablePopup { position:fixed; z-index:500; background:var(--bg2); border:1px solid var(--border2); border-radius:0; padding:10px 14px; max-width:280px; font-size:11px; color:var(--text2); line-height:1.7; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:none; pointer-events:auto; }
 #tablePopup .pop-close { float:right; cursor:pointer; color:var(--text3); font-size:15px; margin-left:8px; line-height:1; }
 #tablePopup strong { color:var(--text); }
 .swr-table td[data-popup], .swr-table th[data-popup] { cursor:pointer; }
 .swr-table td[data-popup]:hover { background:var(--bg3); }
-.toast { position: fixed; bottom: 16px; right: 16px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); padding: 7px 14px; border-radius: 3px; font-family: var(--mono-font); font-size: 11px; z-index: 1000; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; }
+.toast { position: fixed; bottom: 16px; right: 16px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); padding: 7px 14px; border-radius: 0; font-family: var(--mono-font); font-size: 11px; z-index: 1000; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.ok { border-color: var(--green); color: var(--green); }
 .toast.err { border-color: var(--red); color: var(--red); }
@@ -206,8 +212,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 8px; }
 .fg { display: flex; flex-direction: column; gap: 3px; }
 .fl { font-family: var(--body-font); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text3); }
-.fi { background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 4px 7px; font-family: var(--mono-font); font-size: 11px; border-radius: 3px; width: 100%; transition: border-color 0.15s; }
-.fi:focus { outline: none; border-color: var(--green); }
+.fi { background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 4px 7px; font-family: var(--mono-font); font-size: 11px; border-radius: 0; width: 100%; transition: border-color 0.15s; }
+.fi:focus { outline: none; border-color: var(--accent); }
 .fsec { font-family: var(--body-font); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin: 8px 0 5px; padding-bottom: 3px; border-bottom: 1px solid var(--border); }
 
 /* FIRE INPUT */
@@ -225,24 +231,34 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .swr-table .current-age { background: var(--blue-dim) !important; color: var(--blue) !important; font-weight: 600; }
 
 /* HEADLINE + INSIGHTS + REVIEW + PLAN */
-.headline { margin-bottom: 6px; border-top: 2px solid var(--green); }
+.headline { margin-bottom: 6px; border-top: 1px solid var(--border); }
 .headline-grid { display: grid; grid-template-columns: 1.15fr 1fr 1.35fr; }
 .headline-cell { padding: 12px 16px; border-right: 1px solid var(--border); }
 .headline-cell:last-child { border-right: none; display: flex; flex-direction: column; gap: 8px; }
-.headline-big { font-family: var(--mono-font); font-size: 38px; line-height: 1.05; color: var(--text); }
-.headline-big.blue { color: var(--blue); }
+.headline-big { font-family: var(--head-font); font-size: 44px; font-weight: 600; line-height: 1; color: var(--text); }
+.headline-big.blue { color: var(--text); }
 .headline-sub { font-family: var(--mono-font); font-size: 12px; margin-top: 3px; }
 .headline-sub.dim2 { color: var(--text2); }
 .headline-sentence { font-size: 11px; color: var(--text2); line-height: 1.6; text-wrap: pretty; }
-.pill { display: inline-block; font-size: 9px; font-family: var(--mono-font); font-weight: 600; padding: 2px 7px; border-radius: 3px; margin-top: 5px; align-self: flex-start; }
+.hero { display: grid; grid-template-columns: 1.65fr 1fr; }
+.hero-main { padding: 22px 24px 22px; }
+.hero-fire { padding: 22px 24px 22px; border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.hero-nwrow { display: flex; align-items: flex-end; gap: 16px; margin-top: 5px; }
+.hero .headline-big { font-size: 58px; letter-spacing: -1px; }
+.hero-delta { padding-bottom: 8px; }
+.hero-sentence { font-family: var(--body-font); font-size: 15px; color: var(--text2); line-height: 1.5; max-width: 640px; margin-top: 15px; text-wrap: pretty; }
+@media (max-width: 768px) { .hero { grid-template-columns: 1fr; } .hero-fire { border-left: none; border-top: 1px solid var(--border); } }
+.verdict { padding: 16px 22px; margin-bottom: 6px; }
+.verdict-text { font-family: var(--body-font); font-size: 16px; color: var(--text2); line-height: 1.55; max-width: 780px; margin-top: 6px; text-wrap: pretty; }
+.pill { display: inline-block; font-size: 9px; font-family: var(--mono-font); font-weight: 600; padding: 2px 7px; border-radius: 0; margin-top: 5px; align-self: flex-start; }
 .row-between { display: flex; align-items: baseline; justify-content: space-between; }
 .link-sm { font-size: 10px; font-family: var(--mono-font); letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); cursor: pointer; }
 .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 6px; margin-bottom: 6px; }
-.insight { background: var(--bg2); border: 1px solid var(--border); border-left: 2px solid var(--text3); border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; }
+.insight { background: var(--bg2); border: 1px solid var(--border); border-left: 2px solid var(--text3); border-radius: 0; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; }
 .insight.warn { border-left-color: var(--yellow); }
 .insight.good { border-left-color: var(--green); }
 .insight.info { border-left-color: var(--blue); }
-.insight-tag { align-self: flex-start; font-size: 8px; font-family: var(--mono-font); font-weight: 600; letter-spacing: 0.1em; padding: 2px 6px; border-radius: 2px; }
+.insight-tag { align-self: flex-start; font-size: 8px; font-family: var(--mono-font); font-weight: 600; letter-spacing: 0.1em; padding: 2px 6px; border-radius: 0; }
 .insight.warn .insight-tag { background: var(--yellow-dim); color: var(--yellow); }
 .insight.good .insight-tag { background: var(--green-dim); color: var(--green); }
 .insight.info .insight-tag { background: var(--blue-dim); color: var(--blue); }
@@ -257,8 +273,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .catbar-vals { display: flex; gap: 7px; align-items: baseline; flex-shrink: 0; }
 .catbar-amt { font-family: var(--mono-font); font-size: 11px; color: var(--text); }
 .catbar-delta { font-family: var(--mono-font); font-size: 9.5px; white-space: nowrap; }
-.catbar-track { position: relative; height: 6px; background: var(--bg); border-radius: 2px; }
-.catbar-fill { position: absolute; left: 0; top: 0; height: 6px; background: rgba(220,38,38,0.75); border-radius: 2px; }
+.catbar-track { position: relative; height: 6px; background: var(--bg); border-radius: 0; }
+.catbar-fill { position: absolute; left: 0; top: 0; height: 6px; background: rgba(220,38,38,0.75); border-radius: 0; }
 .catbar-tick { position: absolute; top: -2px; height: 10px; border-left: 1.5px solid var(--text); }
 .perf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .perf-cell { padding: 10px 14px; border-right: 1px solid var(--border); }
@@ -268,7 +284,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .perf-val.pos { color: var(--green); }
 .perf-bw { font-family: var(--mono-font); font-size: 12px; line-height: 1.5; }
 .note-mono { font-size: 9px; font-family: var(--mono-font); color: var(--text3); }
-.entry-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--bg3); border: 1px solid var(--border); border-radius: 3px; padding: 7px 9px; margin-bottom: 4px; }
+.entry-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--bg3); border: 1px solid var(--border); border-radius: 0; padding: 7px 9px; margin-bottom: 4px; }
 .entry-toolbar .fi { flex: 1; min-width: 220px; font-size: 10.5px; background: var(--bg2); }
 .spacebar { margin-bottom: 10px; }
 .spacebar-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 3px; }
@@ -276,9 +292,9 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .bracket-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .bracket-rate { font-family: var(--mono-font); font-size: 10px; color: var(--text2); width: 30px; flex-shrink: 0; }
 .bracket-range { font-size: 10px; color: var(--text3); width: 130px; flex-shrink: 0; }
-.bracket-track { flex: 1; height: 6px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+.bracket-track { flex: 1; height: 6px; background: var(--bg); border-radius: 0; overflow: hidden; }
 .bracket-amt { font-family: var(--mono-font); font-size: 10px; color: var(--text2); width: 62px; text-align: right; flex-shrink: 0; }
-.chart-tip { position: fixed; z-index: 900; pointer-events: none; display: none; background: var(--bg2); border: 1px solid var(--border2); box-shadow: 0 4px 14px rgba(15,23,42,0.10); border-radius: 4px; padding: 6px 9px; font-size: 11px; color: var(--text); min-width: 120px; }
+.chart-tip { position: fixed; z-index: 900; pointer-events: none; display: none; background: var(--bg2); border: 1px solid var(--border2); box-shadow: 0 4px 14px rgba(15,23,42,0.10); border-radius: 0; padding: 6px 9px; font-size: 11px; color: var(--text); min-width: 120px; }
 .chart-tip .tip-label { font-family: var(--mono-font); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); margin-bottom: 3px; }
 .chart-tip .tip-row { display: flex; justify-content: space-between; gap: 14px; line-height: 1.55; }
 .chart-tip .tip-row span:first-child { color: var(--text2); }
@@ -290,12 +306,12 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 0; }
 
 /* MILESTONE CARDS */
 .milestone-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
-.milestone-card { background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:12px 14px; display:flex; flex-direction:column; gap:5px; }
-.milestone-badge { display:inline-block; font-size:9px; font-family:var(--mono-font); padding:2px 7px; border-radius:3px; font-weight:600; align-self:flex-start; }
+.milestone-card { background:var(--bg2); border:1px solid var(--border); border-radius:0; padding:12px 14px; display:flex; flex-direction:column; gap:5px; }
+.milestone-badge { display:inline-block; font-size:9px; font-family:var(--mono-font); padding:2px 7px; border-radius:0; font-weight:600; align-self:flex-start; }
 .milestone-badge.coast { background:rgba(0,212,170,0.15); color:var(--green); border:1px solid rgba(0,212,170,0.3); }
 .milestone-badge.lean  { background:rgba(245,200,66,0.15); color:var(--yellow); border:1px solid rgba(245,200,66,0.3); }
 .milestone-badge.fire  { background:rgba(77,159,255,0.15); color:var(--blue); border:1px solid rgba(77,159,255,0.3); }
@@ -315,7 +331,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .section-label { font-size:9px; letter-spacing:0.08em; color:var(--text3); font-family:var(--mono-font); margin:8px 0 5px; }
 
 /* SEGMENTED TOGGLE */
-.seg { display:inline-flex; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+.seg { display:inline-flex; border:1px solid var(--border); border-radius:0; overflow:hidden; }
 .seg button { font-family:var(--mono-font); font-size:9px; letter-spacing:0.06em; text-transform:uppercase; padding:3px 9px; border:none; background:var(--bg2); color:var(--text3); cursor:pointer; transition:all 0.12s; border-left:1px solid var(--border); }
 .seg button:first-child { border-left:none; }
 .seg button.on { background:var(--blue); color:#fff; }
@@ -325,7 +341,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 .heatmap { border-collapse:separate; border-spacing:2px; font-family:var(--mono-font); }
 .heatmap th { font-size:8px; color:var(--text3); font-weight:500; padding:2px 3px; text-align:center; white-space:nowrap; font-family:var(--mono-font); letter-spacing:0; text-transform:none; border:none; }
 .heatmap th.cat-lbl { text-align:right; color:var(--text2); font-size:10px; padding-right:7px; position:sticky; left:0; background:var(--bg2); z-index:1; }
-.heatmap td { width:22px; height:18px; border-radius:2px; text-align:center; padding:0; border:none; }
+.heatmap td { width:22px; height:18px; border-radius:0; text-align:center; padding:0; border:none; }
 .heatmap td.hm-cell:hover { outline:1.5px solid var(--text2); outline-offset:-1px; }
 
 @media (max-width: 1100px) { .kpi-row.cols-4, .kpi-row.cols-5 { grid-template-columns: repeat(2,1fr); } .g3 { grid-template-columns: 1fr 1fr; } .milestone-grid { grid-template-columns: repeat(2,1fr); } }
@@ -356,7 +372,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     <div class="month-sel"><span>Period:</span><select id="monthSelect"></select></div>
     <div style="position:relative">
       <button class="btn btn-ghost" id="dataGapsBtn" onclick="toggleGapsPanel()" style="display:none;color:var(--yellow)">⚠ <span id="dataGapsCount">0</span> gaps</button>
-      <div id="gapsPanel" style="display:none;position:absolute;top:100%;right:0;z-index:200;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;min-width:220px;margin-top:4px">
+      <div id="gapsPanel" style="display:none;position:absolute;top:100%;right:0;z-index:200;background:var(--bg3);border:1px solid var(--border2);border-radius:0;padding:10px 14px;min-width:220px;margin-top:4px">
         <div style="font-size:10px;font-weight:600;color:var(--yellow);margin-bottom:6px">Missing / Empty Months</div>
         <div id="gapsList" style="font-size:11px;color:var(--text2);line-height:1.8"></div>
       </div>
@@ -385,27 +401,31 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <section id="section-overview" class="section active">
     <div class="section-label">WHERE YOU STAND</div>
     <div class="card headline">
-      <div class="headline-grid">
-        <div class="headline-cell">
-          <div class="kpi-label">Net Worth</div>
-          <div class="headline-big" id="hl-nw">—</div>
-          <div class="headline-sub" id="hl-nw-gain"></div>
-          <div class="kpi-sub" id="hl-window"></div>
-        </div>
-        <div class="headline-cell">
-          <div class="kpi-label">Projected FIRE</div>
-          <div class="headline-big blue" id="hl-fire">—</div>
-          <div class="headline-sub dim2" id="hl-fire-age"></div>
-          <span id="hl-status" class="pill"></span>
-        </div>
-        <div class="headline-cell">
-          <div class="progress-header">
-            <div class="kpi-label">Progress to FIRE</div>
-            <div class="progress-pct purple" id="hl-pct">—</div>
+      <div class="hero">
+        <div class="hero-main">
+          <div class="kpi-label">Total Net Worth</div>
+          <div class="hero-nwrow">
+            <div class="headline-big" id="hl-nw">—</div>
+            <div class="hero-delta">
+              <div class="headline-sub" id="hl-nw-gain"></div>
+              <div class="kpi-sub" id="hl-window"></div>
+            </div>
           </div>
-          <div class="progress-track" style="height:4px"><div class="progress-fill" id="hl-bar" style="background:var(--purple);width:0%"></div></div>
+          <div class="hero-sentence" id="hl-sentence"></div>
+        </div>
+        <div class="hero-fire">
+          <div class="row-between">
+            <div class="kpi-label">Projected FIRE</div>
+            <div class="headline-sub" id="hl-fire" style="color:var(--accent)">—</div>
+          </div>
+          <div class="kpi-sub" id="hl-fire-age"></div>
+          <div class="progress-header" style="margin-top:4px">
+            <div class="kpi-label">Progress to FIRE</div>
+            <div class="progress-pct" id="hl-pct" style="color:var(--text)">—</div>
+          </div>
+          <div class="progress-track" style="height:5px"><div class="progress-fill" id="hl-bar" style="background:var(--accent);width:0%"></div></div>
           <div class="kpi-sub" id="hl-pct-sub"></div>
-          <div class="headline-sentence" id="hl-sentence"></div>
+          <span id="hl-status" class="pill" style="margin-top:auto"></span>
         </div>
       </div>
     </div>
@@ -480,19 +500,19 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
 <div class="section-label">KEY METRICS</div>
 <div class="g3">
-  <div class="kpi p" style="border-radius:4px">
+  <div class="kpi p" style="border-radius:0">
     <div class="kpi-label">Savings Rate</div>
     <div class="kpi-val purple" id="savRate" style="font-size:36px">—</div>
     <div class="kpi-sub" id="savRate-sub">of gross income</div>
     <canvas id="savRateSpark" height="34" style="width:100%;margin-top:8px;display:block"></canvas>
     <div class="kpi-sub" id="savRateSpark-sub" style="margin-top:2px">trailing 12-mo avg</div>
   </div>
-  <div class="kpi y" style="border-radius:4px">
+  <div class="kpi y" style="border-radius:0">
     <div class="kpi-label">Top Spend Category</div>
     <div class="kpi-val yellow" id="topCat" style="font-size:16px;margin-top:4px">—</div>
     <div class="kpi-val" id="topCatAmt" style="font-size:28px;margin-top:6px">—</div>
   </div>
-  <div class="kpi b" style="border-radius:4px">
+  <div class="kpi b" style="border-radius:0">
     <div class="kpi-label">Liquid Assets</div>
     <div class="kpi-val blue" id="liquid" style="font-size:28px">—</div>
     <div class="kpi-sub" id="liquid-sub">Checking + Savings</div>
@@ -522,6 +542,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
       <div class="review-title" id="rv-title">—</div>
       <div class="review-note">month-end review &#183; what changed, what to act on</div>
     </div>
+    <div class="card verdict"><div class="kpi-label">The month in a line</div><div class="verdict-text" id="rv-verdict"></div></div>
     <div class="kpi-row cols-4" id="rv-kpis"></div>
     <div class="g21">
       <div class="card">
@@ -540,6 +561,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- PLAN -->
 
   <section id="section-plan" class="section">
+    <div class="section-label">THE PLAN</div>
+    <div class="card verdict"><div class="kpi-label">In a line</div><div class="verdict-text" id="pl-verdict"></div></div>
     <div class="section-label">NEXT TWELVE MONTHS</div>
     <div class="kpi-row cols-4">
       <div class="kpi g"><div class="kpi-label">Projected Cash Surplus</div><div class="kpi-val pos" id="pl-surplus">—</div><div class="kpi-sub">after spending &amp; investing</div></div>
@@ -647,6 +670,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- FIRE -->
 
   <section id="section-fire" class="section">
+    <div class="section-label">WHERE FIRE STANDS</div>
+    <div class="card verdict"><div class="kpi-label">The plan in a line</div><div class="verdict-text" id="fire-verdict"></div></div>
 
 <div class="card" style="margin-bottom:10px">
   <div class="card-head">
@@ -722,7 +747,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <div class="card-head" style="flex-wrap:wrap;gap:8px">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <div class="card-title">Portfolio Growth Projection</div>
-      <span id="fireTrackStatus" style="font-size:9px;font-family:var(--mono-font);font-weight:600;padding:2px 7px;border-radius:3px"></span>
+      <span id="fireTrackStatus" style="font-size:9px;font-family:var(--mono-font);font-weight:600;padding:2px 7px;border-radius:0"></span>
       <div class="seg" id="fireScenarioToggle" title="Annual return scenario"></div>
     </div>
     <div id="fireChartLegend" style="display:flex;gap:14px;font-size:9px;color:var(--text2);font-family:var(--mono-font)"></div>
@@ -733,17 +758,17 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 <div id="fireAssumptions" style="font-size:10px;color:var(--text3);padding:4px 2px 10px;line-height:1.7"></div>
 
 <div class="g3">
-  <div class="kpi g" style="border-radius:4px">
+  <div class="kpi g" style="border-radius:0">
     <div class="kpi-label">CMGR — All Time</div>
     <div class="kpi-val pos" id="cmgr-total" style="font-size:32px">—</div>
     <div class="kpi-sub">monthly growth rate</div>
   </div>
-  <div class="kpi b" style="border-radius:4px">
+  <div class="kpi b" style="border-radius:0">
     <div class="kpi-label">CMGR — LTM</div>
     <div class="kpi-val blue" id="cmgr-ltm" style="font-size:32px">—</div>
     <div class="kpi-sub">last twelve months</div>
   </div>
-  <div class="kpi y" style="border-radius:4px">
+  <div class="kpi y" style="border-radius:0">
     <div class="kpi-label">Annual Retirement Spend</div>
     <div class="kpi-val yellow" id="fire-spend" style="font-size:28px">—</div>
     <div class="kpi-sub" id="fire-swr-sub">4% SWR target</div>
@@ -776,6 +801,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- P&L -->
 
   <section id="section-pnl" class="section">
+    <div class="section-label">THE MONTH'S P&L</div>
+    <div class="card verdict"><div class="kpi-label">In a line</div><div class="verdict-text" id="pnl-verdict"></div></div>
     <div class="section-label">INCOME FLOW</div>
     <div class="card" style="margin-bottom:10px">
       <div class="card-head">
@@ -807,6 +834,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- BALANCE SHEET -->
 
   <section id="section-balance" class="section">
+    <div class="section-label">THE BALANCE SHEET</div>
+    <div class="card verdict"><div class="kpi-label">In a line</div><div class="verdict-text" id="bal-verdict"></div></div>
     <div class="section-label">ASSETS</div>
     <div class="g2">
       <div class="card">
@@ -823,6 +852,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- SPENDING -->
 
   <section id="section-spending" class="section">
+    <div class="section-label">THE MONTH'S SPENDING</div>
+    <div class="card verdict"><div class="kpi-label">In a line</div><div class="verdict-text" id="spend-verdict"></div></div>
     <div class="section-label">CURRENT PERIOD</div>
     <div class="kpi-row cols-3">
       <div class="kpi r"><div class="kpi-label">Total Spend</div><div class="kpi-val neg" id="spendTotal">—</div></div>
@@ -875,6 +906,8 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
   <!-- TRENDS -->
 
   <section id="section-trends" class="section">
+    <div class="section-label">THE TREND</div>
+    <div class="card verdict"><div class="kpi-label">In a line</div><div class="verdict-text" id="tr-verdict"></div></div>
     <div class="section-label">TRAILING 12 MONTHS</div>
     <div class="kpi-row cols-4">
       <div class="kpi b"><div class="kpi-label">12M Avg Income</div><div class="kpi-val blue" id="tr-avginc">—</div><div class="kpi-sub">monthly avg</div></div>
@@ -988,7 +1021,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <button class="btn btn-ghost" onclick="toggleBackfill()" style="white-space:nowrap">&#8681; Bulk backfill</button>
         </div>
 
-        <div id="backfillPanel" style="display:none;border:1px solid var(--border2);border-radius:4px;padding:9px 11px;margin-bottom:8px;background:var(--bg3)">
+        <div id="backfillPanel" style="display:none;border:1px solid var(--border2);border-radius:0;padding:9px 11px;margin-bottom:8px;background:var(--bg3)">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:7px">
             <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2)">Bulk Backfill — One Field Across Many Months</div>
             <div style="display:flex;gap:8px;align-items:center">
@@ -1744,15 +1777,15 @@ function drawSavRateSpark() {
   const ty = v => H - pad - ((v - min) / rng) * (H - pad * 2);
   if (min < 0 && max > 0) {
     const zy = ty(0);
-    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+    ctx.strokeStyle = '#cfcfd3'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
     ctx.beginPath(); ctx.moveTo(pad, zy); ctx.lineTo(W - pad, zy); ctx.stroke(); ctx.setLineDash([]);
   }
   const firstI = series.findIndex(v => v !== null);
   const lastI = series.reduceRight((a, v, i) => a === -1 && v !== null ? i : a, -1);
   ctx.beginPath(); let started = false;
   series.forEach((v, i) => { if (v === null) return; started ? ctx.lineTo(tx(i), ty(v)) : (ctx.moveTo(tx(i), ty(v)), started = true); });
-  ctx.strokeStyle = '#7b5ea7'; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(tx(lastI), ty(series[lastI]), 2.5, 0, Math.PI * 2); ctx.fillStyle = '#7b5ea7'; ctx.fill();
+  ctx.strokeStyle = '#8a7a9a'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(tx(lastI), ty(series[lastI]), 2.5, 0, Math.PI * 2); ctx.fillStyle = '#8a7a9a'; ctx.fill();
   if (subEl) {
     const delta = series[lastI] - series[firstI];
     const arrow = delta > 0.005 ? '↑' : delta < -0.005 ? '↓' : '→';
@@ -1793,6 +1826,18 @@ function updateFire(d) {
   document.getElementById('snap-sal-sub').textContent = `salary ${cy}`;
 
   document.getElementById('snap-inv').textContent = fmt(computeYTDInvContribs(cy));
+
+  const fverdict = document.getElementById('fire-verdict');
+  if (fverdict) {
+    const ec = effectiveContribution();
+    const yy = yearsToFireDet(inv, ec, rate, FIRE_CONFIG.fire);
+    const fy = yy !== null ? cy + yy : null;
+    const p = FIRE_CONFIG.fire > 0 ? inv / FIRE_CONFIG.fire : 0;
+    const Bk = x => '<b style="color:var(--text)">' + x + '</b>';
+    fverdict.innerHTML = `You're ${Bk(pct(p,0))} of the way to your ${Bk(fmt(FIRE_CONFIG.fire))} FIRE number. ` +
+      `At ${Bk(pct(rate,0))} returns and ${Bk(fmt(ec) + '/yr')} invested you cross the line around ` +
+      `<b style="color:var(--accent)">${fy || '—'}</b>` + (yy !== null ? `, age ${Bk((liveAge+yy).toFixed(0))}` : '') + '.';
+  }
 
   // ── CMGR ──────────────────────────────────────────────
   const cmgrAll = computeLiveCMGR(null);
@@ -2023,14 +2068,14 @@ function drawFireProjectionChart(inv) {
 
   for (let v = 0; v <= yMax + step * 0.01; v += step) {
     const gy = ty(v);
-    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+    ctx.strokeStyle = '#cfcfd3'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
     ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
     ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
   }
 
   // LeanFIRE horizontal dashed (teal)
-  ctx.strokeStyle = '#00c4c4'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 5]);
+  ctx.strokeStyle = '#4d7a86'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 5]);
   ctx.beginPath(); ctx.moveTo(pL, ty(leanFire)); ctx.lineTo(pL + cW, ty(leanFire)); ctx.stroke();
   ctx.setLineDash([]);
 
@@ -2045,16 +2090,16 @@ function drawFireProjectionChart(inv) {
     const gx = tx(goalIdx);
     ctx.strokeStyle = 'rgba(245,158,11,0.45)'; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
     ctx.beginPath(); ctx.moveTo(gx, pT); ctx.lineTo(gx, pT + cH); ctx.stroke(); ctx.setLineDash([]);
-    ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = '#b08d4f'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
     ctx.beginPath();
     goalPath.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
     ctx.stroke(); ctx.setLineDash([]);
-    ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#d97706'; ctx.textAlign = 'center';
+    ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#9a7b2e'; ctx.textAlign = 'center';
     ctx.fillText('Goal · age ' + goalAge, gx, pT + 8);
   }
 
   // Portfolio line (blue)
-  ctx.strokeStyle = '#4d9fff'; ctx.lineWidth = 2;
+  ctx.strokeStyle = '#5980a6'; ctx.lineWidth = 2;
   ctx.beginPath();
   portfolio.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
   ctx.stroke();
@@ -2065,7 +2110,7 @@ function drawFireProjectionChart(inv) {
     for (let yr = 0; yr <= years.length - 1; yr++) {
       if (pf2 >= tgt) {
         ctx.beginPath(); ctx.arc(tx(yr), ty(portfolio[yr]), 4, 0, Math.PI * 2);
-        ctx.fillStyle = ti === 0 ? '#00c4c4' : '#4d9fff'; ctx.fill();
+        ctx.fillStyle = ti === 0 ? '#4d7a86' : '#5980a6'; ctx.fill();
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
         break;
       }
@@ -2085,10 +2130,10 @@ function drawFireProjectionChart(inv) {
   const legendEl = document.getElementById('fireChartLegend');
   if (legendEl) {
     legendEl.innerHTML =
-      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:#4d9fff;display:inline-block;border-radius:1px"></span>Portfolio value</span>` +
-      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #f59e0b;display:inline-block"></span>Goal path (age ${goalAge})</span>` +
+      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:#5980a6;display:inline-block;border-radius:1px"></span>Portfolio value</span>` +
+      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #b08d4f;display:inline-block"></span>Goal path (age ${goalAge})</span>` +
       `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #888;display:inline-block"></span>FIRE # (inflation-adj)</span>` +
-      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #00c4c4;display:inline-block"></span>LeanFIRE (${fmt(leanFire)})</span>`;
+      `<span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed #4d7a86;display:inline-block"></span>LeanFIRE (${fmt(leanFire)})</span>`;
   }
 
   // On-track status pill: projected FIRE age (at plan assumptions) vs goal retirement age
@@ -2251,8 +2296,10 @@ function updateHeadline(d) {
   set('hl-pct', pct(pctThere, 0));
   document.getElementById('hl-bar').style.width = Math.min(100, pctThere*100).toFixed(1) + '%';
   set('hl-pct-sub', `${fmt(d.invested)} invested of ${fmt(FIRE_CONFIG.fire)}`);
-  set('hl-sentence', `Net worth is ${fmt(d.nw)}, up ${fmt(gain)} over the last twelve months. At ${pct(FIRE_CONFIG.returnRate,0)} returns and ` +
-    `${fmt(effectiveContribution())}/yr invested you reach ${fmt(FIRE_CONFIG.fire)} around ${fireYear || '—'}, age ${ytf !== null ? (getAge()+ytf).toFixed(0) : '—'}.`);
+  document.getElementById('hl-sentence').innerHTML =
+    `Net worth is <b style="color:var(--text)">${fmt(d.nw)}</b>, ${gain >= 0 ? 'up' : 'down'} <b style="color:var(--text)">${fmt(Math.abs(gain))}</b> over the last twelve months. ` +
+    `Hold ${pct(FIRE_CONFIG.returnRate,0)} returns and <b style="color:var(--text)">${fmt(effectiveContribution())}/yr</b> invested and you reach ` +
+    `<b style="color:var(--text)">${fmt(FIRE_CONFIG.fire)}</b> around <b style="color:var(--accent)">${fireYear || '—'}</b>, age ${ytf !== null ? (getAge()+ytf).toFixed(0) : '—'}.`;
   const st = document.getElementById('hl-status');
   const pill = fireStatusPill(d.invested);
   st.textContent = pill.text; st.style.background = pill.bg; st.style.color = pill.fg;
@@ -2305,6 +2352,15 @@ function updateReview(d) {
       <div class="catbar-track"><div class="catbar-fill" style="width:${(r.v/maxV*100).toFixed(1)}%"></div><div class="catbar-tick" style="left:${(r.a/maxV*100).toFixed(1)}%"></div></div>
     </div>`).join('') + '<div class="kpi-sub" style="font-family:var(--mono-font);font-size:9px">bar = this month · tick = 12-month average</div>';
 
+  const rvv = document.getElementById('rv-verdict');
+  if (rvv) {
+    const Bk = x => '<b style="color:var(--text)">' + x + '</b>';
+    const over = cats.filter(r => r.a > 0 && r.v > r.a * 1.15).sort((a,b) => (b.v-b.a) - (a.v-a.a))[0];
+    rvv.innerHTML = `Net worth ${nwDelta >= 0 ? 'rose' : 'fell'} ${Bk(fmt(Math.abs(nwDelta)))} to ${Bk(fmt(d.nw))} this month, ` +
+      `and you saved ${Bk(pct(d.trueSavRate))} of gross` +
+      (over ? `. Watch ${Bk(over.c)} — it ran <b style="color:var(--accent)">${(over.v/over.a).toFixed(1)}×</b> its usual pace.`
+            : ' — every category held near its normal.');
+  }
   insEl.innerHTML = insightHtml(insights());
 }
 
@@ -2506,9 +2562,9 @@ function drawSankey() {
   const pT = 14, pB = 24, nodeW = 11, colGap = (W - nodeW*3)/2 - 118;
   const x0 = 6, x1 = x0 + nodeW + colGap, x2 = x1 + nodeW + colGap;
   const usable = H - pT - pB, scale = usable * 0.88 / g.inc;
-  const mid = [ { l:'Taxes', v:g.taxes, c:'#dc2626' }, { l:'Pre-tax invested', v:g.preTax, c:'#0891b2' },
-    { l:'Post-tax invested', v:g.postTax, c:'#7c3aed' }, { l:'Spending', v:g.spend, c:'#d97706' },
-    { l:'Net cash kept', v:Math.max(0, netCash), c:'#16a34a' } ].filter(n => n.v > 0);
+  const mid = [ { l:'Taxes', v:g.taxes, c:'#b0413a' }, { l:'Pre-tax invested', v:g.preTax, c:'#4d7a86' },
+    { l:'Post-tax invested', v:g.postTax, c:'#6b6a8f' }, { l:'Spending', v:g.spend, c:'#9a7b2e' },
+    { l:'Net cash kept', v:Math.max(0, netCash), c:'#3f7a3f' } ].filter(n => n.v > 0);
   const gap = mid.length > 1 ? (usable - g.inc*scale)/(mid.length-1) : 0;
   const srcH = g.inc*scale, srcY = pT + (usable - srcH)/2;
   let y = pT; const midNodes = mid.map(n => { const h = Math.max(2, n.v*scale); const node = { ...n, y, h }; y += h + gap; return node; });
@@ -2536,14 +2592,14 @@ function drawSankey() {
       ctx.bezierCurveTo(x1+nodeW+colGap*0.5, sc2, x2-colGap*0.5, n.y, x2, n.y);
       ctx.lineTo(x2, n.y+n.h);
       ctx.bezierCurveTo(x2-colGap*0.5, n.y+n.h, x1+nodeW+colGap*0.5, sc2+h, x1+nodeW, sc2+h);
-      ctx.closePath(); ctx.fillStyle = hexA('#d97706', 0.20); ctx.fill(); sc2 += h; }); }
-  ctx.fillStyle = '#2563eb'; ctx.fillRect(x0, srcY, nodeW, srcH);
+      ctx.closePath(); ctx.fillStyle = hexA('#9a7b2e', 0.20); ctx.fill(); sc2 += h; }); }
+  ctx.fillStyle = '#5980a6'; ctx.fillRect(x0, srcY, nodeW, srcH);
   midNodes.forEach(n => { ctx.fillStyle = n.c; ctx.fillRect(x1, n.y, nodeW, n.h); });
   leafNodes.forEach(n => { ctx.fillStyle = 'rgba(217,119,6,0.65)'; ctx.fillRect(x2, n.y, nodeW, n.h); });
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   ctx.font = '600 11px Calibri,sans-serif'; ctx.fillStyle = '#0f172a';
   ctx.fillText('Gross income', x0+nodeW+6, srcY+12);
-  ctx.font = '11px DM Mono,monospace'; ctx.fillStyle = '#2563eb';
+  ctx.font = '11px DM Mono,monospace'; ctx.fillStyle = '#5980a6';
   ctx.fillText(fmt(g.inc), x0+nodeW+6, srcY+26);
   midNodes.forEach(n => { const cy = n.y + n.h/2;
     ctx.font = '11px Calibri,sans-serif'; ctx.fillStyle = '#0f172a'; ctx.fillText(n.l, x1+nodeW+6, cy-6);
@@ -2557,7 +2613,7 @@ function drawSankey() {
       ctx.beginPath(); ctx.moveTo(x2+nodeW, nodeCy); ctx.lineTo(x2+nodeW+4, cy); ctx.stroke(); }
     ctx.font = '10px Calibri,sans-serif'; ctx.fillStyle = '#475569'; ctx.fillText(n.l, x2+nodeW+6, cy-5);
     ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.fillText(fmt(n.v), x2+nodeW+6, cy+5); });
-  if (netCash < 0) { ctx.font = '10px DM Mono,monospace'; ctx.fillStyle = '#dc2626'; ctx.textAlign = 'left';
+  if (netCash < 0) { ctx.font = '10px DM Mono,monospace'; ctx.fillStyle = '#b0413a'; ctx.textAlign = 'left';
     ctx.fillText(`cash drawdown ${fmt(netCash)} — funded from savings`, x0, H-4); }
   ctx.textBaseline = 'alphabetic';
 }
@@ -2566,7 +2622,7 @@ function drawSankey() {
 function updatePnL(d) {
   document.getElementById('pnlTitle').textContent = `Income Statement — ${MONTHS[curMonth]} ${curYear}`;
   const t = document.getElementById('pnlTable');
-  if (!d) { t.innerHTML='<tr><td class="empty" style="padding:20px">No data</td></tr>'; return; }
+  if (!d) { t.innerHTML='<tr><td class="empty" style="padding:20px">No data</td></tr>'; const pv=document.getElementById('pnl-verdict'); if(pv)pv.textContent='No data for this period.'; return; }
   const rows = [
     {s:'INCOME'},{l:'Gross Salary',v:d.salary},{l:'Bonus / Commission',v:d.bonus},{l:'Other Income',v:d.otherincome},{l:'TOTAL GROSS INCOME',v:d.inc,tot:true},
     {s:'PRE-TAX DEDUCTIONS'},{l:'401(k) Contribution',v:d.k401_contrib},{l:'HSA Contribution',v:d.hsa_contrib},{l:'TOTAL PRE-TAX DEDUCTIONS',v:d.preTaxContribs,tot:true},
@@ -2582,6 +2638,10 @@ function updatePnL(d) {
     rows.map(r=>r.s?`<tr class="sec"><td colspan="2">${r.s}</td></tr>`:
       `<tr class="${r.tot?'tot':''}"><td>${r.l}</td><td class="${r.tot?cc(r.v):''}">${r.isRate?pct(r.v):fmt(r.v)}</td></tr>`
     ).join('')+'</tbody>';
+
+  const pv = document.getElementById('pnl-verdict');
+  if (pv) { const Bk = x => '<b style="color:var(--text)">'+x+'</b>';
+    pv.innerHTML = `In ${MONTHS[curMonth]}, ${Bk(fmt(d.inc))} came in. After ${Bk(fmt(d.totalTaxes))} in taxes and ${Bk(fmt(d.spend))} spent, you kept <b style="color:var(--accent)">${fmt(d.netCash, true)}</b> — a ${Bk(pct(d.trueSavRate))} savings rate.`; }
 
   drawWaterfallChart();
 }
@@ -2618,12 +2678,12 @@ function drawWaterfallChart() {
 
   // Waterfall steps: gross (full), then floating deductions, then net cash (full)
   const steps = [
-    { label:'Gross',     sub:'Income',     delta:g.inc,      kind:'start', color:'#4d9fff' },
-    { label:'Taxes',     sub:'Paid',       delta:-g.taxes,   kind:'flow',  color:'#dc2626' },
-    { label:'Pre-Tax',   sub:'Invested',   delta:-g.preTax,  kind:'flow',  color:'#0891b2' },
-    { label:'Post-Tax',  sub:'Invested',   delta:-g.postTax, kind:'flow',  color:'#7c3aed' },
-    { label:'Spending',  sub:'Spent',      delta:-g.spend,   kind:'flow',  color:'#d97706' },
-    { label:'Net Cash',  sub:'Remaining',  delta:netCash,    kind:'end',   color:netCash>=0?'#16a34a':'#dc2626' },
+    { label:'Gross',     sub:'Income',     delta:g.inc,      kind:'start', color:'#5980a6' },
+    { label:'Taxes',     sub:'Paid',       delta:-g.taxes,   kind:'flow',  color:'#b0413a' },
+    { label:'Pre-Tax',   sub:'Invested',   delta:-g.preTax,  kind:'flow',  color:'#4d7a86' },
+    { label:'Post-Tax',  sub:'Invested',   delta:-g.postTax, kind:'flow',  color:'#6b6a8f' },
+    { label:'Spending',  sub:'Spent',      delta:-g.spend,   kind:'flow',  color:'#9a7b2e' },
+    { label:'Net Cash',  sub:'Remaining',  delta:netCash,    kind:'end',   color:netCash>=0?'#3f7a3f':'#b0413a' },
   ];
 
   const pL = 56, pR = 12, pT = 14, pB = 40, cW = W - pL - pR, cH = H - pT - pB;
@@ -2652,7 +2712,7 @@ function drawWaterfallChart() {
     }
     // value label above/below bar
     ctx.font = '9px DM Mono,monospace'; ctx.textAlign = 'center';
-    ctx.fillStyle = st.kind === 'flow' ? '#64748b' : st.color;
+    ctx.fillStyle = st.kind === 'flow' ? '#8a8a96' : st.color;
     const valTxt = (st.delta >= 0 ? '' : '−') + fmt(Math.abs(st.delta));
     ctx.fillText(valTxt, cx, yA - 4);
     // x label (two lines)
@@ -2716,7 +2776,7 @@ function updateBalance(d) {
   const at = document.getElementById('assetsTbl'), lt = document.getElementById('liabTbl');
   if (!at || !lt) return;
   const noData = '<tbody><tr><td style="padding:20px;color:var(--text3)">No data</td></tr></tbody>';
-  if (!d) { at.innerHTML = noData; lt.innerHTML = noData; return; }
+  if (!d) { at.innerHTML = noData; lt.innerHTML = noData; const bv=document.getElementById('bal-verdict'); if(bv)bv.textContent='No data for this period.'; return; }
   const mkR = rows => '<tbody>' + rows.map(r => r.s
     ? `<tr class="sec"><td colspan="2">${r.s}</td></tr>`
     : `<tr class="${r.tot?'tot':''}"><td>${r.l}</td><td class="${r.tot?cc(r.v):''}">${fmt(r.v)}</td></tr>`
@@ -2729,6 +2789,10 @@ function updateBalance(d) {
     {s:'LIABILITIES'},{l:'Credit Cards',v:d.cc||0},{l:'Student Loans',v:d.studentloan||0},{l:'Other Debt',v:d.otherdebt||0},{l:'TOTAL LIABILITIES',v:d.liab,tot:true},
     {s:'NET WORTH'},{l:'NET WORTH',v:d.nw,tot:true},
   ]);
+  const bv = document.getElementById('bal-verdict');
+  if (bv) { const Bk = x => '<b style="color:var(--text)">'+x+'</b>';
+    const invPct = d.assets > 0 ? d.invested/d.assets : 0;
+    bv.innerHTML = `You hold ${Bk(fmt(d.assets))} in assets against ${Bk(fmt(d.liab))} in debt — net worth ${Bk(fmt(d.nw))}, with <b style="color:var(--accent)">${pct(invPct,0)}</b> of assets invested for growth.`; }
 }
 
 // ── SPENDING ─────────────────────────────────────────────
@@ -2738,7 +2802,7 @@ function updateSpending(d) {
   document.getElementById('spendAvg').textContent = d?fmt(d.spend/CATS.length):'—';
   document.getElementById('spendPct').textContent = d&&d.inc>0?pct(d.spend/d.inc):'—';
   const t=document.getElementById('spendTbl');
-  if (!d){t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>';return;}
+  if (!d){t.innerHTML='<tr><td style="padding:20px;color:var(--text3)">No data</td></tr>';const sv=document.getElementById('spend-verdict');if(sv)sv.textContent='No data for this period.';return;}
   const sorted=[...CATS].sort((a,b)=>(d.spending[b]||0)-(d.spending[a]||0));
   t.innerHTML='<thead><tr><th>#</th><th>Category</th><th>Amount</th><th>% of Spend</th><th>% of Income</th></tr></thead><tbody>'+
     sorted.map((c,i)=>{
@@ -2746,6 +2810,10 @@ function updateSpending(d) {
       return `<tr><td class="dim">${i+1}</td><td>${c}</td><td>${fmt(a)}</td><td>${d.spend>0?pct(a/d.spend):'—'}</td><td>${d.inc>0?pct(a/d.inc):'—'}</td></tr>`;
     }).join('')+
     `<tr class="tot"><td></td><td>TOTAL</td><td>${fmt(d.spend)}</td><td>100%</td><td>${d.inc>0?pct(d.spend/d.inc):'—'}</td></tr></tbody>`;
+  const sv = document.getElementById('spend-verdict');
+  if (sv) { const Bk = x => '<b style="color:var(--text)">'+x+'</b>';
+    const top = sorted[0], topA = d.spending[top]||0;
+    sv.innerHTML = `You spent ${Bk(fmt(d.spend))} this month, <b style="color:var(--accent)">${d.inc>0?pct(d.spend/d.inc,0):'—'}</b> of income. ${Bk(top)} led at ${Bk(fmt(topA))}${d.spend>0?' ('+pct(topA/d.spend,0)+' of spend)':''}.`; }
   updateYoY(d);
   // Populate category selector if empty, then draw trend
   const sel = document.getElementById('catTrendSel');
@@ -2853,7 +2921,7 @@ function drawNWChart() {
   const cW = W - pL - pR, cH = H - pT - pB;
 
   const LAYERS = ['checking','savings','ira','k401','brokerage','hsa','otherassets'];
-  const COLORS = { checking:'#00d4aa', savings:'#f5c842', ira:'#7b5ea7', k401:'#4d9fff', brokerage:'#00c4c4', hsa:'#ff9f6b', otherassets:'#64748b' };
+  const COLORS = { checking:'#c2d0de', savings:'#a7bad0', ira:'#8ba4c1', k401:'#6f8fb2', brokerage:'#5980a6', hsa:'#456a8f', otherassets:'#9a9894' };
   const LABELS = { checking:'Checking', savings:'Savings', ira:'IRA / Roth', k401:'401(k)', brokerage:'Brokerage', hsa:'HSA', otherassets:'Other' };
 
   const totals = points.map(p => LAYERS.reduce((s,k) => s + p[k], 0));
@@ -2872,7 +2940,7 @@ function drawNWChart() {
   // Grid lines + Y axis labels
   for (let v = yMin; v <= yMax + step * 0.01; v += step) {
     const gy = ty(v);
-    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+    ctx.strokeStyle = '#cfcfd3'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
     ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
     ctx.fillText('$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1000).toFixed(0)+'k'), pL - 4, gy + 3);
@@ -2890,12 +2958,12 @@ function drawNWChart() {
     });
     if (p.debt > 0) {
       const yNW = ty(p.nw), yAss = ty(cumV);
-      if (yNW > yAss) { ctx.fillStyle = '#dc2626'; ctx.fillRect(bX(i), yAss, bW, yNW - yAss); }
+      if (yNW > yAss) { ctx.fillStyle = '#b0413a'; ctx.fillRect(bX(i), yAss, bW, yNW - yAss); }
     }
   });
 
   // Net worth line
-  ctx.beginPath(); ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.strokeStyle = '#b08d4f'; ctx.lineWidth = 1.5;
   points.forEach((p, i) => { const x = bX(i) + bW/2, y = ty(p.nw); i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); });
   ctx.stroke();
 
@@ -2909,7 +2977,7 @@ function drawNWChart() {
   });
 
   // Legend: one centred row when it fits, otherwise wrapped rows that stay inside the plot
-  const legendItems = [...LAYERS.map(k => ({c:COLORS[k], l:LABELS[k]})), {c:'#ff4d6a', l:'Debt'}, {c:'#f5c842', l:'Net Worth', line:true}];
+  const legendItems = [...LAYERS.map(k => ({c:COLORS[k], l:LABELS[k]})), {c:'#b0705a', l:'Debt'}, {c:'#b08d4f', l:'Net Worth', line:true}];
   ctx.font = '8px DM Mono,monospace'; ctx.textAlign = 'left';
   const lWidths = legendItems.map(it => 14 + ctx.measureText(it.l).width + 10);
   const totalLW = lWidths.reduce((a, b) => a + b, 0);
@@ -2930,14 +2998,14 @@ function drawNWChart() {
     row.items.forEach(({ it, w }) => {
       if (it.line) { ctx.strokeStyle = it.c; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(lx, lY-3); ctx.lineTo(lx+12, lY-3); ctx.stroke(); }
       else { ctx.fillStyle = it.c; ctx.fillRect(lx, lY-8, 12, 8); }
-      ctx.fillStyle = '#64748b'; ctx.fillText(it.l, lx+14, lY);
+      ctx.fillStyle = '#8a8a96'; ctx.fillText(it.l, lx+14, lY);
       lx += w;
     });
   });
 
-  registerChart('nwChart', points.map((p, i) => ({ x: bX(i) + bW/2, y: ty(p.nw), color: '#f5c842',
+  registerChart('nwChart', points.map((p, i) => ({ x: bX(i) + bW/2, y: ty(p.nw), color: '#b08d4f',
     label: MONTHS[p.m] + ' ' + p.y, jump: { y: p.y, m: p.m },
-    rows: [['Net worth', fmt(p.nw), '#16a34a'], ['Invested', fmt(p.brokerage + p.k401 + p.ira + p.hsa + p.otherassets)],
+    rows: [['Net worth', fmt(p.nw), '#3f7a3f'], ['Invested', fmt(p.brokerage + p.k401 + p.ira + p.hsa + p.otherassets)],
       ['Cash', fmt(p.checking + p.savings)], ['Debt', p.debt > 0 ? fmt(p.debt) : '—']] })),
     () => drawNWChart());
 }
@@ -3014,6 +3082,11 @@ function updatePlan() {
   set('pl-surplus', fmt(base.rows.reduce((s,r) => s + r.surplus, 0), true));
   set('pl-invested', fmt(annualCtb(base.rows)));
   set('pl-nw', fmt(bEnd.nw));
+  { const pv2 = document.getElementById('pl-verdict');
+    if (pv2) { const Bk = x => '<b style="color:var(--text)">'+x+'</b>';
+      const surplus = base.rows.reduce((s,r)=>s+r.surplus,0);
+      const grow = bEnd.nw - (d ? d.nw : 0);
+      pv2.innerHTML = `On your current path, the next twelve months add ${Bk(fmt(grow, true))} to net worth — ending near <b style="color:var(--accent)">${fmt(bEnd.nw)}</b> — with ${Bk(fmt(surplus, true))} of cash surplus along the way.`; } }
   set('pl-nw-sub', `${fmt(bEnd.nw - (d ? d.nw : 0), true)} from today`);
   set('pl-spend', fmt(base.rows.reduce((s,r) => s + r.spend, 0)/base.rows.length));
   set('pl-assum', `salary from last 3 months · spending from same month in prior years · effective tax ${pct(base.effTax)}`);
@@ -3067,24 +3140,24 @@ function drawForecastChart() {
   rows.forEach((r, i) => { const h = Math.abs(r.surplus)/sMax*(cH*0.28);
     ctx.fillStyle = r.surplus >= 0 ? 'rgba(22,163,74,0.35)' : 'rgba(220,38,38,0.35)';
     ctx.fillRect(bX(i), r.surplus >= 0 ? zero - h : zero, bW, h); });
-  ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.beginPath();
+  ctx.strokeStyle = '#5980a6'; ctx.lineWidth = 2; ctx.beginPath();
   rows.forEach((r, i) => { const x = bX(i)+bW/2, y2 = ty(r.nw); i === 0 ? ctx.moveTo(x, y2) : ctx.lineTo(x, y2); });
   ctx.stroke();
-  ctx.fillStyle = '#2563eb'; ctx.beginPath();
+  ctx.fillStyle = '#5980a6'; ctx.beginPath();
   ctx.arc(bX(rows.length-1)+bW/2, ty(rows[rows.length-1].nw), 3.5, 0, Math.PI*2); ctx.fill();
   ctx.font = '9px DM Mono,monospace'; ctx.textAlign = 'right';
   ctx.fillText(fmt(rows[rows.length-1].nw), bX(rows.length-1)+bW/2-6, ty(rows[rows.length-1].nw)-6);
   drawXAxisLabels(ctx, rows.map(r => r.label), pT, cH, i => bX(i)+bW/2);
   ctx.textAlign = 'left'; ctx.font = '8px DM Mono,monospace';
   ctx.fillStyle = 'rgba(22,163,74,0.55)'; ctx.fillRect(pL, H-9, 12, 7);
-  ctx.fillStyle = '#64748b'; ctx.fillText('Monthly cash surplus', pL+15, H-2);
-  ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1.5;
+  ctx.fillStyle = '#8a8a96'; ctx.fillText('Monthly cash surplus', pL+15, H-2);
+  ctx.strokeStyle = '#5980a6'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(pL+130, H-6); ctx.lineTo(pL+142, H-6); ctx.stroke();
-  ctx.fillStyle = '#64748b'; ctx.fillText('Projected net worth', pL+145, H-2);
-  registerChart('forecastChart', rows.map((r, i) => ({ x: bX(i)+bW/2, y: ty(r.nw), color:'#2563eb', label: r.label,
-    rows: [['Projected net worth', fmt(r.nw), '#2563eb'], ['Income', fmt(r.inc)], ['Spending', fmt(r.spend)],
+  ctx.fillStyle = '#8a8a96'; ctx.fillText('Projected net worth', pL+145, H-2);
+  registerChart('forecastChart', rows.map((r, i) => ({ x: bX(i)+bW/2, y: ty(r.nw), color:'#5980a6', label: r.label,
+    rows: [['Projected net worth', fmt(r.nw), '#5980a6'], ['Income', fmt(r.inc)], ['Spending', fmt(r.spend)],
       ['Taxes', fmt(r.taxes)], ['Invested', fmt(r.pre+r.post)],
-      ['Cash surplus', fmt(r.surplus, true), r.surplus >= 0 ? '#16a34a' : '#dc2626'], ['Cash balance', fmt(r.cash)]] })),
+      ['Cash surplus', fmt(r.surplus, true), r.surplus >= 0 ? '#3f7a3f' : '#b0413a'], ['Cash balance', fmt(r.cash)]] })),
     () => drawForecastChart());
 }
 
@@ -3131,7 +3204,7 @@ function drawMCChart() {
   bands.forEach((b, i) => i === 0 ? ctx.moveTo(tx(i), ty(b.p90)) : ctx.lineTo(tx(i), ty(b.p90)));
   for (let i = n-1; i >= 0; i--) ctx.lineTo(tx(i), ty(bands[i].p10));
   ctx.closePath(); ctx.fillStyle = 'rgba(37,99,235,0.14)'; ctx.fill();
-  ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.beginPath();
+  ctx.strokeStyle = '#5980a6'; ctx.lineWidth = 2; ctx.beginPath();
   bands.forEach((b, i) => i === 0 ? ctx.moveTo(tx(i), ty(b.p50)) : ctx.lineTo(tx(i), ty(b.p50))); ctx.stroke();
   ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.setLineDash([6,4]); ctx.beginPath();
   bands.forEach((b, i) => { const v = FIRE_CONFIG.fire*Math.pow(1.02, i); i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
@@ -3140,7 +3213,7 @@ function drawMCChart() {
   if (goalIdx > 0 && goalIdx < n) {
     ctx.strokeStyle = 'rgba(245,158,11,0.6)'; ctx.lineWidth = 1; ctx.setLineDash([2,3]);
     ctx.beginPath(); ctx.moveTo(tx(goalIdx), pT); ctx.lineTo(tx(goalIdx), pT+cH); ctx.stroke(); ctx.setLineDash([]);
-    ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#d97706'; ctx.textAlign = 'center';
+    ctx.font = '8px DM Mono,monospace'; ctx.fillStyle = '#9a7b2e'; ctx.textAlign = 'center';
     ctx.fillText('goal age ' + FIRE_CONFIG.retirementAge, tx(goalIdx), pT+8);
   }
   ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'center';
@@ -3153,10 +3226,10 @@ function drawMCChart() {
   document.getElementById('mc-note').textContent =
     `600 paths · ${pct(FIRE_CONFIG.returnRate, 0)} mean, 15% volatility · ${fmt(FIRE_CONFIG.annualContribution)}/yr contributed · ` +
     `end-of-horizon range ${fmt(last.p10)} / ${fmt(last.p50)} / ${fmt(last.p90)}`;
-  registerChart('mcChart', bands.map((b, i) => ({ x: tx(i), y: ty(b.p50), color:'#2563eb',
+  registerChart('mcChart', bands.map((b, i) => ({ x: tx(i), y: ty(b.p50), color:'#5980a6',
     label: `Age ${Math.round(getAge()+i)} · ${_now.getFullYear()+i}`,
-    rows: [['Median (p50)', fmt(b.p50), '#2563eb'], ['Downside (p10)', fmt(b.p10), '#dc2626'],
-      ['Upside (p90)', fmt(b.p90), '#16a34a'], ['FIRE # then', fmt(FIRE_CONFIG.fire*Math.pow(1.02, i))]] })),
+    rows: [['Median (p50)', fmt(b.p50), '#5980a6'], ['Downside (p10)', fmt(b.p10), '#b0413a'],
+      ['Upside (p90)', fmt(b.p90), '#3f7a3f'], ['FIRE # then', fmt(FIRE_CONFIG.fire*Math.pow(1.02, i))]] })),
     () => drawMCChart());
 }
 
@@ -3364,7 +3437,7 @@ function drawGrid(ctx, pL, pT, cW, cH, yMin, yMax, step, isPercent) {
   const ty = v => pT + cH - ((v - yMin) / yRng) * cH;
   for (let v = yMin; v <= yMax + step * 0.01; v += step) {
     const gy = ty(v);
-    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+    ctx.strokeStyle = '#cfcfd3'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pL, gy); ctx.lineTo(pL + cW, gy); ctx.stroke();
     ctx.font = '9px DM Mono,monospace'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
     const av = Math.abs(v);
@@ -3404,16 +3477,16 @@ function drawIncSpendChart(points) {
     vals.forEach((v, i) => { i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
     ctx.stroke();
   };
-  drawLine(incV, '#4d9fff');
-  drawLine(spV, '#ff4d6a');
+  drawLine(incV, '#5980a6');
+  drawLine(spV, '#b0705a');
   drawXAxisLabels(ctx, points.map(p => p.label), pT, cH, tx);
   ctx.font = '8px DM Mono,monospace'; ctx.textAlign = 'left';
   const lY = H - 5;
-  [['#4d9fff', 'Income'], ['#ff4d6a', 'Spending']].forEach(([c, l], i) => {
+  [['#5980a6', 'Income'], ['#b0705a', 'Spending']].forEach(([c, l], i) => {
     const lx = pL + i * 90;
     ctx.strokeStyle = c; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(lx, lY - 3); ctx.lineTo(lx + 12, lY - 3); ctx.stroke();
-    ctx.fillStyle = '#64748b'; ctx.fillText(l, lx + 14, lY);
+    ctx.fillStyle = '#8a8a96'; ctx.fillText(l, lx + 14, lY);
   });
 }
 
@@ -3441,7 +3514,7 @@ function drawSavRateChart(points) {
     ctx.fillStyle = 'rgba(123,94,167,0.15)'; ctx.fill();
   }
   // Line
-  ctx.beginPath(); ctx.strokeStyle = '#7b5ea7'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.strokeStyle = '#8a7a9a'; ctx.lineWidth = 1.5;
   vals.forEach((v, i) => { if (v === null) return; i === firstI ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
   ctx.stroke();
   if (yMin < 0) {
@@ -3470,7 +3543,7 @@ function drawNWDeltaChart(points) {
   const bX = i => pL + (i + 0.5) * (cW / vals.length) - bW / 2;
   const zeroY = ty(0);
   vals.forEach((v, i) => {
-    ctx.fillStyle = v >= 0 ? '#00d4aa' : '#ff4d6a';
+    ctx.fillStyle = v >= 0 ? '#6a8f6a' : '#b0705a';
     ctx.fillRect(bX(i), v >= 0 ? ty(v) : zeroY, bW, Math.max(1, Math.abs(ty(v) - zeroY)));
   });
   ctx.strokeStyle = '#3a3a4a'; ctx.lineWidth = 1;
@@ -3512,6 +3585,10 @@ function updateTrends() {
   document.getElementById('tr-avgsav').textContent = avgSav !== null ? pct(avgSav) : '—';
   document.getElementById('tr-bestnw').textContent = bestGain !== null ? fmt(bestGain, true) : '—';
   document.getElementById('tr-bestnw-sub').textContent = bestLabel;
+  const tv = document.getElementById('tr-verdict');
+  if (tv && points.length >= 2) { const Bk = x => '<b style="color:var(--text)">'+x+'</b>';
+    const nwG = points[points.length-1].nw - points[0].nw;
+    tv.innerHTML = `Over the last ${Bk(points.length + ' months')}, net worth ${nwG>=0?'grew':'fell'} ${Bk(fmt(Math.abs(nwG)))}. Income averaged ${Bk((avgInc!==null?fmt(avgInc):'—')+'/mo')}, and you saved <b style="color:var(--accent)">${avgSav!==null?pct(avgSav):'—'}</b> on average.`; }
   drawIncSpendChart(points);
   drawSavRateChart(points);
   drawNWDeltaChart(points);
@@ -3657,7 +3734,7 @@ function drawCatTrendChart() {
     ctx.lineTo(tx(lastI), ty(0)); ctx.lineTo(tx(firstI), ty(0)); ctx.closePath();
     ctx.fillStyle = 'rgba(255,77,106,0.12)'; ctx.fill();
   }
-  ctx.beginPath(); ctx.strokeStyle = '#ff4d6a'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.strokeStyle = '#b0705a'; ctx.lineWidth = 1.5;
   pts.forEach((p, i) => { if (p.v === null) return; i === firstI ? ctx.moveTo(tx(i), ty(p.v)) : ctx.lineTo(tx(i), ty(p.v)); });
   ctx.stroke();
   // Avg line
@@ -3718,10 +3795,10 @@ function drawContribGrowthChart() {
   ctx.fillStyle = 'rgba(0,212,170,0.30)'; ctx.fill();
 
   // Lines
-  ctx.beginPath(); ctx.strokeStyle = '#4d9fff'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.strokeStyle = '#5980a6'; ctx.lineWidth = 1.5;
   series.forEach((s, i) => i === 0 ? ctx.moveTo(tx(i), ty(s.contrib)) : ctx.lineTo(tx(i), ty(s.contrib)));
   ctx.stroke();
-  ctx.beginPath(); ctx.strokeStyle = '#00d4aa'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.strokeStyle = '#6a8f6a'; ctx.lineWidth = 1.5;
   series.forEach((s, i) => i === 0 ? ctx.moveTo(tx(i), ty(s.total)) : ctx.lineTo(tx(i), ty(s.total)));
   ctx.stroke();
 
@@ -3730,7 +3807,7 @@ function drawContribGrowthChart() {
   [['rgba(77,159,255,0.7)','Contributions'],['rgba(0,212,170,0.7)','Market Gains']].forEach(([c,l],i) => {
     const lx = pL + i * 110;
     ctx.fillStyle = c; ctx.fillRect(lx, H - 9, 12, 7);
-    ctx.fillStyle = '#64748b'; ctx.fillText(l, lx + 15, H - 2);
+    ctx.fillStyle = '#8a8a96'; ctx.fillText(l, lx + 15, H - 2);
   });
 }
 
@@ -3751,7 +3828,7 @@ function drawAllocHistChart() {
   }
   if (pts.length < 2) return;
   const LAYERS2 = ['checking','savings','brokerage','k401','ira','hsa','otherassets'];
-  const COLS2 = { checking:'#5cb85c', savings:'#e8943a', brokerage:'#c87a00', k401:'#2e7d32', ira:'#7b5ea7', hsa:'#00c4c4', otherassets:'#4d9fff' };
+  const COLS2 = { checking:'#c2d0de', savings:'#a7bad0', brokerage:'#5980a6', k401:'#6f8fb2', ira:'#8ba4c1', hsa:'#456a8f', otherassets:'#9a9894' };
   const totals = pts.map(p => LAYERS2.reduce((s,k)=>s+p[k],0));
   const rawMax = Math.max(...totals, 1);
   const step = niceStep(rawMax * 1.05, 5);
@@ -3773,11 +3850,11 @@ function drawAllocHistChart() {
   drawXAxisLabels(ctx, pts.map(p => p.label), pT, cH, i => bX(i) + bW / 2);
   // Legend
   ctx.font = '8px DM Mono,monospace'; ctx.textAlign = 'left';
-  const lItems = [['#5cb85c','Cash'],['#c87a00','Brok'],['#2e7d32','401k'],['#7b5ea7','IRA'],['#00c4c4','HSA'],['#4d9fff','Other']];
+  const lItems = [['#c2d0de','Cash'],['#5980a6','Brok'],['#6f8fb2','401k'],['#8ba4c1','IRA'],['#456a8f','HSA'],['#9a9894','Other']];
   lItems.forEach(([c,l],i) => {
     const lx = pL + i * 48;
     ctx.fillStyle = c; ctx.fillRect(lx, H - 9, 8, 7);
-    ctx.fillStyle = '#64748b'; ctx.fillText(l, lx + 10, H - 2);
+    ctx.fillStyle = '#8a8a96'; ctx.fillText(l, lx + 10, H - 2);
   });
 }
 
@@ -3904,7 +3981,7 @@ function drawIncGrowthChart() {
   annualInc.forEach((v, i) => {
     if (v === null) return;
     const isYTD = years[i] === nowY;
-    ctx.fillStyle = isYTD ? 'rgba(77,159,255,0.45)' : '#4d9fff';
+    ctx.fillStyle = isYTD ? 'rgba(77,159,255,0.45)' : '#5980a6';
     const barTop = ty(v), barH = pT + cH - barTop;
     ctx.fillRect(bX(i), barTop, bW, barH);
 
@@ -3912,12 +3989,12 @@ function drawIncGrowthChart() {
     if (i > 0 && annualInc[i-1] !== null && !isYTD) {
       const pctV = (v - annualInc[i-1]) / annualInc[i-1];
       ctx.font='9px DM Mono,monospace'; ctx.textAlign='center';
-      ctx.fillStyle = pctV >= 0 ? '#00d4aa' : '#ff4d6a';
+      ctx.fillStyle = pctV >= 0 ? '#6a8f6a' : '#b0705a';
       ctx.fillText((pctV>=0?'+':'')+(pctV*100).toFixed(1)+'%', bX(i)+bW/2, barTop-4);
     }
 
     // Year label
-    ctx.font='9px DM Mono,monospace'; ctx.fillStyle='#64748b'; ctx.textAlign='center';
+    ctx.font='9px DM Mono,monospace'; ctx.fillStyle='#8a8a96'; ctx.textAlign='center';
     ctx.fillText(labels[i], bX(i)+bW/2, pT+cH+13);
   });
 }

@@ -17,9 +17,12 @@ A single-file personal finance dashboard deployed on GitHub Pages. It tracks inc
 ## Backend
 - Google Sheets via Google Apps Script web app
 - Script URL is stored in `const SCRIPT_URL` near the top of the JS section
-- API supports: `GET ?action=getAll`, `GET ?action=get&year=Y&month=M`, `POST {action:'save', year, month, data}`, `POST {action:'delete', year, month}`
+- API supports: `GET ?action=getAll`, `GET ?action=hasApiKey`, `POST {action:'save', year, month, data}`, `POST {action:'delete', year, month}`, `POST {action:'setApiKey', key}`, `POST {action:'parseStub', pdf}`
+- Every request carries `token` (GET query param / POST body field) — `API_TOKEN`, derived at unlock as SHA-256 of `'pfm-api-v1:' + password` and kept in `sessionStorage`. The Apps Script checks it against its `PFM_TOKEN` script property. Always call the backend through `apiGet()` / `apiPost()`, never raw `fetch(SCRIPT_URL)`
+- The Anthropic key lives only in the Apps Script; pay stubs are parsed server-side via `parseStub`. Never send the key to the browser
 - Data stored as rows: `year (int) | month (int, 0-indexed) | data (JSON string)`
 - All data loaded into `allData` object on init, keyed as `year_month`
+- Settings (FIRE config, mortgage inputs) are saved as a sentinel row: year `9999` (`SETTINGS_YEAR`), month 0
 
 ## Data Model
 Each month's data object looks like:
@@ -50,13 +53,13 @@ Each month's data object looks like:
 Rent, Utilities, Transportation, Groceries, Restaurants, Coffee / Snacks, Alcohol, Entertainment, Fitness, Clothing, Personal, Gas, Household, Travel, Gifts, Medical/Dental, Other
 
 ## Design System
-- Font: DM Mono (monospace), DM Sans (body) — loaded from Google Fonts
-- Background palette: `#0a0a0f` (bg), `#111118` (bg2), `#1a1a24` (bg3), `#222230` (bg4)
-- Border: `#2a2a3a` (border), `#3a3a4a` (border2)
-- Text: `#e8e8f0` (text), `#9090a8` (text2), `#5a5a72` (text3)
-- Accents: `#00d4aa` (green), `#ff4d6a` (red), `#f5c842` (yellow), `#4d9fff` (blue), `#7b5ea7` (purple), `#00c4c4` (teal)
-- High-density layout — tight padding, small font sizes, minimal whitespace
+- Fonts: Barlow (body), Barlow Condensed (headings/KPIs), DM Mono (numbers, labels) — loaded from Google Fonts
+- Light, muted palette. Background: `#f4f3f0` (bg), `#faf9f6` (bg2), `#efeeea` (bg3), `#e6e5e1` (bg4); border `#e4e2dd` / `#d0cec8`
+- Text: `#16181a` (text), `#55555c` (text2), `#8a8a88` (text3)
+- Accents: `#5980a6` (blue/accent), `#2f6a43` (green), `#b0413a` (red), `#8a6d2e` (yellow), `#5a6b74` (teal); spending series `#b0705a`
+- Square corners, high-density layout — tight padding, small font sizes, minimal whitespace
 - All colors defined as CSS variables in `:root`
+- Reusable UI: `.seg` segmented toggles (set state, then `segOn(id, dataKey, value)`), `.perf-grid`/`.perf-cell` stat rows, `.verdict` one-line summaries, `.insight` cards, `registerChart()` for canvas hover tooltips and click-to-open-month
 
 ## Git Workflow
 - **Commit directly to `main`** — do not create feature branches or PRs
@@ -64,13 +67,15 @@ Rent, Utilities, Transportation, Groceries, Restaurants, Coffee / Snacks, Alcoho
 - GitHub Pages auto-deploys from `main`; changes are live within ~30 seconds of push
 
 ## Tabs / Sections
-1. **Overview** — KPI cards, net worth trend chart (canvas), asset allocation bars, savings rate, FIRE progress bars, milestones
-2. **FIRE** — settings panel, KPI cards, FIRE goals, investment milestones, CMGR, SWR projection matrix, Coast FI table
-3. **P&L** — income statement table, annual P&L comparison
-4. **Balance Sheet** — assets table, liabilities + net worth table
-5. **Spending** — ranked category breakdown, YTD comparison, category trend chart
-6. **Trends** — 24-month charts, YoY spending table, income growth, wealth composition
-7. **Data Entry** — form to input monthly data, saves to Google Sheets
+1. **Overview** — headline strip, household summary (optional), insights, KPI cards, net worth trend (nominal/today's $), allocation, milestones with pacing
+2. **Review** — month-end close: verdict, vs prior / 12-month average, category deltas, flags
+3. **FIRE** — settings, milestones, growth projection (return scenarios, goal path), FIRE number check vs actual spending, bridge to 59½, tax-bucket mix, CMGR, SWR matrix, Coast FI, contribution impact
+4. **Plan** — 12-month cash-flow forecast, scenario planner, Monte Carlo, mortgage, tax-advantaged space, brackets
+5. **P&L** — Sankey, income waterfall, income statement, annual P&L
+6. **Balance Sheet** — assets, liabilities, monthly net-worth reconciliation
+7. **Spending** — breakdown, essentials vs discretionary, YTD comparison, heatmap, category trend
+8. **Trends** — trailing-12 KPIs, investment performance (TWR/IRR), income vs spending, savings rate, NW change, YoY, income growth, wealth composition
+9. **Data Entry** — form, pay stub import, backfill, saves to Google Sheets
 
 ## Key JS Functions
 - `init()` — loads all data from Sheets, builds UI
@@ -84,7 +89,9 @@ Rent, Utilities, Transportation, Groceries, Restaurants, Coffee / Snacks, Alcoho
 - `showToast(msg, type)` — shows ok/err toast notification
 
 ## FIRE Config
-Stored in `FIRE_CONFIG` object near top of JS. User can edit via settings panel in FIRE tab. Key fields: `currentAge`, `withdrawalRate`, `returnRate`, `retirementAge`, `annualContribution`, `annualRetirementSpend`, `leanFire`, `fire`, `fatFire`, `coastAge`, `coastFiAt65`, `cmgrTotal`, `cmgrLtm`, `saved2025`, `savings2025Rate`.
+Stored in `FIRE_CONFIG` object near top of JS; overridden on load by the saved settings row (`loadSettings()`), saved by `saveSettings()`. User can edit via settings panel in FIRE tab. Key fields: `dob` (age is derived live), `withdrawalRate`, `returnRate`, `retirementAge`, `annualContribution` (via `effectiveContribution()`: LTM actuals or `ctbManual` per `ctbMode`), `annualRetirementSpend`, `leanFire`, `fire`, `fatFire`, `coastAge`, `partnerInclude`, `partnerNw`, `inflationRate` (use this — never hardcode 2%), `healthcarePre65`, `iraRothPct`, `k401RothPct`, `rothBasisPrior`. Any new persisted field must also be added to the `saveSettings()` payload.
+
+Spending categories in `ESSENTIAL_CATS` count as essentials; all others are discretionary.
 
 ## Owner Context
 - Dan, age 29, works in financial due diligence at Deloitte

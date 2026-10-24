@@ -1121,6 +1121,26 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
             <input class="fi" id="anthropicKey" type="password" placeholder="Anthropic API key (sk-ant-…)" style="flex:1;font-size:11px">
             <button class="btn" onclick="saveApiKey()">Save Key</button>
             <button class="btn btn-ghost" onclick="copyApiToken()" title="One-time setup: paste this into the Apps Script's PFM_TOKEN script property">Copy Sheets Token</button>
+            <button class="btn btn-ghost" onclick="togglePwChange()">Change Password</button>
+          </div>
+          <div id="pwChange" style="display:none;margin-top:8px;padding:9px 10px;border:1px solid var(--border);background:var(--bg3)">
+            <div class="fsec" style="margin-top:0">Change Password</div>
+            <div id="pwc-step1">
+              <div class="form-grid">
+                <div class="fg"><label class="fl">New Password</label><input class="fi" id="pwc-new" type="password" autocomplete="new-password"></div>
+                <div class="fg"><label class="fl">Confirm New Password</label><input class="fi" id="pwc-confirm" type="password" autocomplete="new-password"></div>
+                <div class="fg"><label class="fl">&nbsp;</label><button class="btn btn-primary" onclick="pwcGenerate()">Create New Token</button></div>
+              </div>
+              <div class="kpi-sub" style="line-height:1.5">Use at least 14 characters. Four unrelated words (e.g. <i>lantern-oak-pepper-river</i>) is long, and easy to type on a phone.</div>
+            </div>
+            <div id="pwc-step2" style="display:none;font-size:11px;color:var(--text2);line-height:1.7">
+              <b style="color:var(--text)">1.</b> Copy this new token:
+              <div style="display:flex;gap:6px;margin:4px 0 8px"><input class="fi" id="pwc-token" readonly style="flex:1;font-size:10px" onclick="this.select()"><button class="btn" onclick="pwcCopy()">Copy</button></div>
+              <b style="color:var(--text)">2.</b> In Apps Script: Project Settings (gear icon) &#8594; Script properties &#8594; click <b>Edit script properties</b> &#8594; replace the value of <b>PFM_TOKEN</b> with the new token &#8594; <b>Save script properties</b>. No redeploy needed.<br>
+              <b style="color:var(--text)">3.</b> Come back and click: <button class="btn btn-primary" style="margin-left:4px" onclick="pwcVerify()">I've Updated It</button>
+              <button class="btn btn-ghost" style="margin-left:4px" onclick="pwcReset()">Start Over</button>
+              <div id="pwc-status" style="margin-top:6px"></div>
+            </div>
           </div>
         </div>
         <div class="entry-toolbar">
@@ -1416,6 +1436,46 @@ function authFailed() {
   document.getElementById('pwOverlay').style.display = '';
   document.getElementById('pwErr').textContent = 'Session expired — enter your password again';
 }
+// ── CHANGE PASSWORD ──────────────────────────────────────
+// A new password means a new token. The user pastes it into the Apps Script's PFM_TOKEN
+// property; once it works there, the old password stops working.
+let _pwcToken = '';
+function togglePwChange() { const el = document.getElementById('pwChange'); el.style.display = el.style.display === 'none' ? '' : 'none'; pwcReset(); }
+function pwcReset() {
+  _pwcToken = '';
+  ['pwc-new','pwc-confirm','pwc-token'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('pwc-step1').style.display = ''; document.getElementById('pwc-step2').style.display = 'none';
+  document.getElementById('pwc-status').textContent = '';
+  document.getElementById('pwc-step2').querySelectorAll('button').forEach(b => b.disabled = false);
+}
+async function pwcGenerate() {
+  const a = document.getElementById('pwc-new').value, b = document.getElementById('pwc-confirm').value;
+  if (a.length < 14) { showToast('Use at least 14 characters', 'err'); return; }
+  if (a !== b) { showToast("The two passwords don't match", 'err'); return; }
+  _pwcToken = await sha256hex('pfm-api-v1:' + a);
+  if (_pwcToken === API_TOKEN) { showToast("That's your current password", 'err'); _pwcToken = ''; return; }
+  document.getElementById('pwc-token').value = _pwcToken;
+  document.getElementById('pwc-step1').style.display = 'none'; document.getElementById('pwc-step2').style.display = '';
+}
+async function pwcCopy() {
+  const el = document.getElementById('pwc-token');
+  try { await navigator.clipboard.writeText(el.value); showToast('New token copied', 'ok'); }
+  catch(e) { el.select(); showToast('Press and hold (or Ctrl+C) to copy', 'err'); }
+}
+async function pwcVerify() {
+  const st = document.getElementById('pwc-status');
+  st.style.color = 'var(--text2)'; st.textContent = 'Checking with Google…';
+  let j = null;
+  try { j = await (await fetch(`${SCRIPT_URL}?action=hasApiKey&token=${encodeURIComponent(_pwcToken)}`)).json(); } catch(e) {}
+  if (!j) { st.style.color = 'var(--red)'; st.textContent = 'Could not reach Google Sheets — try again.'; return; }
+  if (!j.success) { st.style.color = 'var(--red)';
+    st.textContent = "Not active yet. Check that PFM_TOKEN holds exactly the new token (no spaces) and that you clicked Save script properties, then try again."; return; }
+  API_TOKEN = _pwcToken; sessionStorage.setItem('pfm_token', API_TOKEN);
+  st.style.color = 'var(--green)'; st.textContent = 'Password changed. Use the new password from now on — the old one no longer works.';
+  document.getElementById('pwc-step2').querySelectorAll('button').forEach(b => b.disabled = true);
+  showToast('Password changed', 'ok');
+}
+
 async function copyApiToken() {
   try { await navigator.clipboard.writeText(API_TOKEN); showToast('Sheets token copied', 'ok'); }
   catch(e) { showToast('Copy failed — token: ' + API_TOKEN, 'err'); }

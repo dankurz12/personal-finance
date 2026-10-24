@@ -1012,6 +1012,7 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <div style="display:flex;gap:6px;align-items:center">
             <input class="fi" id="anthropicKey" type="password" placeholder="Anthropic API key (sk-ant-…)" style="flex:1;font-size:11px">
             <button class="btn" onclick="saveApiKey()">Save Key</button>
+            <button class="btn btn-ghost" onclick="copyApiToken()" title="One-time setup: paste this into the Apps Script's PFM_TOKEN script property">Copy Sheets Token</button>
           </div>
         </div>
         <div class="entry-toolbar">
@@ -1119,7 +1120,9 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXRZXsZmwxuTLrbLiJmemQea2ml7IE9_lRXBnMVb-x51O5JqYhrsyb1g3SM3_f6bvh/exec';
-let ANTHROPIC_KEY = '';
+// Bearer token for the Apps Script backend, derived from the password at unlock and never stored in the page source
+let API_TOKEN = sessionStorage.getItem('pfm_token') || '';
+let HAS_API_KEY = false;   // the Anthropic key itself stays server-side
 
 const CATS = ['Rent','Utilities','Transportation','Groceries','Restaurants','Coffee / Snacks','Alcohol','Entertainment','Fitness','Clothing','Personal','Gas','Household','Travel','Gifts','Medical/Dental','Other'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1262,26 +1265,37 @@ function setSyncStatus(state, label) {
 }
 
 // ── SHEETS API ──────────────────────────────────────────
-async function sheetsGetAll() {
-  const res = await fetch(`${SCRIPT_URL}?action=getAll`);
-  const json = await res.json();
-  return json.success ? (json.data || {}) : {};
-}
-async function sheetsSave(y, m, data) {
-  const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'save', year: y, month: m, data }) });
-  return (await res.json()).success;
-}
-async function sheetsDelete(y, m) {
-  await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', year: y, month: m }) });
-}
-async function sheetsGetApiKey() {
-  const res = await fetch(`${SCRIPT_URL}?action=getApiKey`);
+// Every call carries API_TOKEN; the Apps Script rejects requests without it.
+async function apiGet(action) {
+  const res = await fetch(`${SCRIPT_URL}?action=${action}&token=${encodeURIComponent(API_TOKEN)}`);
   const j = await res.json();
-  return j.key || '';
+  if (j.error === 'unauthorized') authFailed();
+  return j;
 }
-async function sheetsSetApiKey(key) {
-  const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'setApiKey', key }) });
-  return (await res.json()).success;
+async function apiPost(body) {
+  const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ ...body, token: API_TOKEN }) });
+  const j = await res.json();
+  if (j.error === 'unauthorized') authFailed();
+  return j;
+}
+async function sheetsGetAll() {
+  const j = await apiGet('getAll');
+  return j.success ? (j.data || {}) : {};
+}
+async function sheetsSave(y, m, data) { return (await apiPost({ action: 'save', year: y, month: m, data })).success; }
+async function sheetsDelete(y, m) { await apiPost({ action: 'delete', year: y, month: m }); }
+async function sheetsHasApiKey() {
+  try { return !!(await apiGet('hasApiKey')).hasKey; } catch(e) { return false; }
+}
+async function sheetsSetApiKey(key) { return (await apiPost({ action: 'setApiKey', key })).success; }
+function authFailed() {
+  sessionStorage.removeItem('pfm_token'); API_TOKEN = '';
+  document.getElementById('pwOverlay').style.display = '';
+  document.getElementById('pwErr').textContent = 'Session expired — enter your password again';
+}
+async function copyApiToken() {
+  try { await navigator.clipboard.writeText(API_TOKEN); showToast('Sheets token copied', 'ok'); }
+  catch(e) { showToast('Copy failed — token: ' + API_TOKEN, 'err'); }
 }
 
 // Trailing-twelve-month actual contributions from the entered data (401k + HSA + Roth + brokerage)
@@ -1323,13 +1337,13 @@ async function init() {
   populateFireInputs();
   setSyncStatus('syncing', 'Loading...');
   try {
-    [allData, ANTHROPIC_KEY] = await Promise.all([sheetsGetAll(), sheetsGetApiKey()]);
+    [allData, HAS_API_KEY] = await Promise.all([sheetsGetAll(), sheetsHasApiKey()]);
     setSyncStatus('synced', 'Synced');
   } catch(e) {
     setSyncStatus('error', 'Offline');
     showToast('Could not reach Google Sheets', 'err');
   }
-  if (ANTHROPIC_KEY) document.getElementById('anthropicKey').value = '••••••••';
+  if (HAS_API_KEY) document.getElementById('anthropicKey').value = '••••••••';
   loadSettings();
   populateFireInputs();
   updateMortgage();
@@ -1464,9 +1478,9 @@ async function saveApiKey() {
   if (!raw || raw === '••••••••') return;
   try {
     await sheetsSetApiKey(raw);
-    ANTHROPIC_KEY = raw;
-    document.getElementById('anthropicKey').value = '••••••••';
-    showToast('API key saved', 'ok');
+    HAS_API_KEY = await sheetsHasApiKey();
+    document.getElementById('anthropicKey').value = HAS_API_KEY ? '••••••••' : '';
+    showToast(HAS_API_KEY ? 'API key saved' : 'Key not confirmed — is the updated Apps Script deployed?', HAS_API_KEY ? 'ok' : 'err');
   } catch(e) { showToast('Failed to save key', 'err'); }
 }
 
@@ -1476,7 +1490,7 @@ async function handlePayStubs(rawFiles) {
   const statusEl = document.getElementById('payStubStatus');
   const resultEl = document.getElementById('payStubResult');
   if (!files.length) return;
-  if (!ANTHROPIC_KEY) { showToast('Enter your Anthropic API key first', 'err'); return; }
+  if (!HAS_API_KEY) { showToast('Save your Anthropic API key first (needs the updated Apps Script)', 'err'); return; }
 
   const n = files.length;
   statusEl.textContent = n > 1 ? `Parsing ${n} stubs…` : 'Parsing…';
@@ -1490,32 +1504,10 @@ async function handlePayStubs(rawFiles) {
       reader.onerror = rej;
       reader.readAsDataURL(file);
     });
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-            { type: 'text', text: 'Extract from this pay stub for the current pay period only. Return ONLY valid JSON with these keys: pay_year (4-digit integer), pay_month (integer 1-12, from the pay date or period end date), gross_income, federal_tax, state_tax, local_tax, fica_tax (SS + Medicare combined), k401_contribution, hsa_contribution. All money values are plain numbers with no commas. Use 0 for any field not found.' }
-          ]
-        }]
-      })
-    });
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${resp.status}`);
-    }
-    const data = await resp.json();
-    const match = data.content[0].text.match(/\{[\s\S]*\}/);
+    // The Apps Script calls Anthropic with the server-held key; the browser never sees it
+    const data = await apiPost({ action: 'parseStub', pdf: base64 });
+    if (!data.success) throw new Error(data.error || 'Parse failed');
+    const match = (data.text || '').match(/\{[\s\S]*\}/);
     if (!match) throw new Error('No JSON in response');
     return JSON.parse(match[0]);
   };
@@ -4000,14 +3992,22 @@ function drawIncGrowthChart() {
 }
 
 const PASS_HASH = '7e015a065f5cc04cdbb217636df0c8b585c63894a34df31de5194b02be0d1d34';
+async function sha256hex(s) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+let _inited = false;
 async function checkPw() {
   const val = document.getElementById('pwInput').value;
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(val));
-  const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  if (hex === PASS_HASH) {
-    sessionStorage.setItem('pfm_auth','1');
+  if (await sha256hex(val) === PASS_HASH) {
+    // Separate derivation from PASS_HASH, so the published hash does not reveal the token
+    API_TOKEN = await sha256hex('pfm-api-v1:' + val);
+    sessionStorage.setItem('pfm_token', API_TOKEN);
+    sessionStorage.removeItem('pfm_auth');
     document.getElementById('pwOverlay').style.display = 'none';
-    init();
+    document.getElementById('pwInput').value = '';
+    if (_inited) { allData = await sheetsGetAll(); loadSettings(); loadForm(); refreshAll(); }
+    else { _inited = true; init(); }
   } else {
     const err = document.getElementById('pwErr');
     err.textContent = 'Incorrect password';
@@ -4015,9 +4015,9 @@ async function checkPw() {
     setTimeout(() => { err.textContent = ''; }, 2000);
   }
 }
-if (sessionStorage.getItem('pfm_auth') === '1') {
+if (API_TOKEN) {
   document.getElementById('pwOverlay').style.display = 'none';
-  init();
+  _inited = true; init();
 }
 </script>
 

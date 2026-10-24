@@ -19,6 +19,7 @@ A single-file personal finance dashboard deployed on GitHub Pages. It tracks inc
 - Script URL is stored in `const SCRIPT_URL` near the top of the JS section
 - API supports: `GET ?action=getAll`, `GET ?action=hasApiKey`, `POST {action:'save', year, month, data}`, `POST {action:'delete', year, month}`, `POST {action:'setApiKey', key}`, `POST {action:'parseStub', pdf}`
 - Every request carries `token` (GET query param / POST body field) — `API_TOKEN`, derived at unlock as SHA-256 of `'pfm-api-v1:' + password` and kept in `sessionStorage`. The Apps Script checks it against its `PFM_TOKEN` script property. Always call the backend through `apiGet()` / `apiPost()`, never raw `fetch(SCRIPT_URL)`
+- The password is verified by the server only: `checkPw()` derives the token and treats an `unauthorized` reply from `getAll` as a wrong password. Never put a password hash or any other password check back in the page
 - The Anthropic key lives only in the Apps Script; pay stubs are parsed server-side via `parseStub`. Never send the key to the browser
 - Data stored as rows: `year (int) | month (int, 0-indexed) | data (JSON string)`
 - All data loaded into `allData` object on init, keyed as `year_month`

@@ -1454,13 +1454,13 @@ function get(y, m) { return allData[ck(y, m)] || null; }
 function set(y, m, d) { if (d) allData[ck(y, m)] = d; else delete allData[ck(y, m)]; }
 
 // ── INIT ────────────────────────────────────────────────
-async function init() {
+async function init(preloaded) {   // preloaded: data already fetched while verifying the password
   buildMonthSel();
   buildSpendForm();
   populateFireInputs();
   setSyncStatus('syncing', 'Loading...');
   try {
-    [allData, HAS_API_KEY] = await Promise.all([sheetsGetAll(), sheetsHasApiKey()]);
+    [allData, HAS_API_KEY] = await Promise.all([preloaded ? Promise.resolve(preloaded) : sheetsGetAll(), sheetsHasApiKey()]);
     setSyncStatus('synced', 'Synced');
   } catch(e) {
     setSyncStatus('error', 'Offline');
@@ -4386,29 +4386,34 @@ function drawIncGrowthChart() {
   });
 }
 
-const PASS_HASH = '7e015a065f5cc04cdbb217636df0c8b585c63894a34df31de5194b02be0d1d34';
 async function sha256hex(s) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-let _inited = false;
+let _inited = false, _checking = false;
+// The password is verified by the Apps Script, not the page: nothing in the page source can be guessed against offline.
 async function checkPw() {
-  const val = document.getElementById('pwInput').value;
-  if (await sha256hex(val) === PASS_HASH) {
-    // Separate derivation from PASS_HASH, so the published hash does not reveal the token
-    API_TOKEN = await sha256hex('pfm-api-v1:' + val);
-    sessionStorage.setItem('pfm_token', API_TOKEN);
-    sessionStorage.removeItem('pfm_auth');
-    document.getElementById('pwOverlay').style.display = 'none';
-    document.getElementById('pwInput').value = '';
-    if (_inited) { allData = await sheetsGetAll(); loadSettings(); loadForm(); refreshAll(); }
-    else { _inited = true; init(); }
-  } else {
-    const err = document.getElementById('pwErr');
-    err.textContent = 'Incorrect password';
-    document.getElementById('pwInput').value = '';
-    setTimeout(() => { err.textContent = ''; }, 2000);
+  const input = document.getElementById('pwInput'), err = document.getElementById('pwErr'), val = input.value;
+  if (!val || _checking) return;
+  _checking = true; err.textContent = 'Checking…';
+  const tok = await sha256hex('pfm-api-v1:' + val);
+  let j = null;
+  try { j = await (await fetch(`${SCRIPT_URL}?action=getAll&token=${encodeURIComponent(tok)}`)).json(); }
+  catch(e) { j = null; }
+  _checking = false;
+  if (!j || (!j.success && j.error !== 'unauthorized')) { err.textContent = 'Could not reach Google Sheets — try again'; return; }
+  if (!j.success) {
+    err.textContent = 'Incorrect password'; input.value = '';
+    setTimeout(() => { if (err.textContent === 'Incorrect password') err.textContent = ''; }, 2000);
+    return;
   }
+  API_TOKEN = tok;
+  sessionStorage.setItem('pfm_token', tok);
+  sessionStorage.removeItem('pfm_auth');
+  err.textContent = ''; input.value = '';
+  document.getElementById('pwOverlay').style.display = 'none';
+  if (_inited) { allData = j.data || {}; loadSettings(); loadForm(); refreshAll(); }
+  else { _inited = true; init(j.data || {}); }
 }
 if (API_TOKEN) {
   document.getElementById('pwOverlay').style.display = 'none';

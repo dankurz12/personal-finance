@@ -485,6 +485,10 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
           <button data-w="24" onclick="setNwWindow(24)">24M</button>
           <button data-w="all" class="on" onclick="setNwWindow('all')">All</button>
         </div>
+        <div class="seg" id="dollarToggleNw" title="Show past months at face value, or restated in today's dollars using your inflation setting">
+          <button data-v="nominal" class="on" onclick="setDollarView('nominal')">Nominal</button>
+          <button data-v="real" onclick="setDollarView('real')">Today's $</button>
+        </div>
       </div>
     </div>
     <div class="card-body" style="padding:8px 12px 12px">
@@ -710,6 +714,15 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         <div class="kpi-sub" style="line-height:1.5">Partner savings are a single balance, so they stay out of the month-by-month analysis. When on, a combined household summary appears on Overview.</div>
       </div>
     </div>
+    <div class="fsec" style="margin-top:10px">Retirement Details</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+      <div class="fg"><label class="fl">Inflation %</label><input class="fi" id="fc-infl" type="number" placeholder="2" step="0.1"></div>
+      <div class="fg"><label class="fl">Pre-65 Healthcare $/yr</label><input class="fi" id="fc-health" type="text" placeholder="12,000"></div>
+      <div class="fg"><label class="fl">IRA — Roth Share %</label><input class="fi" id="fc-iraroth" type="number" placeholder="100" step="5" min="0" max="100"></div>
+      <div class="fg"><label class="fl">401(k) — Roth Share %</label><input class="fi" id="fc-k401roth" type="number" placeholder="0" step="5" min="0" max="100"></div>
+      <div class="fg"><label class="fl">Roth Contribs Before 2023</label><input class="fi" id="fc-rothbasis" type="text" placeholder="0"></div>
+    </div>
+    <div class="kpi-sub" style="margin-top:4px;line-height:1.5">Healthcare is your expected premiums plus out-of-pocket costs from retirement until Medicare at 65. The Roth shares and earlier Roth contributions feed the tax-bucket mix and the bridge-to-59½ analysis.</div>
   </div>
 </div>
 
@@ -756,6 +769,59 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
 </div>
 
 <div id="fireAssumptions" style="font-size:10px;color:var(--text3);padding:4px 2px 10px;line-height:1.7"></div>
+
+<div class="section-label">FIRE NUMBER CHECK</div>
+<div class="card" style="margin-bottom:6px">
+  <div class="card-head">
+    <div class="card-title">Your FIRE Number &#8212; Configured vs. What You Actually Spend</div>
+    <div class="seg" id="fnBasisToggle">
+      <button data-b="all" class="on" onclick="setFnBasis('all')">All Spending</button>
+      <button data-b="ess" onclick="setFnBasis('ess')">Essentials Only</button>
+    </div>
+  </div>
+  <div class="perf-grid">
+    <div class="perf-cell"><div class="kpi-label">Configured Target</div><div class="perf-val" id="fn-target">—</div><div class="kpi-sub" id="fn-target-sub"></div></div>
+    <div class="perf-cell"><div class="kpi-label" id="fn-actual-label">Implied by Actual Spend</div><div class="perf-val blue" id="fn-actual">—</div><div class="kpi-sub" id="fn-actual-sub"></div></div>
+    <div class="perf-cell"><div class="kpi-label">+ Pre-65 Healthcare</div><div class="perf-val" id="fn-health">—</div><div class="kpi-sub" id="fn-health-sub"></div></div>
+    <div class="perf-cell"><div class="kpi-label">Spend-Based FIRE #</div><div class="perf-val" id="fn-total">—</div><div class="kpi-sub" id="fn-total-sub"></div></div>
+  </div>
+  <div class="card-body" style="border-top:1px solid var(--border)"><div class="kpi-sub" id="fn-note" style="font-size:11px;color:var(--text2);line-height:1.55"></div></div>
+</div>
+
+<div class="section-label">ACCESS &amp; TAX BUCKETS</div>
+<div class="g2">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Bridge to 59&#189; &#8212; Money You Can Reach Early</div>
+      <div class="seg" id="bridgeAgeToggle">
+        <button data-a="goal" class="on" onclick="setBridgeBasis('goal')">Goal Age</button>
+        <button data-a="proj" onclick="setBridgeBasis('proj')">Projected Age</button>
+      </div>
+    </div>
+    <div class="perf-grid">
+      <div class="perf-cell"><div class="kpi-label">Bridge</div><div class="perf-val" style="font-size:20px" id="br-yrs">—</div><div class="kpi-sub" id="br-yrs-sub"></div></div>
+      <div class="perf-cell"><div class="kpi-label">Bridge Need</div><div class="perf-val" style="font-size:20px" id="br-need">—</div><div class="kpi-sub" id="br-need-sub"></div></div>
+      <div class="perf-cell"><div class="kpi-label">Reachable at FIRE</div><div class="perf-val" style="font-size:20px" id="br-have">—</div><div class="kpi-sub">penalty-free before 59&#189;</div></div>
+      <div class="perf-cell"><div class="kpi-label">Coverage</div><div class="perf-val" style="font-size:20px" id="br-cov">—</div><div class="kpi-sub" id="br-cov-sub"></div></div>
+    </div>
+    <div style="padding:0;border-top:1px solid var(--border)"><table class="tbl" id="br-table"></table></div>
+    <div class="card-body" style="border-top:1px solid var(--border)"><div class="kpi-sub" id="br-note" style="font-size:11px;color:var(--text2);line-height:1.55"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Tax-Bucket Mix</div>
+      <div class="seg" id="bucketToggle">
+        <button data-w="now" class="on" onclick="setBucketView('now')">Today</button>
+        <button data-w="fire" onclick="setBucketView('fire')" id="bucketFireBtn">At FIRE</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="bk-bar" style="display:flex;height:14px;margin:4px 0 10px;background:var(--bg4)"></div>
+      <div id="bk-rows"></div>
+      <div class="kpi-sub" id="bk-note" style="font-size:11px;color:var(--text2);line-height:1.55;margin-top:6px;padding-top:7px;border-top:1px solid var(--border)"></div>
+    </div>
+  </div>
+</div>
 
 <div class="g3">
   <div class="kpi g" style="border-radius:0">
@@ -847,6 +913,24 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
         <div style="padding:0"><table class="tbl" id="liabTbl"></table></div>
       </div>
     </div>
+    <div class="section-label">MONTHLY RECONCILIATION</div>
+    <div class="card">
+      <div class="card-head" style="flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="card-title">Where Each Month's Net-Worth Change Came From</div>
+          <span class="pill" id="rc-pill" style="margin:0"></span>
+        </div>
+        <div class="seg" id="reconWindowToggle">
+          <button data-n="12" class="on" onclick="setReconWindow(12)">12M</button>
+          <button data-n="24" onclick="setReconWindow(24)">24M</button>
+        </div>
+      </div>
+      <div style="padding:0;max-height:420px;overflow:auto"><table class="tbl" id="reconTbl" style="white-space:nowrap"></table></div>
+      <div class="card-body" style="border-top:1px solid var(--border)"><div class="kpi-sub" style="font-size:11px;color:var(--text2);line-height:1.55">
+        Net-worth change = <b>cash saved</b> (take-home pay minus spending and post-tax investing) + <b>invested</b> (all four contribution fields) + <b>market &amp; match</b> (investment growth, which also picks up any employer 401(k) match) + <b>unexplained</b>.
+        Unexplained is the gap between how much your cash and debt balances actually moved and what your income and spending say they should have. Tax refunds, reimbursements, money from family, or a mistyped balance all show up here. Months off by more than $500 or 10% of take-home are flagged; click a row to open that month.
+      </div></div>
+    </div>
   </section>
 
   <!-- SPENDING -->
@@ -864,6 +948,24 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
     <div class="card">
       <div class="card-head"><div class="card-title" id="spendTblTitle">Category Breakdown</div></div>
       <div style="padding:0"><table class="tbl" id="spendTbl"></table></div>
+    </div>
+    <div class="section-label">ESSENTIALS VS. DISCRETIONARY</div>
+    <div class="card" style="margin-bottom:6px">
+      <div class="card-head">
+        <div class="card-title" id="essTitle">Essentials vs. Discretionary — Trailing 12 Months</div>
+        <div class="seg" id="essWindowToggle">
+          <button data-n="12" class="on" onclick="setEssWindow(12)">12M</button>
+          <button data-n="24" onclick="setEssWindow(24)">24M</button>
+        </div>
+      </div>
+      <div class="perf-grid">
+        <div class="perf-cell"><div class="kpi-label">Essentials / Mo</div><div class="perf-val" id="ess-ess">—</div><div class="kpi-sub" id="ess-ess-sub"></div></div>
+        <div class="perf-cell"><div class="kpi-label">Discretionary / Mo</div><div class="perf-val" id="ess-disc">—</div><div class="kpi-sub" id="ess-disc-sub"></div></div>
+        <div class="perf-cell"><div class="kpi-label">Discretionary Share</div><div class="perf-val" id="ess-share">—</div><div class="kpi-sub" id="ess-share-sub"></div></div>
+        <div class="perf-cell"><div class="kpi-label">Essentials-Only FIRE #</div><div class="perf-val blue" id="ess-floor">—</div><div class="kpi-sub" id="ess-floor-sub"></div></div>
+      </div>
+      <div class="card-body" style="padding:6px 10px 10px;border-top:1px solid var(--border)"><canvas id="essChart" height="170"></canvas></div>
+      <div class="card-body note-mono" style="padding:0 10px 8px" id="ess-cats"></div>
     </div>
     <div class="section-label">YEAR-TO-DATE</div>
     <div class="card" style="margin-top:0">
@@ -934,9 +1036,15 @@ main { padding: 7px 14px; max-width: 1440px; margin: 0 auto; }
       <div class="card">
         <div class="card-head">
           <div class="card-title" id="incSpendTitle">Income vs Spending — 24 Months</div>
-          <div class="seg trends-win">
-            <button data-n="12" onclick="setTrendsWindow(12)">12M</button>
-            <button data-n="24" class="on" onclick="setTrendsWindow(24)">24M</button>
+          <div style="display:flex;gap:6px">
+            <div class="seg" id="dollarToggleTr" title="Show past months at face value, or restated in today's dollars using your inflation setting">
+              <button data-v="nominal" class="on" onclick="setDollarView('nominal')">Nominal</button>
+              <button data-v="real" onclick="setDollarView('real')">Today's $</button>
+            </div>
+            <div class="seg trends-win">
+              <button data-n="12" onclick="setTrendsWindow(12)">12M</button>
+              <button data-n="24" class="on" onclick="setTrendsWindow(24)">24M</button>
+            </div>
           </div>
         </div>
         <div class="card-body" style="padding:6px 10px 10px"><canvas id="incSpendChart" height="170"></canvas></div>
@@ -1144,6 +1252,11 @@ const FIRE_CONFIG = {
   ctbManual: 80012,
   partnerInclude: false,
   partnerNw: 0,
+  inflationRate: 0.02,               // used for inflation-adjusted FIRE #s and today's-dollar views
+  healthcarePre65: 12000,            // $/yr, today's dollars, from retirement until Medicare at 65
+  iraRothPct: 100,                   // share of the IRA balance that is Roth
+  k401RothPct: 0,                    // share of the 401(k) balance that is Roth 401(k)
+  rothBasisPrior: 0,                 // Roth IRA contributions made before tracking began (Jan 2023)
   coastFiAt65: 175070.91,
   cmgrTotal: 0.031688,
   cmgrLtm: 0.037337,
@@ -1164,6 +1277,14 @@ let nwChartWindow = 'all';        // 12 | 24 | 'all'
 let fireScenarioOffset = 0;       // -0.02 | 0 | +0.02 applied to FIRE_CONFIG.returnRate
 let catTrendMonths = 24;          // 12 | 24
 let trendsWindow = 24;            // 12 | 24
+let fnBasis = 'all';              // FIRE number check: 'all' spending | 'ess' essentials only
+let bridgeBasis = 'goal';         // bridge / buckets at: 'goal' retirement age | 'proj' projected FIRE age
+let bucketView = 'now';           // tax buckets: 'now' | 'fire'
+let essWindow = 12;               // essentials vs discretionary chart: 12 | 24
+let reconWindow = 12;             // reconciliation table: 12 | 24
+let dollarView = 'nominal';       // NW trend + income/spending: 'nominal' | 'real' (today's dollars)
+// Spending that continues regardless of lifestyle choices; the rest counts as discretionary
+const ESSENTIAL_CATS = ['Rent','Utilities','Transportation','Groceries','Gas','Household','Medical/Dental','Personal'];
 const SETTINGS_YEAR = 9999;       // sentinel row in the sheet holding saved settings
 const LIMITS = { 2023:{k401:22500,hsa:3850,roth:6500}, 2024:{k401:23000,hsa:4150,roth:7000},
                  2025:{k401:23500,hsa:4300,roth:7000}, 2026:{k401:24500,hsa:4400,roth:7500} };
@@ -1204,7 +1325,9 @@ async function saveSettings() {
     annualContribution: FIRE_CONFIG.annualContribution, annualRetirementSpend: FIRE_CONFIG.annualRetirementSpend,
     leanFire: FIRE_CONFIG.leanFire, fire: FIRE_CONFIG.fire, fatFire: FIRE_CONFIG.fatFire, coastAge: FIRE_CONFIG.coastAge || 55,
     ctbMode: FIRE_CONFIG.ctbMode, ctbManual: FIRE_CONFIG.ctbManual,
-    partnerInclude: FIRE_CONFIG.partnerInclude, partnerNw: FIRE_CONFIG.partnerNw
+    partnerInclude: FIRE_CONFIG.partnerInclude, partnerNw: FIRE_CONFIG.partnerNw,
+    inflationRate: FIRE_CONFIG.inflationRate, healthcarePre65: FIRE_CONFIG.healthcarePre65,
+    iraRothPct: FIRE_CONFIG.iraRothPct, k401RothPct: FIRE_CONFIG.k401RothPct, rothBasisPrior: FIRE_CONFIG.rothBasisPrior
   }, mtg: { ...MTG } };
   try {
     const ok = await sheetsSave(SETTINGS_YEAR, 0, payload);
@@ -1900,12 +2023,12 @@ function updateFire(d) {
 
   // ── Full FIRE Details ─────────────────────────────────
   if (fullM) {
-    const inflAdj = FIRE_CONFIG.fire * Math.pow(1.02, fullM.yrs);
+    const inflAdj = FIRE_CONFIG.fire * Math.pow(1 + FIRE_CONFIG.inflationRate, fullM.yrs);
     const projPf = inv > 0 ? inv * Math.pow(1 + rate, fullM.yrs) + ctb * (Math.pow(1 + rate, fullM.yrs) - 1) / rate : 0;
     document.getElementById('ffd-year').textContent = fullM.year;
     document.getElementById('ffd-year-sub').textContent = `Age ~${fullM.age} · ${fullM.yrs} yrs away`;
     document.getElementById('ffd-num').textContent = fmt(inflAdj);
-    document.getElementById('ffd-num-sub').textContent = `${fmt(FIRE_CONFIG.fire)} × 2%/yr inflation over ${fullM.yrs} yrs`;
+    document.getElementById('ffd-num-sub').textContent = `${fmt(FIRE_CONFIG.fire)} × ${pct(FIRE_CONFIG.inflationRate, 1)}/yr inflation over ${fullM.yrs} yrs`;
     document.getElementById('ffd-proj').textContent = fmt(projPf);
     document.getElementById('ffd-proj-sub').textContent = `${fmt(inv)} today + ~${fmt(ctb)}/yr at ${(rate*100).toFixed(0)}%`;
   }
@@ -1984,6 +2107,7 @@ function updateFire(d) {
   document.getElementById('coastTable').innerHTML = coastHtml;
 
   renderFireScenarioToggle();
+  updateRetirementAccess();
   drawFireProjectionChart(inv);
   updateContribCalc(d);
 }
@@ -2024,7 +2148,7 @@ function drawFireProjectionChart(inv) {
   const portfolio = [];
   let pf = inv;
   years.forEach(() => { portfolio.push(pf); pf = pf * (1 + rate) + ctb; });
-  const fireAdj = years.map((y, i) => fire * Math.pow(1.02, i));
+  const fireAdj = years.map((y, i) => fire * Math.pow(1 + FIRE_CONFIG.inflationRate, i));
 
   // Goal path: required trajectory to hit the inflation-adjusted FIRE # by target retirement age
   const goalAge = FIRE_CONFIG.retirementAge;
@@ -2033,7 +2157,7 @@ function drawFireProjectionChart(inv) {
   let goalPath = null, goalIdx = null;
   if (goalYrs >= 1 && inv > 0) {
     goalIdx = Math.min(years.length - 1, Math.round(goalYrs));
-    const targetAtGoal = fire * Math.pow(1.02, goalYrs);
+    const targetAtGoal = fire * Math.pow(1 + FIRE_CONFIG.inflationRate, goalYrs);
     const reqRate = Math.pow(targetAtGoal / inv, 1 / goalYrs) - 1;
     goalPath = [];
     for (let i = 0; i <= goalIdx; i++) goalPath.push(inv * Math.pow(1 + reqRate, i));
@@ -2148,6 +2272,166 @@ function drawFireProjectionChart(inv) {
       }
     }
   }
+}
+
+// ── RETIREMENT ACCESS: spend-based FIRE #, bridge to 59½, tax buckets ──
+// All figures are in today's dollars: balances grow at the return rate, then deflate by the inflation setting.
+function segOn(id, key, val) { document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle('on', b.dataset[key] === String(val))); }
+function setFnBasis(b) { fnBasis = b; segOn('fnBasisToggle', 'b', b); updateRetirementAccess(); }
+function setBridgeBasis(a) { bridgeBasis = a; segOn('bridgeAgeToggle', 'a', a); updateRetirementAccess(); }
+function setBucketView(w) { bucketView = w; segOn('bucketToggle', 'w', w); updateRetirementAccess(); }
+
+// One month's balances split by tax treatment
+function bucketsOf(d) {
+  const ir = FIRE_CONFIG.iraRothPct/100, kr = FIRE_CONFIG.k401RothPct/100, k = d.k401||0, ira = d.ira||0;
+  return { k401Pre: k*(1-kr), k401Roth: k*kr, iraPre: ira*(1-ir), iraRoth: ira*ir,
+           taxable: (d.brokerage||0) + (d.otherassets||0), hsa: d.hsa||0, cash: Math.max(0, (d.checking||0) + (d.savings||0)) };
+}
+// Annual contributions by bucket: the trailing-12-month mix, scaled to the plan's contribution figure
+function bucketContribs() {
+  const s = seriesBack(12), n = s.length || 1, kr = FIRE_CONFIG.k401RothPct/100;
+  const yr = k => s.reduce((a, p) => a + (p[k]||0), 0) / n * 12;
+  const k401 = yr('k401_contrib'), hsa = yr('hsa_contrib'), roth = yr('roth_contrib'), brk = yr('brokerage_contrib');
+  const tot = k401 + hsa + roth + brk, plan = effectiveContribution();
+  if (tot <= 0) return { k401Pre:0, k401Roth:0, iraPre:0, iraRoth:0, hsa:0, taxable: plan };
+  const f = plan / tot;
+  return { k401Pre: k401*(1-kr)*f, k401Roth: k401*kr*f, iraPre: 0, iraRoth: roth*f, hsa: hsa*f, taxable: brk*f };
+}
+// Buckets projected `yrs` ahead, in today's dollars (cash assumed to keep pace with inflation)
+function bucketsAt(d, yrs) {
+  const b = bucketsOf(d), c = bucketContribs(), r = FIRE_CONFIG.returnRate;
+  const g = Math.pow(1 + r, yrs), ann = r > 0 ? (g - 1) / r : yrs, defl = Math.pow(1 + FIRE_CONFIG.inflationRate, yrs);
+  const fv = k => (b[k]*g + c[k]*ann) / defl;
+  return { k401Pre: fv('k401Pre'), k401Roth: fv('k401Roth'), iraPre: fv('iraPre'), iraRoth: fv('iraRoth'),
+           taxable: fv('taxable'), hsa: fv('hsa'), cash: b.cash };
+}
+// Years until invested assets reach the inflation-adjusted FIRE number at plan assumptions
+function projectedFireYears(inv) {
+  const r = FIRE_CONFIG.returnRate, ctb = effectiveContribution(), g = 1 + FIRE_CONFIG.inflationRate;
+  let pf = inv;
+  for (let i = 0; i <= 60; i++) { if (pf >= FIRE_CONFIG.fire * Math.pow(g, i)) return i; pf = pf*(1+r) + ctb; }
+  return null;
+}
+// Roth IRA contributions to date (withdrawable any time): pre-2023 basis plus every Roth contribution entered
+function rothBasisToDate() {
+  let t = FIRE_CONFIG.rothBasisPrior || 0;
+  Object.keys(allData).forEach(k => { if (+k.split('_')[0] < SETTINGS_YEAR) t += allData[k].roth_contrib || 0; });
+  return t;
+}
+
+function updateRetirementAccess() {
+  const set = (id, txt, col) => { const el = document.getElementById(id); if (!el) return; el.textContent = txt; el.style.color = col || ''; };
+  const d = compute(get(curYear, curMonth));
+  if (!d) { ['fn-target','fn-actual','fn-health','fn-total','br-yrs','br-need','br-have','br-cov'].forEach(id => set(id, '—'));
+    ['br-table','bk-rows','bk-bar'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+    ['fn-note','br-note','bk-note'].forEach(id => set(id, 'No data for this period.')); return; }
+  const Bk = x => '<b style="color:var(--text)">' + x + '</b>';
+  const age = getAge(), wr = FIRE_CONFIG.withdrawalRate, infl = FIRE_CONFIG.inflationRate, r = FIRE_CONFIG.returnRate;
+  const rr = (1 + r) / (1 + infl) - 1;   // real return
+  // Present value of `n` years of withdrawals taken at the start of each year
+  const pvDraw = (amt, n) => n <= 0 ? 0 : Math.abs(rr) < 1e-9 ? amt*n : amt * (1 - Math.pow(1+rr, -n)) / rr * (1+rr);
+  const goalAge = FIRE_CONFIG.retirementAge, hc = FIRE_CONFIG.healthcarePre65 || 0;
+
+  // ── FIRE number check ──
+  const t12 = seriesBack(12), months = t12.length;
+  const annual = cats => months ? t12.reduce((s, p) => s + cats.reduce((a, c) => a + (p.spending[c]||0), 0), 0) / months * 12 : 0;
+  const spendAll = annual(CATS), spendEss = annual(ESSENTIAL_CATS);
+  const basisSpend = fnBasis === 'ess' ? spendEss : spendAll;
+  const implied = wr > 0 ? basisSpend / wr : 0;
+  const healthYrs = Math.max(0, 65 - goalAge), healthPV = pvDraw(hc, healthYrs);
+  const fnTotal = implied + healthPV, gap = fnTotal - FIRE_CONFIG.fire;
+  set('fn-target', fmt(FIRE_CONFIG.fire));
+  set('fn-target-sub', `supports ${fmt(FIRE_CONFIG.fire * wr)}/yr at a ${(wr*100).toFixed(1)}% withdrawal rate`);
+  set('fn-actual-label', fnBasis === 'ess' ? 'Implied by Essentials' : 'Implied by Actual Spend');
+  set('fn-actual', fmt(implied));
+  set('fn-actual-sub', `${fmt(basisSpend)}/yr over the last ${months} mo ÷ ${(wr*100).toFixed(1)}%`);
+  set('fn-health', '+' + fmt(healthPV));
+  set('fn-health-sub', healthYrs > 0 ? `${fmt(hc)}/yr from age ${goalAge} to Medicare at 65` : 'retiring at 65+ — Medicare covers it');
+  set('fn-total', fmt(fnTotal), gap > 0 ? 'var(--red)' : 'var(--green)');
+  set('fn-total-sub', `${fmt(Math.abs(gap))} ${gap > 0 ? 'above' : 'below'} your target (${(Math.abs(gap)/FIRE_CONFIG.fire*100).toFixed(0)}%)`);
+  const fnNote = document.getElementById('fn-note');
+  if (fnNote) fnNote.innerHTML =
+    `Your plan assumes ${Bk(fmt(FIRE_CONFIG.annualRetirementSpend) + '/yr')} in retirement. Over the last ${months} months you actually spent ${Bk(fmt(spendAll) + '/yr')}, ` +
+    `${Bk(fmt(spendEss))} of it on essentials. ` +
+    (gap > FIRE_CONFIG.fire*0.05 ? `At today's spending you'd need more than your target — either retirement spending has to fall, or the target should rise. `
+      : gap < -FIRE_CONFIG.fire*0.2 ? `Your target has a wide cushion over what you spend today — room for lifestyle growth, or a sign you could reach FI sooner than the plan says. `
+      : `Your target lines up with how you actually live. `) +
+    `Healthcare is added separately because it's usually employer-paid today, so it doesn't show up in your spending.`;
+
+  // ── Bridge to 59½ ──
+  const projYrs = projectedFireYears(d.invested);
+  const projAge = projYrs !== null ? age + projYrs : null;
+  const fireAge = bridgeBasis === 'proj' && projAge !== null ? projAge : goalAge;
+  const goalBtn = document.querySelector('#bridgeAgeToggle [data-a="goal"]'), projBtn = document.querySelector('#bridgeAgeToggle [data-a="proj"]');
+  if (goalBtn) goalBtn.textContent = `Goal · ${goalAge}`;
+  if (projBtn) projBtn.textContent = projAge !== null ? `Projected · ${projAge.toFixed(0)}` : 'Projected · —';
+  const fBtn = document.getElementById('bucketFireBtn'); if (fBtn) fBtn.textContent = `At FIRE · ${fireAge.toFixed(0)}`;
+  const yrsToFire = Math.max(0, fireAge - age);
+  const at = bucketsAt(d, yrsToFire), ctbB = bucketContribs();
+  const basisAt = Math.min(at.iraRoth, (rothBasisToDate() + ctbB.iraRoth * yrsToFire) / Math.pow(1 + infl, yrsToFire));
+  const rule55 = fireAge >= 55, k401All = at.k401Pre + at.k401Roth;
+  const reach = at.taxable + at.cash + basisAt + (rule55 ? k401All : 0);
+  const bridgeYrs = Math.max(0, 59.5 - fireAge), spendYr = FIRE_CONFIG.annualRetirementSpend + hc;
+  const need = pvDraw(spendYr, bridgeYrs), firstYrs = Math.min(5, bridgeYrs), need5 = pvDraw(spendYr, firstYrs);
+  const ladderSrc = at.iraPre + (rule55 ? 0 : at.k401Pre);
+  const covered = reach >= need, ladderOk = !covered && reach >= need5 && reach + ladderSrc >= need;
+  set('br-yrs', bridgeYrs > 0 ? `${bridgeYrs.toFixed(1)} yrs` : 'None');
+  set('br-yrs-sub', `age ${fireAge.toFixed(0)} → 59½`);
+  set('br-need', bridgeYrs > 0 ? fmt(need) : '—');
+  set('br-need-sub', `${fmt(spendYr)}/yr incl. ${fmt(hc)} healthcare`);
+  set('br-have', fmt(reach));
+  const cov = need > 0 ? reach / need : null;
+  set('br-cov', cov === null ? '—' : cov >= 10 ? '10×+' : pct(cov, 0), covered ? 'var(--green)' : ladderOk ? 'var(--yellow)' : 'var(--red)');
+  set('br-cov-sub', cov === null ? 'no bridge needed' : covered ? 'fully covered' : ladderOk ? 'covered with a Roth ladder' : 'short');
+  const row = (l, v, how, ok) => v < 1 ? '' :
+    `<tr><td>${l}</td><td>${fmt(v)}</td><td style="text-align:left" class="${ok ? 'pos' : 'dim'}">${how}</td></tr>`;
+  document.getElementById('br-table').innerHTML = '<thead><tr><th>Account at Age ' + fireAge.toFixed(0) + '</th><th>Today\'s $</th><th style="text-align:left">Before 59&#189;?</th></tr></thead><tbody>' +
+    row('Taxable brokerage &amp; other', at.taxable, 'Yes — tax only on gains', true) +
+    row('Cash', at.cash, 'Yes', true) +
+    row('Roth IRA contributions', basisAt, 'Yes — tax- and penalty-free', true) +
+    row('Roth IRA earnings', at.iraRoth - basisAt, 'No — locked until 59½', false) +
+    row('401(k)', k401All, rule55 ? 'Yes — Rule of 55' : 'No — roll to IRA, then ladder or 72(t)', rule55) +
+    row('Traditional IRA', at.iraPre, 'Via Roth ladder (5-yr wait) or 72(t)', false) +
+    row('HSA', at.hsa, 'Medical costs any time; anything at 65', false) + '</tbody>';
+  const brNote = document.getElementById('br-note');
+  if (brNote) {
+    const gapB = need - reach, n = yrsToFire, gN = Math.pow(1 + r, n);
+    // Extra brokerage contributions per year from now to retirement that would close the gap
+    const extra = n >= 1 && r > 0 ? gapB * Math.pow(1 + infl, n) * r / (gN - 1) : null;
+    brNote.innerHTML = bridgeYrs <= 0
+      ? `Retiring at ${fireAge.toFixed(0)} is past 59½, so every account is open to you and no bridge is needed.`
+      : covered
+        ? `Covered. ${Bk(fmt(reach))} you can reach penalty-free covers ${bridgeYrs.toFixed(1)} years of spending plus healthcare, with ${Bk(fmt(reach - need))} to spare.` +
+          (rule55 && k401All > 0 ? ` Most of it relies on the ${Bk('Rule of 55')}: it only covers the 401(k) at the employer you leave in or after the year you turn 55, so keep the money in that plan rather than rolling it to an IRA.` : '')
+      : ladderOk
+        ? `You're ${Bk(fmt(gapB))} short of funding the whole bridge from reachable money, but a ${Bk('Roth conversion ladder')} closes it: convert pre-tax money each year from retirement, and each conversion can be withdrawn 5 years later. You only need ${Bk(fmt(need5))} reachable for the first ${firstYrs.toFixed(1)} years, and you'll have ${Bk(fmt(reach))}.`
+        : `Short by ${Bk(fmt(gapB))}.` + (extra !== null ? ` About ${Bk(fmt(extra) + '/yr')} more into the taxable brokerage account between now and retirement would close it.` : '') +
+          ` The fallback for tapping the IRA early is a 72(t) plan of fixed yearly withdrawals.`;
+  }
+
+  // ── Tax-bucket mix ──
+  const b = bucketView === 'fire' ? at : bucketsOf(d);
+  const groups = [
+    ['Pre-tax', b.k401Pre + b.iraPre, '#5980a6', 'Taxed as income when withdrawn'],
+    ['Roth', b.k401Roth + b.iraRoth, '#2f6a43', 'Tax-free in retirement'],
+    ['Taxable', b.taxable, '#8a6d2e', 'Tax only on gains'],
+    ['HSA', b.hsa, '#5a6b74', 'Tax-free for medical costs'],
+    ['Cash', b.cash, '#b4b2ac', 'Already taxed']];
+  const tot = groups.reduce((s, g) => s + g[1], 0) || 1;
+  document.getElementById('bk-bar').innerHTML = groups.filter(g => g[1] > 0).map(([l, v, c]) =>
+    `<div title="${l}: ${fmt(v)} (${(v/tot*100).toFixed(0)}%)" style="width:${(v/tot*100).toFixed(2)}%;background:${c}"></div>`).join('');
+  document.getElementById('bk-rows').innerHTML = groups.map(([l, v, c, how]) =>
+    `<div class="spacebar-head" style="padding:4px 0;border-bottom:1px solid var(--border)">` +
+    `<span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;background:${c};display:inline-block"></span>` +
+    `<span style="font-size:11px;color:var(--text)">${l}</span><span class="kpi-sub" style="margin:0">${how}</span></span>` +
+    `<span style="font-family:var(--mono-font);font-size:11px;white-space:nowrap">${fmt(v)} <span class="dim">${(v/tot*100).toFixed(0)}%</span></span></div>`).join('');
+  const pre = groups[0][1]/tot, free = (groups[1][1] + groups[3][1])/tot;
+  const bkNote = document.getElementById('bk-note');
+  if (bkNote) bkNote.innerHTML =
+    `${bucketView === 'fire' ? `Projected at age ${fireAge.toFixed(0)}, today's dollars. ` : ''}Tax-free (Roth + HSA): ${Bk(pct(free, 0))} · pre-tax: ${Bk(pct(pre, 0))}. ` +
+    (pre > 0.5 ? `Most of this will be taxed on the way out. The low-income years between retirement and 65 are the cheapest time to convert pre-tax money to Roth. `
+               : `A spread across buckets lets you choose how much taxable income to report each year in retirement. `) +
+    `Before 65 that also sets your ACA health-insurance subsidy, so drawing from Roth contributions and taxable gains rather than pre-tax money keeps premiums down.`;
 }
 
 // ── INSIGHTS ENGINE ────────────────────────────────
@@ -2300,7 +2584,7 @@ function updateHeadline(d) {
 function fireStatusPill(inv) {
   const rate = FIRE_CONFIG.returnRate, ctb = effectiveContribution();
   let pf = inv, idx = -1;
-  for (let i = 0; i <= 40; i++) { if (pf >= FIRE_CONFIG.fire * Math.pow(1.02, i)) { idx = i; break; } pf = pf*(1+rate)+ctb; }
+  for (let i = 0; i <= 40; i++) { if (pf >= FIRE_CONFIG.fire * Math.pow(1 + FIRE_CONFIG.inflationRate, i)) { idx = i; break; } pf = pf*(1+rate)+ctb; }
   if (idx < 0) return { text:'✕ Target not reached in 40 yrs', bg:'var(--red-dim)', fg:'var(--red)' };
   const projAge = getAge() + idx, diff = FIRE_CONFIG.retirementAge - projAge;
   return diff >= -0.5
@@ -2764,7 +3048,42 @@ function updateAnnualPnL() {
 }
 
 // ── BALANCE SHEET ────────────────────────────────────────
+// ── MONTHLY RECONCILIATION ──────────────────────────────
+function setReconWindow(n) { reconWindow = n; segOn('reconWindowToggle', 'n', n); updateRecon(); }
+function jumpToMonth(y, m) {
+  curYear = y; curMonth = m;
+  const sel = document.getElementById('monthSelect'); if (sel) sel.value = `${y}-${m}`;
+  loadForm(); refreshAll();
+}
+function updateRecon() {
+  const t = document.getElementById('reconTbl'), pill = document.getElementById('rc-pill'); if (!t) return;
+  const rows = [];
+  monthsBack(reconWindow).forEach(({y, m}) => {
+    const py = m === 0 ? y - 1 : y, pm = m === 0 ? 11 : m - 1;
+    const cd = get(y, m), pd = get(py, pm); if (!cd || !pd) return;
+    const c = compute(cd), p = compute(pd);
+    const cashActual = (c.liquid - c.liab) - (p.liquid - p.liab);
+    const unexplained = Math.round(cashActual - c.netCash);   // whole dollars, so rounding dust reads as $0
+    const market = (c.invested - p.invested) - c.totalInvContribs;
+    const flag = Math.abs(unexplained) > Math.max(500, 0.1 * Math.abs(c.netTakeHome));
+    rows.push({ y, m, label: `${MONTHS[m]} '${String(y).slice(2)}`, dNw: c.nw - p.nw, saved: c.netCash, inv: c.totalInvContribs, market, unexplained, flag });
+  });
+  if (!rows.length) { t.innerHTML = '<tbody><tr><td style="padding:20px;color:var(--text3)">Needs two consecutive months of data</td></tr></tbody>';
+    if (pill) pill.textContent = ''; return; }
+  const flagged = rows.filter(r => r.flag).length;
+  if (pill) { pill.textContent = flagged ? `${flagged} of ${rows.length} months flagged` : `all ${rows.length} months reconcile`;
+    pill.style.background = flagged ? 'var(--yellow-dim)' : 'var(--green-dim)'; pill.style.color = flagged ? 'var(--yellow)' : 'var(--green)'; }
+  const cell = (v, colored) => Math.round(v) === 0 ? '<td class="dim">$0</td>' : `<td class="${colored ? cc(v) : ''}">${fmt(v, true)}</td>`;
+  const sum = k => rows.reduce((a, r) => a + r[k], 0);
+  t.innerHTML = '<thead><tr><th>Month</th><th>Net Worth Δ</th><th>Cash Saved</th><th>Invested</th><th>Market &amp; Match</th><th>Unexplained</th></tr></thead><tbody>' +
+    rows.slice().reverse().map(r => `<tr style="cursor:pointer" onclick="jumpToMonth(${r.y},${r.m})" title="Open ${r.label}"><td>${r.flag ? '<span style="color:var(--yellow)">&#9873;</span> ' : ''}${r.label}</td>` +
+      cell(r.dNw, true) + cell(r.saved) + cell(r.inv) + cell(r.market, true) +
+      `<td style="${r.flag ? 'color:var(--yellow);font-weight:600' : 'color:var(--text3)'}">${r.unexplained === 0 ? '$0' : fmt(r.unexplained, true)}</td></tr>`).join('') +
+    `<tr class="tot"><td>Total</td>${cell(sum('dNw'), true)}${cell(sum('saved'))}${cell(sum('inv'))}${cell(sum('market'), true)}${cell(sum('unexplained'))}</tr></tbody>`;
+}
+
 function updateBalance(d) {
+  updateRecon();
   const at = document.getElementById('assetsTbl'), lt = document.getElementById('liabTbl');
   if (!at || !lt) return;
   const noData = '<tbody><tr><td style="padding:20px;color:var(--text3)">No data</td></tr></tbody>';
@@ -2812,6 +3131,7 @@ function updateSpending(d) {
   if (sel && !sel.options.length) CATS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
   drawCatTrendChart();
   drawSpendHeatmap();
+  drawEssChart();
 }
 
 // ── SPENDING HEATMAP ─────────────────────────────────────
@@ -2873,6 +3193,17 @@ function drawSpendHeatmap() {
 }
 
 // ── NW CHART ─────────────────────────────────────────────
+// Multiplier restating a past month's dollars in today's dollars (1 in nominal view)
+function realFactor(y, m) {
+  if (dollarView !== 'real') return 1;
+  const yrsAgo = ((_now.getFullYear() - y) * 12 + (_now.getMonth() - m)) / 12;
+  return Math.pow(1 + FIRE_CONFIG.inflationRate, Math.max(0, yrsAgo));
+}
+function setDollarView(v) {
+  dollarView = v; segOn('dollarToggleNw', 'v', v); segOn('dollarToggleTr', 'v', v);
+  drawNWChart(); updateTrends();
+}
+
 function setNwWindow(w) {
   nwChartWindow = w;
   document.querySelectorAll('#nwWindowToggle button').forEach(b => b.classList.toggle('on', b.dataset.w === String(w)));
@@ -2898,10 +3229,12 @@ function drawNWChart() {
       nw: (d.checking||0)+(d.savings||0)+(d.brokerage||0)+(d.k401||0)+(d.ira||0)+(d.hsa||0)+(d.otherassets||0)-(d.cc||0)-(d.studentloan||0)-(d.otherdebt||0)
     });
   }
+  points.forEach(p => { const f = realFactor(p.y, p.m);
+    if (f !== 1) ['checking','savings','ira','k401','brokerage','hsa','otherassets','debt','nw'].forEach(k => p[k] *= f); });
   const noD = document.getElementById('noChart');
   if (points.length < 2) { canvas.style.display='none'; noD.style.display='block'; return; }
   canvas.style.display='block'; noD.style.display='none';
-  document.getElementById('chartPeriod').textContent = points[0].l + ' → ' + points[points.length-1].l;
+  document.getElementById('chartPeriod').textContent = points[0].l + ' → ' + points[points.length-1].l + (dollarView === 'real' ? " · today's $" : '');
 
   const DPR = window.devicePixelRatio || 1;
   const W = parentWidth(canvas), H = 220;
@@ -3088,7 +3421,7 @@ function updatePlan() {
       `<td class="${cc(r.surplus)}">${fmt(r.surplus, true)}</td><td>${fmt(r.nw)}</td></tr>`).join('') + '</tbody>';
 
   const fireYrs = (inv, ctb, rate) => { let pf = inv, k = 0;
-    while (k < 80) { if (pf >= FIRE_CONFIG.fire*Math.pow(1.02,k)) return k; pf = pf*(1+rate)+ctb; k++; } return null; };
+    while (k < 80) { if (pf >= FIRE_CONFIG.fire*Math.pow(1 + FIRE_CONFIG.inflationRate,k)) return k; pf = pf*(1+rate)+ctb; k++; } return null; };
   const inv0 = d ? d.invested : 0;
   const bYrs = fireYrs(inv0, annualCtb(base.rows), FIRE_CONFIG.returnRate);
   const sRate = Math.max(0.001, (sc.returnPct === null ? FIRE_CONFIG.returnRate*100 : sc.returnPct)/100);
@@ -3172,9 +3505,9 @@ function monteCarlo() {
     for (let yr = 1; yr <= years; yr++) {
       for (let mo = 0; mo < 12; mo++) pf = pf*(1 + mMean + mVol*gauss()) + FIRE_CONFIG.annualContribution/12;
       byYear[yr].push(pf);
-      if (hit === null && pf >= FIRE_CONFIG.fire*Math.pow(1.02, yr)) hit = yr;
+      if (hit === null && pf >= FIRE_CONFIG.fire*Math.pow(1 + FIRE_CONFIG.inflationRate, yr)) hit = yr;
     }
-    if (byYear[Math.min(years, targetYr)][p] >= FIRE_CONFIG.fire*Math.pow(1.02, targetYr)) hits++;
+    if (byYear[Math.min(years, targetYr)][p] >= FIRE_CONFIG.fire*Math.pow(1 + FIRE_CONFIG.inflationRate, targetYr)) hits++;
     if (hit !== null) hitAges.push(getAge()+hit);
   }
   const q = (arr, p) => { const s2 = [...arr].sort((a,b) => a-b); return s2[Math.floor(p*(s2.length-1))]; };
@@ -3199,7 +3532,7 @@ function drawMCChart() {
   ctx.strokeStyle = '#5980a6'; ctx.lineWidth = 2; ctx.beginPath();
   bands.forEach((b, i) => i === 0 ? ctx.moveTo(tx(i), ty(b.p50)) : ctx.lineTo(tx(i), ty(b.p50))); ctx.stroke();
   ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.setLineDash([6,4]); ctx.beginPath();
-  bands.forEach((b, i) => { const v = FIRE_CONFIG.fire*Math.pow(1.02, i); i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
+  bands.forEach((b, i) => { const v = FIRE_CONFIG.fire*Math.pow(1 + FIRE_CONFIG.inflationRate, i); i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)); });
   ctx.stroke(); ctx.setLineDash([]);
   const goalIdx = Math.round(FIRE_CONFIG.retirementAge - getAge());
   if (goalIdx > 0 && goalIdx < n) {
@@ -3221,7 +3554,7 @@ function drawMCChart() {
   registerChart('mcChart', bands.map((b, i) => ({ x: tx(i), y: ty(b.p50), color:'#5980a6',
     label: `Age ${Math.round(getAge()+i)} · ${_now.getFullYear()+i}`,
     rows: [['Median (p50)', fmt(b.p50), '#5980a6'], ['Downside (p10)', fmt(b.p10), '#b0413a'],
-      ['Upside (p90)', fmt(b.p90), '#3f7a3f'], ['FIRE # then', fmt(FIRE_CONFIG.fire*Math.pow(1.02, i))]] })),
+      ['Upside (p90)', fmt(b.p90), '#3f7a3f'], ['FIRE # then', fmt(FIRE_CONFIG.fire*Math.pow(1 + FIRE_CONFIG.inflationRate, i))]] })),
     () => drawMCChart());
 }
 
@@ -3316,7 +3649,7 @@ function showSection(id) {
   if (id === 'trends') updateTrends();
   if (id === 'fire') { const d2 = compute(get(curYear, curMonth)); if (d2) drawFireProjectionChart(d2.invested); }
   if (id === 'pnl') { drawSankey(); drawWaterfallChart(); }
-  if (id === 'spending') { drawCatTrendChart(); drawSpendHeatmap(); }
+  if (id === 'spending') { drawCatTrendChart(); drawSpendHeatmap(); drawEssChart(); }
 }
 
 // ── POPUP ─────────────────────────────────────────────────
@@ -3369,6 +3702,11 @@ function populateFireInputs() {
   document.getElementById('fc-fire').value = FIRE_CONFIG.fire.toLocaleString();
   document.getElementById('fc-fat').value = FIRE_CONFIG.fatFire.toLocaleString();
   document.getElementById('fc-coastage').value = FIRE_CONFIG.coastAge || 55;
+  document.getElementById('fc-infl').value = (FIRE_CONFIG.inflationRate * 100).toFixed(1);
+  document.getElementById('fc-health').value = (FIRE_CONFIG.healthcarePre65 || 0).toLocaleString();
+  document.getElementById('fc-iraroth').value = FIRE_CONFIG.iraRothPct;
+  document.getElementById('fc-k401roth').value = FIRE_CONFIG.k401RothPct;
+  document.getElementById('fc-rothbasis').value = (FIRE_CONFIG.rothBasisPrior || 0).toLocaleString();
 }
 
 function applyFireSettings() {
@@ -3385,6 +3723,13 @@ function applyFireSettings() {
   FIRE_CONFIG.fire = noComma('fc-fire') || FIRE_CONFIG.fire;
   FIRE_CONFIG.fatFire = noComma('fc-fat') || FIRE_CONFIG.fatFire;
   FIRE_CONFIG.coastAge = parseFloat(document.getElementById('fc-coastage').value) || 55;
+  const numOr = (id, dflt) => { const v = parseFloat(String(document.getElementById(id).value).replace(/,/g, '')); return isNaN(v) ? dflt : v; };
+  const clampPct = v => Math.min(100, Math.max(0, v));
+  FIRE_CONFIG.inflationRate = numOr('fc-infl', FIRE_CONFIG.inflationRate * 100) / 100;
+  FIRE_CONFIG.healthcarePre65 = Math.max(0, numOr('fc-health', FIRE_CONFIG.healthcarePre65));
+  FIRE_CONFIG.iraRothPct = clampPct(numOr('fc-iraroth', FIRE_CONFIG.iraRothPct));
+  FIRE_CONFIG.k401RothPct = clampPct(numOr('fc-k401roth', FIRE_CONFIG.k401RothPct));
+  FIRE_CONFIG.rothBasisPrior = Math.max(0, numOr('fc-rothbasis', FIRE_CONFIG.rothBasisPrior));
 
   // Recalculate derived values
   const n = FIRE_CONFIG.coastAge - getAge();
@@ -3456,7 +3801,7 @@ function drawIncSpendChart(points) {
   const s = setupCanvas('incSpendChart', 170); if (!s || points.length < 2) return;
   const { ctx, W, H } = s;
   const pL = 58, pR = 12, pT = 8, pB = 44, cW = W - pL - pR, cH = H - pT - pB;
-  const incV = points.map(p => p.inc), spV = points.map(p => p.spend);
+  const incV = points.map(p => p.inc * realFactor(p.y, p.m)), spV = points.map(p => p.spend * realFactor(p.y, p.m));
   const all = [...incV, ...spV];
   const rawMax = Math.max(...all), rawMin = Math.min(0, ...all), range = rawMax - rawMin;
   const step = niceStep(range * 1.08, 5);
@@ -3480,6 +3825,56 @@ function drawIncSpendChart(points) {
     ctx.beginPath(); ctx.moveTo(lx, lY - 3); ctx.lineTo(lx + 12, lY - 3); ctx.stroke();
     ctx.fillStyle = '#8a8a96'; ctx.fillText(l, lx + 14, lY);
   });
+}
+
+// ── ESSENTIALS VS DISCRETIONARY ──────────────────────────
+function setEssWindow(n) {
+  essWindow = n; segOn('essWindowToggle', 'n', n);
+  const t = document.getElementById('essTitle'); if (t) t.textContent = `Essentials vs. Discretionary — Trailing ${n} Months`;
+  drawEssChart();
+}
+function drawEssChart() {
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const disc = CATS.filter(c => !ESSENTIAL_CATS.includes(c));
+  const pts = monthsBack(essWindow).map(({y, m}) => { const d = get(y, m); if (!d) return null;
+    const sum = cats => cats.reduce((a, c) => a + (d.spending?.[c]||0), 0);
+    return { y, m, label: MONTHS[m] + "'" + String(y).slice(2), ess: sum(ESSENTIAL_CATS), disc: sum(disc) }; }).filter(Boolean);
+  set('ess-cats', `Essentials: ${ESSENTIAL_CATS.join(', ')} · Discretionary: ${disc.join(', ')}`);
+  if (!pts.length) { ['ess-ess','ess-disc','ess-share','ess-floor'].forEach(id => set(id, '—')); return; }
+  const n = pts.length, avgE = pts.reduce((a, p) => a + p.ess, 0)/n, avgD = pts.reduce((a, p) => a + p.disc, 0)/n;
+  const share = avgE + avgD > 0 ? avgD/(avgE + avgD) : 0, wr = FIRE_CONFIG.withdrawalRate;
+  const half = Math.floor(n/2), early = pts.slice(0, half), late = pts.slice(half);
+  const avgOf = (arr, k) => arr.length ? arr.reduce((a, p) => a + p[k], 0)/arr.length : 0;
+  const trend = (k) => { if (half < 2) return ''; const a = avgOf(early, k), b = avgOf(late, k);
+    if (a <= 0) return ''; const ch = Math.round((b-a)/a*100);
+    return ch === 0 ? 'flat vs earlier half' : `${ch > 0 ? '+' : ''}${ch}% recent vs earlier half`; };
+  set('ess-ess', fmt(avgE)); set('ess-ess-sub', trend('ess') || `${fmt(avgE*12)}/yr`);
+  set('ess-disc', fmt(avgD)); set('ess-disc-sub', trend('disc') || `${fmt(avgD*12)}/yr`);
+  set('ess-share', pct(share, 0)); set('ess-share-sub', `${fmt(avgD*12)}/yr you could flex`);
+  set('ess-floor', wr > 0 ? fmt(avgE*12/wr) : '—'); set('ess-floor-sub', `${fmt(avgE*12)}/yr ÷ ${(wr*100).toFixed(1)}% · your bare-bones FI floor`);
+
+  const s = setupCanvas('essChart', 170); if (!s) return;
+  const { ctx, W, H } = s;
+  const pL = 58, pR = 12, pT = 8, pB = 44, cW = W - pL - pR, cH = H - pT - pB;
+  const maxT = Math.max(...pts.map(p => p.ess + p.disc), 1), step = niceStep(maxT*1.08, 5);
+  const ty = drawGrid(ctx, pL, pT, cW, cH, 0, Math.ceil(maxT*1.08/step)*step, step, false);
+  const bW = Math.max(3, cW/n*0.62), bX = i => pL + (i + 0.5)*(cW/n) - bW/2;
+  const CE = '#5980a6', CD = '#b0705a';
+  pts.forEach((p, i) => {
+    ctx.fillStyle = CE; ctx.fillRect(bX(i), ty(p.ess), bW, ty(0) - ty(p.ess));
+    ctx.fillStyle = CD; ctx.fillRect(bX(i), ty(p.ess + p.disc), bW, ty(p.ess) - ty(p.ess + p.disc));
+  });
+  ctx.strokeStyle = 'rgba(89,128,166,0.6)'; ctx.setLineDash([4,3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pL, ty(avgE)); ctx.lineTo(pL + cW, ty(avgE)); ctx.stroke(); ctx.setLineDash([]);
+  drawXAxisLabels(ctx, pts.map(p => p.label), pT, cH, i => bX(i) + bW/2);
+  ctx.font = '8px DM Mono,monospace'; ctx.textAlign = 'left';
+  [[CE, 'Essentials'], [CD, 'Discretionary']].forEach(([c, l], i) => {
+    const lx = pL + i*100; ctx.fillStyle = c; ctx.fillRect(lx, H - 10, 10, 7);
+    ctx.fillStyle = '#8a8a96'; ctx.fillText(l, lx + 14, H - 4); });
+  ctx.fillStyle = '#8a8a96'; ctx.fillText('- - avg essentials', pL + 210, H - 4);
+  registerChart('essChart', pts.map((p, i) => ({ x: bX(i) + bW/2, y: ty(p.ess + p.disc), color: CD, label: p.label, jump: { y: p.y, m: p.m },
+    rows: [['Essentials', fmt(p.ess), CE], ['Discretionary', fmt(p.disc), CD], ['Total', fmt(p.ess + p.disc)],
+      ['Discretionary share', pct(p.ess + p.disc > 0 ? p.disc/(p.ess + p.disc) : 0, 0)]] })), () => drawEssChart());
 }
 
 function drawSavRateChart(points) {

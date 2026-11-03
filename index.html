@@ -1706,7 +1706,13 @@ async function handlePayStubs(rawFiles) {
 
   try {
     // Parse all stubs in parallel
-    const results = await Promise.all(Array.from(files).map(parseStub));
+    // Parse all stubs in parallel, but name any file that fails rather than failing the batch anonymously
+    const settled = await Promise.allSettled(files.map(parseStub));
+    const bad = settled.map((s, i) => s.status === 'rejected' ? { name: files[i].name, err: s.reason } : null).filter(Boolean);
+    if (bad.length) throw bad.length === files.length && files.length > 1
+      ? new Error(`all ${files.length} files failed — ${bad[0].err.message}`)
+      : new Error(bad.map(b => `"${b.name}" — ${b.err.message}`).join('; ') + (files.length > 1 ? `. The other ${files.length - bad.length} parsed fine; upload them without that file, or fix it and retry all ${files.length}` : ''));
+    const results = settled.map(s => s.value);
 
     // Auto-switch to the detected month (use first stub's date)
     let detectedLabel = '';

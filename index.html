@@ -1409,15 +1409,24 @@ function setSyncStatus(state, label) {
 
 // ── SHEETS API ──────────────────────────────────────────
 // Every call carries API_TOKEN; the Apps Script rejects requests without it.
+// Google answers with an HTML error page (not JSON) when the script itself fails, e.g. a missing permission
+async function readJson(res) {
+  const txt = await res.text();
+  try { return JSON.parse(txt); }
+  catch(e) {
+    if (/permission|authoriz/i.test(txt)) throw new Error('the Apps Script needs your permission to contact Anthropic — open the script, choose doGet in the function menu, click Run, and allow access');
+    throw new Error('the Apps Script hit an error — open it and check Executions for details');
+  }
+}
 async function apiGet(action) {
   const res = await fetch(`${SCRIPT_URL}?action=${action}&token=${encodeURIComponent(API_TOKEN)}`);
-  const j = await res.json();
+  const j = await readJson(res);
   if (j.error === 'unauthorized') authFailed();
   return j;
 }
 async function apiPost(body) {
   const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ ...body, token: API_TOKEN }) });
-  const j = await res.json();
+  const j = await readJson(res);
   if (j.error === 'unauthorized') authFailed();
   return j;
 }

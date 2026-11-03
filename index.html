@@ -1768,6 +1768,8 @@ async function handlePayStubs(rawFiles) {
   } catch(e) {
     statusEl.textContent = 'Failed';
     statusEl.style.color = 'var(--red)';
+    // A crashed Apps Script answers with an error page the browser may not read, which surfaces as "Failed to fetch"
+    if (/failed to fetch|load failed|networkerror/i.test(e.message)) e = new Error('the Apps Script stopped with an error before replying. Open the script, click Executions in the left menu, and open the latest failed doPost for the reason');
     // Keep the reason on screen; the toast alone vanishes before it can be read
     resultEl.innerHTML = `<span style="color:var(--red)">Why it failed: ${String(e.message).replace(/</g, '&lt;')}</span>`;
     resultEl.style.display = 'block';

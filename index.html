@@ -1768,6 +1768,9 @@ async function handlePayStubs(rawFiles) {
   } catch(e) {
     statusEl.textContent = 'Failed';
     statusEl.style.color = 'var(--red)';
+    // Keep the reason on screen; the toast alone vanishes before it can be read
+    resultEl.innerHTML = `<span style="color:var(--red)">Why it failed: ${String(e.message).replace(/</g, '&lt;')}</span>`;
+    resultEl.style.display = 'block';
     showToast('Parse error: ' + e.message, 'err');
   }
 }
